@@ -34,4 +34,16 @@ Rails.application.configure do
 
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
+
+  # Allow Cross-Origin Resource Sharing header to allow cross
+  # domain xhr requests.
+  config.middleware.insert_before "ActionDispatch::Static", Rack::Cors do
+    allow do
+      origins '*'
+      resource '*',
+      :headers => :any,
+      :methods => [:get, :delete, :post, :put, :options]
+    end
+  end
+
 end

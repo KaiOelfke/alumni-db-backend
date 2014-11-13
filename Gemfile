@@ -10,6 +10,8 @@ gem 'rack-cors', :require => 'rack/cors'
 
 gem 'pg'
 
+gem 'dotenv-rails'
+
 
 
 # To use ActiveModel has_secure_password

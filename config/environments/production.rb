@@ -75,4 +75,16 @@ Rails.application.configure do
 
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
+
+  # Allow Cross-Origin Resource Sharing header to allow cross
+  # domain xhr requests.
+  config.middleware.insert_before "ActionDispatch::Static", Rack::Cors do
+    allow do
+      origins ENV['WEB_CLIENT']
+      resource '*',
+      :headers => :any,
+      :methods => [:get, :delete, :post, :put, :options]
+    end
+  end
+
 end
