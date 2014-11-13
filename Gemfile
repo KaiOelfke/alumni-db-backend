@@ -12,6 +12,7 @@ gem 'pg'
 
 gem 'dotenv-rails'
 
+gem 'rails_12factor', group: :production
 
 
 # To use ActiveModel has_secure_password
