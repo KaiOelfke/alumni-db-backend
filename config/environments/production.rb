@@ -87,4 +87,8 @@ Rails.application.configure do
     end
   end
 
+  config.action_mailer.default_url_options =
+  { host: ENV['BACKEND_PRODUCTION_HOST'], port: 80 }
+
+
 end

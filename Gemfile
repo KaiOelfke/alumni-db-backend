@@ -11,3 +11,5 @@ gem 'rack-cors', :require => 'rack/cors'
 gem 'pg'
 
 gem 'dotenv-rails'
+
+gem 'devise'
