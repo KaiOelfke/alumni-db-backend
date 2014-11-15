@@ -37,7 +37,7 @@ Rails.application.configure do
 
   # Allow Cross-Origin Resource Sharing header to allow cross
   # domain xhr requests.
-  config.middleware.insert_before "ActionDispatch::Static", Rack::Cors do
+  config.middleware.use Rack::Cors do
     allow do
       origins '*'
       resource '*',
