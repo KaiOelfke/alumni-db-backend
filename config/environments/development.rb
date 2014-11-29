@@ -41,10 +41,12 @@ Rails.application.configure do
     allow do
       origins '*'
       resource '*',
-      :headers => :any,
-      :methods => [:get, :delete, :post, :put, :options]
+        :headers => :any,
+        :expose  => ['access-token', 'expiry', 'token-type', 'uid', 'client'],
+        :methods => [:get, :post, :options, :delete, :put]
     end
   end
+  
 
   config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }
 

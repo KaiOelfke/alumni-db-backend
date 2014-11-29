@@ -12,4 +12,7 @@ gem 'pg'
 
 gem 'dotenv-rails'
 
-gem 'devise'
+gem 'devise_token_auth'
+
+gem 'omniauth'
+

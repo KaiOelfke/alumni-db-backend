@@ -1,6 +1,5 @@
 Rails.application.routes.draw do
-  devise_for :users,  controllers: {sessions: 'users/sessions'}
-  resources :users, except: [:new, :edit]
+  mount_devise_token_auth_for 'User', at: '/auth'
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
