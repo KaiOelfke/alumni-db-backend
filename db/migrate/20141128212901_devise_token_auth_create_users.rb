@@ -32,7 +32,7 @@ class DeviseTokenAuthCreateUsers < ActiveRecord::Migration
 
       ## User Info
       t.string :name
-      t.string :nickname
+      t.string :username
       t.string :image
 
       ## unique oauth id
