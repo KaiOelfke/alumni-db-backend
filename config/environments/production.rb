@@ -83,7 +83,8 @@ Rails.application.configure do
       origins ENV['WEB_CLIENT']
       resource '*',
       :headers => :any,
-      :methods => [:get, :delete, :post, :put, :options]
+      :expose  => ['access-token', 'expiry', 'token-type', 'uid', 'client'],
+      :methods => [:get, :post, :options, :delete, :put]
     end
   end
 
