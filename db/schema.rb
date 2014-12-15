@@ -11,18 +11,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141128212901) do
+ActiveRecord::Schema.define(version: 20141214132501) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "users", force: true do |t|
-    t.string   "email"
-    t.string   "encrypted_password",     default: "", null: false
+    t.string   "email",                                 null: false
+    t.string   "encrypted_password",       default: "", null: false
     t.string   "reset_password_token"
     t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"
-    t.integer  "sign_in_count",          default: 0,  null: false
+    t.integer  "sign_in_count",            default: 0,  null: false
     t.datetime "current_sign_in_at"
     t.datetime "last_sign_in_at"
     t.string   "current_sign_in_ip"
@@ -31,11 +31,19 @@ ActiveRecord::Schema.define(version: 20141128212901) do
     t.datetime "confirmed_at"
     t.datetime "confirmation_sent_at"
     t.string   "unconfirmed_email"
-    t.string   "name"
-    t.string   "username"
-    t.string   "image"
+    t.string   "first_name"
+    t.string   "last_name"
+    t.string   "country"
+    t.string   "city"
+    t.datetime "date_of_birth"
+    t.integer  "gender",                   default: 0
+    t.integer  "program_type",             default: 0
+    t.string   "institution"
+    t.datetime "year_of_participation"
+    t.string   "country_of_participation"
+    t.string   "student_company_name"
     t.string   "provider"
-    t.string   "uid",                    default: "", null: false
+    t.string   "uid",                      default: "", null: false
     t.text     "tokens"
     t.datetime "created_at"
     t.datetime "updated_at"

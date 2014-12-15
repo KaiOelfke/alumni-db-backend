@@ -1,8 +1,8 @@
-class DeviseTokenAuthCreateUsers < ActiveRecord::Migration
+class CreateUsers < ActiveRecord::Migration
   def change
     create_table(:users) do |t|
       ## Database authenticatable
-      t.string :email
+      t.string :email, :null => false
       t.string :encrypted_password, :null => false, :default => ""
 
       ## Recoverable
@@ -30,10 +30,21 @@ class DeviseTokenAuthCreateUsers < ActiveRecord::Migration
       # t.string   :unlock_token # Only if unlock strategy is :email or :both
       # t.datetime :locked_at
 
-      ## User Info
-      t.string :name
-      t.string :username
-      t.string :image
+      ## Personal data
+      t.string :first_name
+      t.string :last_name
+      t.string :country
+      t.string :city
+      t.datetime :date_of_birth
+      t.integer :gender, :default => 0
+
+      ## JA-YE Data
+      t.integer :program_type, :default => 0
+      t.string :institution
+      t.datetime :year_of_participation
+      t.string :country_of_participation
+      t.string :student_company_name
+
 
       ## unique oauth id
       t.string :provider

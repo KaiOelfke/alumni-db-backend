@@ -10,7 +10,17 @@ class ApplicationController < ActionController::API
     protected
 
     def configure_permitted_parameters
-        devise_parameter_sanitizer.for(:sign_up) << :username
+        devise_parameter_sanitizer.for(:account_update) << [:first_name, 
+                                                            :last_name,
+                                                            :country,
+                                                            :city,
+                                                            :date_of_birth,
+                                                            :gender,
+                                                            :program_type,
+                                                            :institution,
+                                                            :year_of_participation,
+                                                            :country_of_participation,
+                                                            :student_company_name]
     end
 end
 
