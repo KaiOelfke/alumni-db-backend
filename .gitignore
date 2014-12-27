@@ -31,3 +31,6 @@ config/initializers/secret_token.rb
 bower.json
 
 .DS_Store
+
+#Sublime settings for e.g. tab size
+.sublime-project
