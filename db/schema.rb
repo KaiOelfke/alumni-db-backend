@@ -39,7 +39,7 @@ ActiveRecord::Schema.define(version: 20141214132501) do
     t.integer  "gender",                   default: 0
     t.integer  "program_type",             default: 0
     t.string   "institution"
-    t.datetime "year_of_participation"
+    t.integer  "year_of_participation"
     t.string   "country_of_participation"
     t.string   "student_company_name"
     t.string   "provider"
