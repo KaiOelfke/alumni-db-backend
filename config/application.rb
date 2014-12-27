@@ -20,5 +20,9 @@ module AlumniDbBackend
     # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}').to_s]
     # config.i18n.default_locale = :de
 
+    config.member_countries = ['BG','DK','EE','DE','SE','CH','IT','LT','PT','FI','ES','NO','AT','RS','CZ','BE','GR','NL','MT','SK','FR','LU','PL']
+
   end
 end
+
+
