@@ -1,6 +1,9 @@
 class User < ActiveRecord::Base
   include DeviseTokenAuth::Concerns::User
-  before_create :skip_confirmation!
+
+  has_and_belongs_to_many :statuses, :join_table => 'users_statuses'
+
+  #before_create :skip_confirmation!
 
   validates :first_name,
             :last_name,
@@ -13,19 +16,18 @@ class User < ActiveRecord::Base
             :year_of_participation,
             :country_of_participation,
             :student_company_name,
-            presence: true, on: :update
+            presence: true, on: :update, if: :profile_completed?
 
   # male = 0, female = 1
-  validates :gender, inclusion: { in: [0, 1], message: "%(value) is not valid."}, on: :update
+  validates :gender, inclusion: { in: [0, 1], message: "%(value) is not valid."}, on: :update, if: :profile_completed?
   # company = 0, startup = 1, other = 2
-  validates :program_type, inclusion: { in: [0, 1, 2], message: "%(value) is not valid."}, on: :update
+  validates :program_type, inclusion: { in: [0, 1, 2], message: "%(value) is not valid."}, on: :update, if: :profile_completed?
 
-  validates :year_of_participation, numericality: {only_integer: true}, on: :update
-  validate :reasonable_year_of_participation, on: :update
+  validates :year_of_participation, numericality: {only_integer: true}, on: :update, if: :profile_completed?
+  validate :reasonable_year_of_participation, on: :update , if: :profile_completed?
 
-  validate :reasonable_date_of_birth, on: :update
-  validate :reasonable_country_of_participation, on: :update
-
+  validate :reasonable_date_of_birth, on: :update, if: :profile_completed?
+  validate :reasonable_country_of_participation, on: :update, if: :profile_completed?
 
   def reasonable_year_of_participation
     if !year_of_participation.is_a? Integer ||  year_of_participation < 1900 || year_of_participation > Date.today.year
@@ -53,6 +55,14 @@ class User < ActiveRecord::Base
 
   def email_changed?
     true
+  end
+
+  def after_confirmation
+    self.statuses << Status.email_confirmed.first
+  end
+
+  def profile_completed?
+    self.statuses.include?(Status.profile_completed.first)
   end
 
 end
