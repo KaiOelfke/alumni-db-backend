@@ -1,60 +1,97 @@
-class Users::RegistrationsController < Devise::RegistrationsController
-# before_filter :configure_sign_up_params, only: [:create]
-# before_filter :configure_account_update_params, only: [:update]
+class Users::RegistrationsController < DeviseTokenAuth::RegistrationsController
 
-  # GET /resource/sign_up
-  # def new
-  #   super
-  # end
+  def create
+    @resource            = resource_class.new(sign_up_params)
+    @resource.uid        = sign_up_params[:email]
+    @resource.provider   = "email"
+    @resource.statuses   = Status.registered
 
-  # POST /resource
-  # def create
-  #   super
-  # end
+    # success redirect url is required
+    unless params[:confirm_success_url]
+      return render json: {
+        status: 'error',
+        data:   @resource,
+        errors: ["Missing `confirm_success_url` param."]
+      }, status: 403
+    end
 
-  # GET /resource/edit
-  # def edit
-  #   super
-  # end
+    begin
+      # override email confirmation, must be sent manually from ctrl
+      User.skip_callback("create", :after, :send_on_create_confirmation_instructions)
+      if @resource.save
 
-  # PUT /resource
-  # def update
-  #   super
-  # end
+        # user will require email authentication
+        @resource.send_confirmation_instructions({
+          client_config: params[:config_name],
+          redirect_url: params[:confirm_success_url]
+        })
 
-  # DELETE /resource
-  # def destroy
-  #   super
-  # end
+        # email auth has been bypassed, authenticate user
+        @client_id = SecureRandom.urlsafe_base64(nil, false)
+        @token     = SecureRandom.urlsafe_base64(nil, false)
 
-  # GET /resource/cancel
-  # Forces the session data which is usually expired after sign
-  # in to be expired now. This is useful if the user wants to
-  # cancel oauth signing in/up in the middle of the process,
-  # removing all OAuth session data.
-  # def cancel
-  #   super
-  # end
+        @resource.tokens[@client_id] = {
+          token: BCrypt::Password.create(@token),
+          expiry: (Time.now + DeviseTokenAuth.token_lifespan).to_i
+        }
 
-  # protected
+        @resource.save!
 
-  # You can put the params you want to permit in the empty array.
-  # def configure_sign_up_params
-  #   devise_parameter_sanitizer.for(:sign_up) << :attribute
-  # end
+        update_auth_header
 
-  # You can put the params you want to permit in the empty array.
-  # def configure_account_update_params
-  #   devise_parameter_sanitizer.for(:account_update) << :attribute
-  # end
+        render json: {
+          status: 'success',
+          data:   @resource.as_json(include: {statuses: {only: :kind}})
+        }
+      else
+        clean_up_passwords @resource
+        render json: {
+          status: 'error',
+          data:   @resource,
+          errors: @resource.errors.to_hash.merge(full_messages: @resource.errors.full_messages)
+        }, status: 403
+      end
+    rescue ActiveRecord::RecordNotUnique
+      clean_up_passwords @resource
+      render json: {
+        status: 'error',
+        data:   @resource,
+        errors: ["An account already exists for #{@resource.email}"]
+      }, status: 403
+    end
+  end
 
-  # The path used after sign up.
-  # def after_sign_up_path_for(resource)
-  #   super(resource)
-  # end
+  def update
+    # if @resource
+    #   if @resource.update_attributes(account_update_params)
+    #     render json: {
+    #       status: 'success',
+    #       data:   @resource.as_json(include: {statuses: {only: :kind}})
+    #     }
+    #   else
+    #     render json: {
+    #       status: 'error',
+    #       errors: @resource.errors
+    #     }, status: 403
+    #   end
+    # else
+    #   render json: {
+    #     status: 'error',
+    #     errors: ["User not found."]
+    #   }, status: 404
+    # end
+  end
 
-  # The path used after sign up for inactive accounts.
-  # def after_inactive_sign_up_path_for(resource)
-  #   super(resource)
-  # end
+  def destroy
+    super
+  end
+
+  def sign_up_params
+    params.permit(devise_parameter_sanitizer.for(:sign_up))
+  end
+
+  def account_update_params
+    params.permit(devise_parameter_sanitizer.for(:account_update))
+  end
+
 end

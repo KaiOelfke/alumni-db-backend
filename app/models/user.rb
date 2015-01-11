@@ -1,3 +1,4 @@
+require 'date'
 class User < ActiveRecord::Base
   include DeviseTokenAuth::Concerns::User
 
@@ -24,10 +25,12 @@ class User < ActiveRecord::Base
   validates :program_type, inclusion: { in: [0, 1, 2], message: "%(value) is not valid."}, on: :update, if: :profile_completed?
 
   validates :year_of_participation, numericality: {only_integer: true}, on: :update, if: :profile_completed?
-  validate :reasonable_year_of_participation, on: :update , if: :profile_completed?
+  validate :reasonable_year_of_participation , on: :update, if: :profile_completed?
 
   validate :reasonable_date_of_birth, on: :update, if: :profile_completed?
   validate :reasonable_country_of_participation, on: :update, if: :profile_completed?
+
+
 
   def reasonable_year_of_participation
     if !year_of_participation.is_a? Integer ||  year_of_participation < 1900 || year_of_participation > Date.today.year
@@ -36,7 +39,7 @@ class User < ActiveRecord::Base
   end
 
   def reasonable_date_of_birth
-    if !date_of_birth.is_a? Date ||  date_of_birth < Date.parse('01.01.1900') || date_of_birth > Date.today.year
+    if !date_of_birth.is_a? Date ||  date_of_birth < Date.parse('01.01.1900') || date_of_birth.year > Date.today.year
       errors.add(:date_of_birth, "is not valid")
     end
   end
@@ -54,7 +57,7 @@ class User < ActiveRecord::Base
   end
 
   def email_changed?
-    true
+    attribute_changed?(:email)
   end
 
   def after_confirmation

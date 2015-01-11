@@ -1,6 +1,14 @@
 Rails.application.routes.draw do
-  mount_devise_token_auth_for 'User', at: '/auth'
+
+  mount_devise_token_auth_for 'User', at: '/auth', controllers: {
+    token_validations:  'users/token_validations',
+    registrations:  'users/registrations',
+    sessions:  'users/sessions'    
+  }
+
   resources :users, only: [:show,:index]
+
+  put 'users', to: 'users#update'
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

@@ -35,7 +35,7 @@ class CreateUsers < ActiveRecord::Migration
       t.string :last_name
       t.string :country
       t.string :city
-      t.datetime :date_of_birth
+      t.date :date_of_birth
       t.integer :gender, :default => 0
 
       ## JA-YE Data
