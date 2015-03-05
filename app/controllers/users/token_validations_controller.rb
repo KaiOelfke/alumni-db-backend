@@ -4,7 +4,7 @@ class Users::TokenValidationsController < DeviseTokenAuth::TokenValidationsContr
 
     if @resource
       render json: {
-        data: @resource.as_json(include: {statuses: {only: :kind}})
+        data: @resource.as_json()
       }
     else
       render json: {

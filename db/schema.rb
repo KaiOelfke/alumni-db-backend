@@ -11,16 +11,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141228154921) do
+ActiveRecord::Schema.define(version: 20141214132501) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
-
-  create_table "statuses", force: true do |t|
-    t.integer  "kind"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
 
   create_table "users", force: true do |t|
     t.string   "email",                                 null: false
@@ -51,6 +45,9 @@ ActiveRecord::Schema.define(version: 20141228154921) do
     t.string   "provider"
     t.string   "uid",                      default: "", null: false
     t.text     "tokens"
+    t.boolean  "registered"
+    t.boolean  "confirmed_email"
+    t.boolean  "completed_profile"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -59,13 +56,5 @@ ActiveRecord::Schema.define(version: 20141228154921) do
   add_index "users", ["email"], name: "index_users_on_email", using: :btree
   add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
   add_index "users", ["uid"], name: "index_users_on_uid", unique: true, using: :btree
-
-  create_table "users_statuses", id: false, force: true do |t|
-    t.integer "user_id"
-    t.integer "status_id"
-  end
-
-  add_index "users_statuses", ["status_id"], name: "index_users_statuses_on_status_id", using: :btree
-  add_index "users_statuses", ["user_id"], name: "index_users_statuses_on_user_id", using: :btree
 
 end

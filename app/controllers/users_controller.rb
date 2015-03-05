@@ -20,32 +20,29 @@ class UsersController < ApplicationController
 
   def update
     @resource = current_user
-     if @resource
+      if @resource
 
-        profileCompleted = Status.profile_completed.first
+        unless (@resource.completed_profile)
 
-        unless (@resource.statuses.include? (profileCompleted))
-          
-          @resource.statuses << profileCompleted
-
+          @resource.completed_profile = true
           @resource.assign_attributes(account_update_params)
 
           unless @resource.valid?
 
-            @resource.statuses.delete(profileCompleted)
+            @resource.completed_profile = false
             render json: {
               status: 'error',
               errors: @resource.errors
             }, status: 403
 
-            return        
+            return
           end
         end
 
         if @resource.update(account_update_params)
           render json: {
             status: 'success',
-            data:   @resource.as_json(include: {statuses: {only: :kind}})
+            data:   @resource.as_json()
           }
         else
           render json: {

@@ -4,7 +4,9 @@ class Users::RegistrationsController < DeviseTokenAuth::RegistrationsController
     @resource            = resource_class.new(sign_up_params)
     @resource.uid        = sign_up_params[:email]
     @resource.provider   = "email"
-    @resource.statuses   = Status.registered
+    @resource.registered = true
+    @resource.confirmed_email = false
+    @resource.completed_profile = false
 
     # success redirect url is required
     unless params[:confirm_success_url]
@@ -41,7 +43,7 @@ class Users::RegistrationsController < DeviseTokenAuth::RegistrationsController
 
         render json: {
           status: 'success',
-          data:   @resource.as_json(include: {statuses: {only: :kind}})
+          data:   @resource.as_json()
         }
       else
         clean_up_passwords @resource

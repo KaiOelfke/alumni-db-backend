@@ -2,8 +2,6 @@ require 'date'
 class User < ActiveRecord::Base
   include DeviseTokenAuth::Concerns::User
 
-  has_and_belongs_to_many :statuses, :join_table => 'users_statuses'
-
   #before_create :skip_confirmation!
 
   validates :first_name,
@@ -61,11 +59,12 @@ class User < ActiveRecord::Base
   end
 
   def after_confirmation
-    self.statuses << Status.email_confirmed.first
+    self.confirmed_email = true
+    self.save
   end
 
   def profile_completed?
-    self.statuses.include?(Status.profile_completed.first)
+    self.completed_profile
   end
 
 end

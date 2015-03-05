@@ -53,6 +53,12 @@ class CreateUsers < ActiveRecord::Migration
       ## Tokens
       t.text :tokens
 
+      ## Role management
+
+      t.boolean :registered
+      t.boolean :confirmed_email
+      t.boolean :completed_profile
+
       t.timestamps
     end
 

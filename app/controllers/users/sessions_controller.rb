@@ -32,12 +32,9 @@ class Users::SessionsController < DeviseTokenAuth::SessionsController
       @resource.skip_confirmation!
 
       sign_in(:user, @resource, store: false, bypass: false)
-          
+
       render json: {
-        data: @resource.as_json(
-          include: {statuses: {only: :kind}},
-          except: [:tokens, :created_at, :updated_at
-        ])
+        data: @resource.as_json(except: [:tokens, :created_at, :updated_at])
       }
 
     else
