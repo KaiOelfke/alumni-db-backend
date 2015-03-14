@@ -20,7 +20,8 @@ class ApplicationController < ActionController::API
                                                             :institution,
                                                             :year_of_participation,
                                                             :country_of_participation,
-                                                            :student_company_name]
+                                                            :student_company_name,
+                                                            :avatar]
     end
 end
 

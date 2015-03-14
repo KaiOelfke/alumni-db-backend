@@ -19,3 +19,9 @@ gem 'omniauth'
 gem 'countries'
 
 gem 'pundit'
+
+gem 'carrierwave'
+
+gem "fog"
+
+gem "fog-aws"

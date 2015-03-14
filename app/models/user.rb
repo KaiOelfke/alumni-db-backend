@@ -1,6 +1,7 @@
 require 'date'
 class User < ActiveRecord::Base
   include DeviseTokenAuth::Concerns::User
+  mount_uploader :avatar, AvatarUploader
 
   #before_create :skip_confirmation!
 
