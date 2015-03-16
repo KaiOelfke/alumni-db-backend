@@ -44,6 +44,12 @@ class User < ActiveRecord::Base
             allow_nil: true,
             length: {minimum: 1, maximum: 100}
 
+  validates :short_bio,
+            on: :update,
+            allow_blank: true,
+            allow_nil: true,
+            length: {maximum: 160}
+
   validate :reasonable_member
 
   def reasonable_member

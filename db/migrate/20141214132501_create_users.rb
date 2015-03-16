@@ -52,9 +52,10 @@ class CreateUsers < ActiveRecord::Migration
       t.string :current_company_name
       t.string :current_job_position
       t.string :interests
+      t.string :short_bio
 
       ## Alumni
-      t.boolean :active_member
+      #t.boolean :active_member
       t.string :alumni_position ##Position in network e.g. regional coordinator
       t.date :member_since
       ##t.boolean? :subscibed_newsletter
