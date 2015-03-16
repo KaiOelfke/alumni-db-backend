@@ -45,6 +45,27 @@ class CreateUsers < ActiveRecord::Migration
       t.string :country_of_participation
       t.string :student_company_name
 
+      ## Optional personal info
+      t.string :university_name
+      t.string :university_major
+      t.string :founded_company_name
+      t.string :current_company_name
+      t.string :current_job_position
+      t.string :interests
+      t.string :short_bio
+
+      ## Alumni
+      #t.boolean :active_member
+      t.string :alumni_position ##Position in network e.g. regional coordinator
+      t.date :member_since
+      ##t.boolean? :subscibed_newsletter
+
+      ##Contact data
+      t.string :facebook_url
+      t.string :skype_id
+      t.string :twitter_url
+      t.string :linkedin_url
+      t.string :mobile_phone
 
       ## unique oauth id
       t.string :provider

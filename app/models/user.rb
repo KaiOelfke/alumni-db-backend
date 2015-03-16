@@ -1,4 +1,5 @@
 require 'date'
+require 'uri'
 class User < ActiveRecord::Base
   include DeviseTokenAuth::Concerns::User
   mount_uploader :avatar, AvatarUploader
@@ -29,7 +30,33 @@ class User < ActiveRecord::Base
   validate :reasonable_date_of_birth, on: :update, if: :profile_completed?
   validate :reasonable_country_of_participation, on: :update, if: :profile_completed?
 
+  validate :valid_urls
 
+  validates :skype_id,
+            :mobile_phone,
+            :university_name,
+            :university_major,
+            :founded_company_name,
+            :current_company_name,
+            :current_job_position,
+            :alumni_position,
+            on: :update,
+            allow_blank: true,
+            allow_nil: true,
+            length: {minimum: 1, maximum: 100}
+
+  validates :short_bio,
+            on: :update,
+            allow_blank: true,
+            allow_nil: true,
+            length: {maximum: 160}
+
+  validate :reasonable_member
+
+  def reasonable_member
+    if !member_since.is_a? Date ||  member_since < Date.parse('01.01.1900') || member_since.year > Date.today.year
+    end
+  end
 
   def reasonable_year_of_participation
     if !year_of_participation.is_a? Integer ||  year_of_participation < 1900 || year_of_participation > Date.today.year
@@ -68,4 +95,22 @@ class User < ActiveRecord::Base
     self.completed_profile
   end
 
+  def valid_urls
+    if (facebook_url.to_s != '')
+      errors.add(:facebook_url, 'is not valid') unless valid_url? facebook_url
+    end
+    if (twitter_url.to_s != '')
+      errors.add(:twitter_url, 'is not valid') unless valid_url? twitter_url
+    end
+    if (linkedin_url.to_s != '')
+      errors.add(:linkedin_url, 'is not valid') unless valid_url? linkedin_url
+    end
+  end
+
+  def valid_url?(url)
+    uri = URI.parse(url)
+    uri.kind_of?(URI::HTTP)
+  rescue URI::InvalidURIError
+    false
+  end
 end
