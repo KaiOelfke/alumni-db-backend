@@ -48,7 +48,7 @@ ActiveRecord::Schema.define(version: 20150312111929) do
     t.string   "current_company_name"
     t.string   "current_job_position"
     t.string   "interests"
-    t.boolean  "active_member"
+    t.string   "short_bio"
     t.string   "alumni_position"
     t.date     "member_since"
     t.string   "facebook_url"
