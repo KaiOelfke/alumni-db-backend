@@ -99,5 +99,4 @@ Rails.application.configure do
     password:             'BP^46g4DjtuC2s,,P*yYyncaa',
     authentication:       'plain',
     enable_starttls_auto: true  }
-
 end
