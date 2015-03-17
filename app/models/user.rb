@@ -43,7 +43,7 @@ class User < ActiveRecord::Base
             on: :update,
             allow_blank: true,
             allow_nil: true,
-            length: {minimum: 1, maximum: 100}
+            length: {maximum: 1000}
 
   validates :short_bio,
             on: :update,
