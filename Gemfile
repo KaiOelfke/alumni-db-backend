@@ -20,6 +20,9 @@ gem 'countries'
 
 gem 'pundit'
 
+
+gem 'mini_magick'
+
 gem 'carrierwave'
 
 gem "fog"
