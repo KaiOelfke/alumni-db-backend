@@ -21,3 +21,9 @@ gem 'countries'
 gem 'pundit'
 
 gem 'rails_12factor', group: :production
+
+gem 'carrierwave'
+
+gem "fog"
+
+gem "fog-aws"
