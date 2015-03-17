@@ -19,3 +19,5 @@ gem 'omniauth'
 gem 'countries'
 
 gem 'pundit'
+
+gem 'rails_12factor', group: :production
