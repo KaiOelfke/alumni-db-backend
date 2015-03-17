@@ -22,6 +22,8 @@ gem 'pundit'
 
 gem 'rails_12factor', group: :production
 
+gem 'mini_magick'
+
 gem 'carrierwave'
 
 gem "fog"

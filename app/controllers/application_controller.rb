@@ -21,7 +21,7 @@ class ApplicationController < ActionController::API
                                                             :year_of_participation,
                                                             :country_of_participation,
                                                             :student_company_name,
-                                                            :avatar,
+                                                            :avatar, #avatar
                                                             :university_name,
                                                             :university_major,
                                                             :founded_company_name,

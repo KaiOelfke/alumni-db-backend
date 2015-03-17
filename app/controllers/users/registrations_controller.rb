@@ -65,7 +65,11 @@ class Users::RegistrationsController < DeviseTokenAuth::RegistrationsController
 
   def update
       if @resource
-        params[:avatar] = params[:file] if params[:file]
+        if params[:file]
+          params[:avatar] = params[:file] 
+          params.delete(:file)
+        end
+        
         if @resource.update_attributes(account_update_params)
           render json: {
             status: 'success',
