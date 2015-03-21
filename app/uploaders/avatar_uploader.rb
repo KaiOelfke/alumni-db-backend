@@ -19,9 +19,9 @@ class AvatarUploader < CarrierWave::Uploader::Base
     "avatar/#{model.class.to_s.underscore}/#{mounted_as}/#{model.id}"
   end
 
-  #def default_url
-  #  "/images/default_avatar.png"
-  #end
+  def default_url
+    "https://s3.eu-central-1.amazonaws.com/alumnidb-avatar/public/default_profile.png"
+  end
 
   # Provide a default URL as a default if there hasn't been a file uploaded:
   # def default_url
