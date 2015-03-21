@@ -1,18 +1,60 @@
-class Users::ConfirmationsController < Devise::ConfirmationsController
-  # GET /resource/confirmation/new
-  # def new
-  #   super
-  # end
+class Users::ConfirmationsController < DeviseTokenAuth::ConfirmationsController
 
-  # POST /resource/confirmation
-  # def create
-  #   super
-  # end
+  before_action :authenticate_user!, :only => :create
 
-  # GET /resource/confirmation?confirmation_token=abcdef
-  # def show
+  #GET /resource/confirmation/new
+  #def new
   #   super
-  # end
+  #end
+
+  #POST /resource/confirmation
+  def create
+      @resource = current_user
+
+      unless params[:confirm_success_url]
+        return render json: {
+          status: 'error',
+          data:   @resource,
+          errors: ["Missing `confirm_success_url` param."]
+        }, status: 403
+      end
+
+      unless @resource.confirmed?      
+        return render json: {
+          status: 'error',
+          data:   @resource,
+          errors: ["email already confirmed"]
+        }, status: 403
+      end
+   
+      errors = nil
+
+      if @resource
+        @resource.send_confirmation_instructions({
+          redirect_url: params[:confirm_success_url],
+          client_config: params[:config_name]
+        })
+      else
+        errors = ["Unable to find user with email '#{email}'."]
+      end
+
+      if errors
+        render json: {
+          success: false,
+          errors: errors
+        }, status: 400
+      else
+        render json: {
+          status: 'success',
+          data:   @resource.as_json
+        }
+      end
+  end
+
+  #GET /resource/confirmation?confirmation_token=abcdef
+  #def show
+  #   super
+  #end
 
   # protected
 

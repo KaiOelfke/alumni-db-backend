@@ -3,7 +3,8 @@ Rails.application.routes.draw do
   mount_devise_token_auth_for 'User', at: '/auth', controllers: {
     token_validations:  'users/token_validations',
     registrations:  'users/registrations',
-    sessions:  'users/sessions'    
+    sessions:  'users/sessions',
+    confirmations: 'users/confirmations'  
   }
 
   resources :users, only: [:show,:index]
