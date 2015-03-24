@@ -2,6 +2,10 @@ require 'date'
 require 'uri'
 class User < ActiveRecord::Base
   include DeviseTokenAuth::Concerns::User
+
+  has_many :memberships
+  has_many :groups, through: :memberships
+
   mount_uploader :avatar, AvatarUploader
 
   #before_create :skip_confirmation!

@@ -58,6 +58,9 @@ class UsersController < ApplicationController
       end
   end
 
+  def memberships
+  end
+
   def account_update_params
     params.permit(devise_parameter_sanitizer.for(:account_update))
   end

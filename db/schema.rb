@@ -11,10 +11,28 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141214132501) do
+ActiveRecord::Schema.define(version: 20150324131703) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "groups", force: true do |t|
+    t.string   "description"
+    t.string   "picture"
+    t.string   "name"
+    t.boolean  "group_email_enabled"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "memberships", force: true do |t|
+    t.boolean  "is_admin"
+    t.date     "join_date"
+    t.boolean  "group_email_subscribed"
+    t.string   "position"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "users", force: true do |t|
     t.string   "email",                                 null: false
@@ -65,6 +83,7 @@ ActiveRecord::Schema.define(version: 20141214132501) do
     t.boolean  "completed_profile"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.boolean  "is_super_user"
   end
 
   add_index "users", ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true, using: :btree
