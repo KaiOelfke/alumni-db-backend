@@ -22,11 +22,13 @@ class Users::RegistrationsController < DeviseTokenAuth::RegistrationsController
       User.skip_callback("create", :after, :send_on_create_confirmation_instructions)
       if @resource.save
 
-        # user will require email authentication
-        @resource.send_confirmation_instructions({
-          client_config: params[:config_name],
-          redirect_url: params[:confirm_success_url]
-        })
+        Thread.new do
+          # user will require email authentication
+          @resource.send_confirmation_instructions({
+            client_config: params[:config_name],
+            redirect_url: params[:confirm_success_url]
+          })
+        end
 
         # email auth has been bypassed, authenticate user
         @client_id = SecureRandom.urlsafe_base64(nil, false)
