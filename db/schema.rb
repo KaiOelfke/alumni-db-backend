@@ -19,28 +19,36 @@ ActiveRecord::Schema.define(version: 20150324131703) do
   create_table "groups", force: true do |t|
     t.string   "description"
     t.string   "picture"
-    t.string   "name"
+    t.string   "name",                null: false
     t.boolean  "group_email_enabled"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
+  add_index "groups", ["name"], name: "index_groups_on_name", using: :btree
+
   create_table "memberships", force: true do |t|
-    t.boolean  "is_admin"
-    t.date     "join_date"
-    t.boolean  "group_email_subscribed"
+    t.boolean  "is_admin",               default: true
+    t.date     "join_date",                             null: false
+    t.boolean  "group_email_subscribed", default: true
     t.string   "position"
+    t.integer  "user_id"
+    t.integer  "group_id"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
+  add_index "memberships", ["group_id"], name: "index_memberships_on_group_id", using: :btree
+  add_index "memberships", ["join_date"], name: "index_memberships_on_join_date", using: :btree
+  add_index "memberships", ["user_id"], name: "index_memberships_on_user_id", using: :btree
+
   create_table "users", force: true do |t|
-    t.string   "email",                                 null: false
-    t.string   "encrypted_password",       default: "", null: false
+    t.string   "email",                                    null: false
+    t.string   "encrypted_password",       default: "",    null: false
     t.string   "reset_password_token"
     t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"
-    t.integer  "sign_in_count",            default: 0,  null: false
+    t.integer  "sign_in_count",            default: 0,     null: false
     t.datetime "current_sign_in_at"
     t.datetime "last_sign_in_at"
     t.string   "current_sign_in_ip"
@@ -76,14 +84,14 @@ ActiveRecord::Schema.define(version: 20150324131703) do
     t.string   "mobile_phone"
     t.string   "avatar"
     t.string   "provider"
-    t.string   "uid",                      default: "", null: false
+    t.string   "uid",                      default: "",    null: false
     t.text     "tokens"
     t.boolean  "registered"
     t.boolean  "confirmed_email"
     t.boolean  "completed_profile"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.boolean  "is_super_user"
+    t.boolean  "is_super_user",            default: false
   end
 
   add_index "users", ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true, using: :btree

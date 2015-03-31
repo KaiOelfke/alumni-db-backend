@@ -3,7 +3,7 @@ class CreateGroups < ActiveRecord::Migration
     create_table :groups do |t|
       t.string :description
       t.string :picture
-      t.string :name
+      t.string :name , :null => false
       t.boolean :group_email_enabled
 
       t.timestamps

@@ -59,6 +59,12 @@ class UsersController < ApplicationController
   end
 
   def memberships
+
+    @memberships = User.find(params[:user_id]).memberships
+    render json: {
+      status: 'success',
+      data:   @memberships.as_json()
+    }    
   end
 
   def account_update_params
