@@ -1,7 +1,7 @@
 class CreateMemberships < ActiveRecord::Migration
   def change
     create_table :memberships do |t|
-      t.boolean :is_admin,  :default => true
+      t.boolean :is_admin,  :default => false
       t.date :join_date,  :null => false
       t.boolean :group_email_subscribed,  :default => true
       t.string :position 

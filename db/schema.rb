@@ -28,8 +28,8 @@ ActiveRecord::Schema.define(version: 20150324131703) do
   add_index "groups", ["name"], name: "index_groups_on_name", using: :btree
 
   create_table "memberships", force: true do |t|
-    t.boolean  "is_admin",               default: true
-    t.date     "join_date",                             null: false
+    t.boolean  "is_admin",               default: false
+    t.date     "join_date",                              null: false
     t.boolean  "group_email_subscribed", default: true
     t.string   "position"
     t.integer  "user_id"

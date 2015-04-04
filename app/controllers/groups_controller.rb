@@ -3,9 +3,14 @@ class GroupsController < ApplicationController
   before_action :authenticate_user!
 
   def users
-    @users = Group.find(params[:id]).users
+    @memberships = Group.find(params[:id]).memberships.includes(:user)
+
+    @result = []
+    @memberships.each do |membership|
+      @result.push({membership: membership.as_json(), user: membership.user.as_json()})
+    end
     
-    render json: @users
+    render json: @result
   end
 
   def index
@@ -44,13 +49,22 @@ class GroupsController < ApplicationController
   def update
     @user = current_user
     @group = Group.find(params[:id])
-    #Group.includes(:memeberships, :users).find(params[:id]).
+    #Group.includes(:memberships, :users).find(params[:id]).
     #@group.users
-    @membership = @user.memeberships.find_by_group_id(params[:id])
+    @membership = @user.memberships.find_by_group_id(params[:id])
 
-    if @user.is_super_user or @memeberships.is_admin 
-      @group.update(group_update_params)
-
+    if @user.is_super_user or @membership.is_admin 
+      if @group.update(group_update_params)
+        render json: {
+          data: @group.as_json(),
+          status: 'success'
+        }
+      else
+        render json: {
+          status: 'error',
+          errors: @group.errors
+        }, status: 403
+      end
     else
       render json: {
         status: 'error',
@@ -97,7 +111,7 @@ class GroupsController < ApplicationController
     end 
 
     def group_update_params
-        params.permit(:description, :picture, :name, :group_email_enabled)
+        params.require(:group).permit(:description, :picture, :name, :group_email_enabled)
     end   
 
 end

@@ -32,7 +32,7 @@ class MembershipsController < ApplicationController
   end
 
   def show
-    @membership = Membership.find(params[:membership_id])
+    @membership = Membership.find(params[:id])
     if @membership
         render json: @membership        
     else
@@ -44,29 +44,71 @@ class MembershipsController < ApplicationController
   end
 
   def update
-    @membership = Membership.includes(:users).find(params[:membership_id])
+    @membership = Membership.find(params[:id])
     @user = current_user
 
     if @membership 
-      @membership.update(membership_update_params)
+      if @user.is_super_user or @membership.is_admin
+        if @membership.update(membership_update_params)
+          render json: {
+            status: 'success',
+            data:   @membership.as_json()
+          }
+        else
+          render json: {
+            status: 'error',
+            errors: @membership.errors
+          }, status: 403
+        end
+      else
+        if (@user.id == @membership.user_id) and @membership.update(membership_update_params)
+          render json: {
+            status: 'success',
+            data:   @membership.as_json()
+          }
+        else
+          render json: {
+            status: 'error',
+            errors: @membership.errors
+          }, status: 403
+        end 
+      end       
   
-      render json: @membership        
     else
       render json: {
         status: 'error',
         errors: ["membership not found"]
       }, status: 404
     end  
+
   end
 
   def destroy
+
+    @membership = Membership.find(params[:id])
+
+    if @membership
+
+      if @membership.destroy
+        render json: {
+          status: 'success'
+        }
+      else
+        render json: {
+          status: 'error',
+          errors: @membership.errors
+        }, status: 403
+      end
+
+    end
+
 
   end
 
   private 
 
     def membership_create_params
-      if @user.is_super_user or @membership.is_admin
+      if @user.is_super_user or (@membership and @membership.is_admin)
         params.require(:membership).permit(:user_id, :group_id, :is_admin, :group_email_subscribed, :position)
       else
         params.require(:membership).permit(:user_id, :group_id, :group_email_subscribed)
@@ -75,10 +117,10 @@ class MembershipsController < ApplicationController
 
     def membership_update_params
       
-      if @user.is_super_user or @membership.is_admin
-        params.permit(:is_admin, :group_email_subscribed, :position)
+      if @user.is_super_user or (@membership and @membership.is_admin)
+        params.require(:membership).permit(:is_admin, :group_email_subscribed, :position)
       else
-        params.permit(:group_email_subscribed)
+        params.require(:membership).permit(:group_email_subscribed)
       end
     end 
 
