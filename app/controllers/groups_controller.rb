@@ -2,6 +2,7 @@ class GroupsController < ApplicationController
 
   before_action :authenticate_user!
 
+  #List of all members of a group
   def users
     @memberships = Group.find(params[:id]).memberships.includes(:user)
 
@@ -9,16 +10,18 @@ class GroupsController < ApplicationController
     @memberships.each do |membership|
       @result.push({membership: membership.as_json(), user: membership.user.as_json()})
     end
-    
+
     render json: @result
   end
 
+  #List of all groups
   def index
     @groups = Group.all
 
     render json: @groups
   end
 
+  #Create a new group
   def create
     @user = current_user
 
@@ -43,17 +46,19 @@ class GroupsController < ApplicationController
         errors: ["not authourized"]
       }, status: 403
     end
-
   end
 
+  #Update group settings
   def update
     @user = current_user
     @group = Group.find(params[:id])
-    #Group.includes(:memberships, :users).find(params[:id]).
-    #@group.users
     @membership = @user.memberships.find_by_group_id(params[:id])
 
-    if @user.is_super_user or @membership.is_admin 
+    if @user.is_super_user or @membership.is_admin
+      if params[:file]
+        params[:group] = {picture: params[:file]}
+        params.delete(:file)
+      end
       if @group.update(group_update_params)
         render json: {
           data: @group.as_json(),
@@ -70,7 +75,7 @@ class GroupsController < ApplicationController
         status: 'error',
         errors: ["not authourized"]
       }, status: 403
-    end 
+    end
 
   end
 
@@ -79,6 +84,7 @@ class GroupsController < ApplicationController
     render json: @group
   end
 
+  #Deletes a group
   def destroy
     @user = current_user
     @group = Group.find(params[:id])
@@ -95,7 +101,7 @@ class GroupsController < ApplicationController
         }, status: 403
       end
 
-    else 
+    else
       render json: {
         status: 'error',
         errors: ["not authourized"]
@@ -104,14 +110,14 @@ class GroupsController < ApplicationController
 
   end
 
-  private 
+  private
 
     def group_create_params
         params.require(:group).permit(:description, :picture, :name, :group_email_enabled)
-    end 
+    end
 
     def group_update_params
-        params.require(:group).permit(:description, :picture, :name, :group_email_enabled)
-    end   
+        params.require(:group).permit(:description, :picture, :name, :group_email_enabled, :file)
+    end
 
 end
