@@ -30,10 +30,13 @@ class Users::ConfirmationsController < DeviseTokenAuth::ConfirmationsController
       errors = nil
 
       if @resource
-        @resource.send_confirmation_instructions({
-          redirect_url: params[:confirm_success_url],
-          client_config: params[:config_name]
-        })
+        # send email in seperate thread
+        Thread.new do
+          @resource.send_confirmation_instructions({
+            redirect_url: params[:confirm_success_url],
+            client_config: params[:config_name]
+          })
+        end
       else
         errors = ["Unable to find user with email '#{email}'."]
       end

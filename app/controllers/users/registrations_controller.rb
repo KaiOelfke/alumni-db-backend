@@ -21,7 +21,7 @@ class Users::RegistrationsController < DeviseTokenAuth::RegistrationsController
       # override email confirmation, must be sent manually from ctrl
       User.skip_callback("create", :after, :send_on_create_confirmation_instructions)
       if @resource.save
-
+        # send email in seperate thread
         Thread.new do
           # user will require email authentication
           @resource.send_confirmation_instructions({
