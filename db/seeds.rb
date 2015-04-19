@@ -58,7 +58,7 @@
               current_company_name: 'innoscale',
               current_job_position: 'Entwickler',
               interests: 'Nein',
-              short_bio: 'TBC',groupCtrl
+              short_bio: 'TBC',
               alumni_position: 'Volunteer',
               member_since: '01.10.2014',
               facebook_url: 'https://www.facebook.com/issaking',
@@ -88,7 +88,7 @@
               university_major: 'Informatik',
               founded_company_name: '',
               current_company_name: 'DAI Labor',
-              current_job_position: 'Entwickler',groupCtrl
+              current_job_position: 'Entwickler',
               interests: 'Fußball',
               short_bio: 'TBC',
               alumni_position: 'Volunteer',
@@ -120,7 +120,7 @@
               university_major: 'Informatik',
               founded_company_name: '',
               current_company_name: 'DAI Labor',
-              current_job_position: 'Entwickler',groupCtrl
+              current_job_position: 'Entwickler',
               interests: 'Fußball',
               short_bio: 'TBC',
               alumni_position: 'Volunteer',
