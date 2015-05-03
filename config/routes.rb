@@ -4,12 +4,23 @@ Rails.application.routes.draw do
     token_validations:  'users/token_validations',
     registrations:  'users/registrations',
     sessions:  'users/sessions',
-    confirmations: 'users/confirmations'  
+    confirmations: 'users/confirmations'
   }
 
-  resources :users, only: [:show,:index]
+  #resources :users, only: [:show,:index]
 
   put 'users', to: 'users#update'
+  get 'users/:user_id/memberships', to: 'users#memberships'
+
+  resources :users, only: [:show, :index]
+
+  resources :groups, except: [:edit, :new] do
+    member do
+      get :users
+    end
+  end
+
+  resources :memberships, only: [:show, :update, :create, :destroy]
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

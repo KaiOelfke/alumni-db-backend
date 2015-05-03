@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  is_admin: false
+  join_date: 2015-03-24
+  group_email_subscribed: false
+  position: MyString
+
+two:
+  is_admin: false
+  join_date: 2015-03-24
+  group_email_subscribed: false
+  position: MyString
