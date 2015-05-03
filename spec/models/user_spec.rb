@@ -2,12 +2,6 @@ require 'rails_helper'
 
 RSpec.describe User, type: :model do
   subject(:user) { FactoryGirl.create(:user, :registered, :completed_profile, :confirmed_email, :personal_programm_data) }  
-  before (:each) do
-    #subject(:user) { FactoryGirl.create(:user, :registered, :completed_profile, :confirmed_email, :personal_programm_data) }
-
-    #@user =FactoryGirl.create(:user, :registered, :completed_profile, :confirmed_email, :personal_programm_data) 
-  end
-
 
   describe 'Year of participation ' do
 
