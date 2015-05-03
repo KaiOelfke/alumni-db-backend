@@ -2,6 +2,9 @@ GEM
   remote: https://rubygems.org/
   specs:
     CFPropertyList (2.3.0)
+    accept_values_for (0.7.2)
+      activemodel (>= 3, < 5)
+      rspec (>= 2.0, < 4.0)
     actionmailer (4.1.7)
       actionpack (= 4.1.7)
       actionview (= 4.1.7)
@@ -50,11 +53,17 @@ GEM
     devise_token_auth (0.1.30)
       devise (~> 3.3)
       rails (~> 4.1)
+    diff-lcs (1.2.5)
     dotenv (2.0.0)
     dotenv-rails (2.0.0)
       dotenv (= 2.0.0)
     erubis (2.7.0)
     excon (0.44.4)
+    factory_girl (4.5.0)
+      activesupport (>= 3.0.0)
+    factory_girl_rails (4.5.0)
+      factory_girl (~> 4.5.0)
+      railties (>= 3.0.0)
     fission (0.5.0)
       CFPropertyList (~> 2.2)
     fog (1.28.0)
@@ -194,6 +203,27 @@ GEM
     rake (10.4.2)
     responders (1.1.2)
       railties (>= 3.2, < 4.2)
+    rspec (3.2.0)
+      rspec-core (~> 3.2.0)
+      rspec-expectations (~> 3.2.0)
+      rspec-mocks (~> 3.2.0)
+    rspec-core (3.2.3)
+      rspec-support (~> 3.2.0)
+    rspec-expectations (3.2.1)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.2.0)
+    rspec-mocks (3.2.1)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.2.0)
+    rspec-rails (3.2.1)
+      actionpack (>= 3.0, < 4.3)
+      activesupport (>= 3.0, < 4.3)
+      railties (>= 3.0, < 4.3)
+      rspec-core (~> 3.2.0)
+      rspec-expectations (~> 3.2.0)
+      rspec-mocks (~> 3.2.0)
+      rspec-support (~> 3.2.0)
+    rspec-support (3.2.2)
     spring (1.3.3)
     sprockets (2.12.3)
       hike (~> 1.2)
@@ -216,10 +246,12 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  accept_values_for
   carrierwave
   countries
   devise_token_auth
   dotenv-rails
+  factory_girl_rails (~> 4.5)
   fog
   fog-aws
   mini_magick
@@ -230,4 +262,5 @@ DEPENDENCIES
   rails (= 4.1.7)
   rails-api
   rails_12factor
+  rspec-rails (~> 3.2)
   spring
