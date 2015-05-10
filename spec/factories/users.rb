@@ -1,5 +1,7 @@
 FactoryGirl.define do
   factory :user do
+    membership
+    
     sequence(:email) {|n| "e#{n}@example.com"}
     sequence(:uid) {|n| "uid#{n}"}
 
@@ -37,6 +39,10 @@ FactoryGirl.define do
     trait :completed_profile do
         completed_profile true
     end
+
+    trait :super do 
+        is_super_user true
+    end    
   end
 
 end
