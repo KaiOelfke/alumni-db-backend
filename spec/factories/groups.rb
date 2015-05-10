@@ -3,7 +3,6 @@ FactoryGirl.define do
     sequence(:name) {|n| "name#{n}"}
 
     description 'description'
-    picture 'picture'
     group_email_enabled false
 
     trait :group_email_enabled do
