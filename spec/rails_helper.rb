@@ -37,6 +37,7 @@ RSpec.configure do |config|
   #Devise 
   config.include Devise::TestHelpers, :type => :controller
 
+  
   #remove upload folder after the tests
   config.after(:each) do
     if Rails.env.test? || Rails.env.cucumber?

@@ -54,7 +54,7 @@ class GroupsController < ApplicationController
     @group = Group.find(params[:id])
     @membership = @user.memberships.find_by_group_id(params[:id])
 
-    if @user.is_super_user or @membership.is_admin
+    if @user.is_super_user or ( @membership and @membership.is_admin)
       if params[:file]
         params[:group] = {picture: params[:file]}
         params.delete(:file)

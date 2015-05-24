@@ -4,6 +4,14 @@ RSpec.describe GroupsController, type: :controller do
     before(:each) do 
 
       @completed_profile_user = FactoryGirl.create(:user, :registered, :completed_profile, :confirmed_email, :personal_programm_data)
+      
+      @completed_profile_user_with_groups = FactoryGirl.create(:user_with_groups,
+                                                               :registered, :completed_profile, :confirmed_email, :personal_programm_data)
+
+      @completed_profile_admin_user_with_groups = FactoryGirl.create(:user_with_groups,
+                                                               :registered, :completed_profile, :confirmed_email, :personal_programm_data,
+                                                               is_admin: true)                                  
+
       @registered_user = FactoryGirl.create(:user, :registered, :confirmed_email, :personal_programm_data)
       @super_user = FactoryGirl.create(:user, :registered, :confirmed_email, :personal_programm_data, :super)
       @group = FactoryGirl.create(:group)
@@ -46,7 +54,7 @@ RSpec.describe GroupsController, type: :controller do
 
           expect(response).to be_success
 
-          expect(json.length).to eq 1
+          expect(json.length).to eq 3
 
         end
     end
@@ -132,7 +140,7 @@ RSpec.describe GroupsController, type: :controller do
         end
 
         it "should return 403 for updating group if user isn't super user or admin of the group" do
-          auth_headers = @registered_user.create_new_auth_token
+          auth_headers = @completed_profile_user_with_groups.create_new_auth_token
           request.headers.merge!(auth_headers)
 
 
@@ -144,10 +152,6 @@ RSpec.describe GroupsController, type: :controller do
 
 
         it "should return 401 if user is not registered" do
-
-          changedAttr = Hash.new
-          changedAttr[:group] = Hash.new 
-          changedAttr[:group][:group_email_enabled] = true
           
           put :update, :id => @group.id, :group => changedAttr
 
@@ -155,18 +159,17 @@ RSpec.describe GroupsController, type: :controller do
 
         end
 
-        it "should update a group if user is admin of group" do
+        it "should update a group if user is admin of a group" do
 
-          auth_headers = @completed_profile_user.create_new_auth_token
+          auth_headers = @completed_profile_admin_user_with_groups.create_new_auth_token
           request.headers.merge!(auth_headers)
 
-          changedAttr = Hash.new
-          changedAttr[:group] = Hash.new 
-          changedAttr[:group][:group_email_enabled] = true
-          
-          put :update, :id => @group.id, :group => changedAttr
+          memberships = @completed_profile_admin_user_with_groups.memberships
+          group = memberships.first.group
+          put :update, :id => group.id, :group => changedAttr, format: :json
 
           expect(response).to be_success
+          expect(json['data']['group_email_enabled']).to eq true
 
         end 
 
@@ -175,10 +178,6 @@ RSpec.describe GroupsController, type: :controller do
           auth_headers = @super_user.create_new_auth_token
           request.headers.merge!(auth_headers)
 
-          changedAttr = Hash.new
-          changedAttr[:group] = Hash.new 
-          changedAttr[:group][:group_email_enabled] = true
-          
           put :update, :id => @group.id, :group => changedAttr
 
           expect(response).to be_success

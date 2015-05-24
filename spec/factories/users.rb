@@ -1,6 +1,5 @@
 FactoryGirl.define do
   factory :user do
-    membership
     
     sequence(:email) {|n| "e#{n}@example.com"}
     sequence(:uid) {|n| "uid#{n}"}
@@ -42,7 +41,21 @@ FactoryGirl.define do
 
     trait :super do 
         is_super_user true
-    end    
+    end 
+
+    factory :user_with_groups do
+
+      transient do
+        groups_count 1
+        is_admin false         
+        group_email_subscribed false 
+      end
+
+      after(:create) do |user, evaluator|
+          create_list(:membership, 1,is_admin: evaluator.is_admin, group_email_subscribed: false, user: user)        
+        
+      end
+    end
   end
 
 end

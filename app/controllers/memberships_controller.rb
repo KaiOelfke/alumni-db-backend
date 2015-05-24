@@ -4,7 +4,6 @@ class MembershipsController < ApplicationController
 
   # Join a group
   def create
-    puts params
 
     unless params[:membership] and params[:membership][:group_id] and
       params[:membership][:user_id]
@@ -50,9 +49,12 @@ class MembershipsController < ApplicationController
   def update
     @membership = Membership.find(params[:id])
     @user = current_user
-
+    @userMembership = @user.memberships.detect do |meb| 
+        meb.group_id == @membership.group_id
+    end 
+    
     if @membership
-      if @user.is_super_user or @membership.is_admin
+      if @user.is_super_user or  (@userMembership and @userMembership.is_admin)
 
         #Admins and super users can update memberships for every user
         if @membership.update(membership_update_params)
@@ -93,8 +95,12 @@ class MembershipsController < ApplicationController
   def destroy
     @membership = Membership.find(params[:id])
     @user = current_user
+    @userMembership = @user.memberships.detect do |meb| 
+        meb.group_id == @membership.group_id
+    end 
+
     if @membership
-      if @user.is_super_user or @membership.is_admin
+      if @user.is_super_user or (@userMembership and @userMembership.is_admin)
         #Admins and super users can delete memberships for every user
         if @membership.destroy
           render json: {

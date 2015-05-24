@@ -1,8 +1,8 @@
 FactoryGirl.define do
   factory :membership do
-    user
-    group
-    
+    association :user, factory: :user
+    association :group, factory: :group
+
     is_admin false
     position 'position'
     join_date Date.today
@@ -13,5 +13,4 @@ FactoryGirl.define do
     end
 
   end
-
 end

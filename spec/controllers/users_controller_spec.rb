@@ -4,6 +4,13 @@ RSpec.describe UsersController, type: :controller do
 
     before(:each) do 
       @completed_profile_user = FactoryGirl.create(:user, :registered, :completed_profile, :confirmed_email, :personal_programm_data)
+      @completed_profile_user_with_groups = FactoryGirl.create(:user_with_groups,
+                                                               :registered,
+                                                               :completed_profile,
+                                                               :confirmed_email,
+                                                               :personal_programm_data,
+                                                               is_admin: true)
+      
       @registered_user = FactoryGirl.create(:user, :registered, :confirmed_email, :personal_programm_data)
       @informations = {first_name: 'first_test',
                       last_name: 'last_test',
@@ -18,6 +25,40 @@ RSpec.describe UsersController, type: :controller do
                       student_company_name: 'company name'}
 
     end
+
+    describe 'GET /users/:user_id/memberships' do
+        it "should return 401 for accesing user memberships if user has not completed his profile" do
+          auth_headers = @registered_user.create_new_auth_token
+          request.headers.merge!(auth_headers)
+
+          get :memberships, user_id: @registered_user.id, format: :json
+
+          expect(response.code).to eq "401"
+
+        end
+
+        it "should return 401 if user is not registered" do
+
+          get :memberships, user_id: @registered_user.id, format: :json
+
+          expect(response.code).to eq "401"
+
+        end
+
+        it "should allow user, who completed their profiles, to access their/other memberships" do
+
+          auth_headers = @completed_profile_user.create_new_auth_token
+          request.headers.merge!(auth_headers)
+
+          get :memberships, user_id: @completed_profile_user_with_groups.id, format: :json
+
+          expect(response).to be_success
+
+          expect(json['data'].length).to eq 1
+
+        end
+    end
+
 
     describe 'GET /users' do
         it "should return 401 for accesing users if user has not completed his profile" do
@@ -49,7 +90,7 @@ RSpec.describe UsersController, type: :controller do
 
 
 
-          expect(json.length).to eq 2
+          expect(json.length).to eq 3
 
         end
     end
