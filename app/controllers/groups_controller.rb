@@ -107,7 +107,6 @@ class GroupsController < ApplicationController
         errors: ["not authourized"]
       }, status: 403
     end
-
   end
 
   private

@@ -22,6 +22,21 @@ Rails.application.routes.draw do
 
   resources :memberships, only: [:show, :update, :create, :destroy]
 
+  get '/subscriptions/client_token', to: 'subscriptions#client_token'
+
+
+
+  namespace :subscriptions do
+
+    resources :discounts, :plans, only: [:index, :show, :update, :create, :destroy]
+  end
+
+
+  scope module: 'subscriptions' do
+    resource :subscription      
+  end
+
+
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 

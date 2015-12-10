@@ -33,6 +33,8 @@ GEM
       tzinfo (~> 1.1)
     arel (5.0.1.20140414130214)
     bcrypt (3.1.10)
+    braintree (2.56.0)
+      builder (>= 2.0.0)
     builder (3.2.2)
     carrierwave (0.10.0)
       activemodel (>= 3.2.0)
@@ -247,6 +249,7 @@ PLATFORMS
 
 DEPENDENCIES
   accept_values_for
+  braintree (~> 2.56)
   carrierwave
   countries
   devise_token_auth
@@ -264,3 +267,6 @@ DEPENDENCIES
   rails_12factor
   rspec-rails (~> 3.2)
   spring
+
+BUNDLED WITH
+   1.10.6

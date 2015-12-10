@@ -67,6 +67,39 @@ class UsersController < ApplicationController
     }    
   end
 
+
+  def checkout
+    nonce = params[:payment_method_nonce]
+    plan = params[:plan]
+    discounts = params[:discounts]
+
+    if init_braintree(nonce)
+      charge 
+
+    else
+
+    end
+
+  end
+
+  def init_braintree(payment_nonce)
+    result = Braintree::Customer.create(
+      :credit_card => {
+        :payment_method_nonce => payment_nonce,
+        :options => {
+          :verify_card => true
+        }
+      }
+    )
+    if result.success?
+      self.customer_id = result.customer.id
+      self.save
+      true
+    else
+      false
+    end
+  end  
+
   def account_update_params
     params.permit(devise_parameter_sanitizer.for(:account_update))
   end

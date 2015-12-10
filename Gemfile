@@ -28,6 +28,8 @@ gem "fog"
 
 gem "fog-aws"
 
+gem "braintree" , '~> 2.56'
+
 group :test, :development do
   gem 'spring'
   gem 'rspec-rails', '~> 3.2'
