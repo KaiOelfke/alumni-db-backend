@@ -23,7 +23,7 @@ default: &default
 
 development:
   <<: *default
-  database: alumni-db-backend_development
+  database: alumni_db_backend_development
 
   # The specified database role being used to connect to postgres.
   # To create additional roles in postgres see `$ createuser --help`.
@@ -57,7 +57,7 @@ development:
 # Do not set this db to the same as development or production.
 test:
   <<: *default
-  database: alumni-db-backend_test
+  database: alumni_db_backend_test
 
 # As with config/secrets.yml, you never want to store sensitive information,
 # like your database password, in your source code. If your source code is
@@ -80,6 +80,6 @@ test:
 #
 production:
   <<: *default
-  database: alumni-db-backend_production
-  username: alumni-db-backend
+  database: alumni_db_backend_production
+  username: alumni_db_backend
   password: <%= ENV['ALUMNI-DB-BACKEND_DATABASE_PASSWORD'] %>
