@@ -1,0 +1,14 @@
+language: ruby
+rvm:
+  - 2.0.0
+  - ruby-head
+before_script:
+  - psql -c 'create database test;' -U postgres
+  - bundle exec rake db:migrate
+script:
+  - bundle exec rspec
+matrix:
+  allow_failures:
+  - rvm: ruby-head
+notifications:
+  slack: alumnidb:B2rQLHtUQoFgsDPeuImC8dzh
