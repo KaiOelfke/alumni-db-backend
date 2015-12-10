@@ -55,17 +55,18 @@ ActiveRecord::Schema.define(version: 20151209193631) do
   add_index "memberships", ["user_id"], name: "index_memberships_on_user_id", using: :btree
 
   create_table "plans", force: true do |t|
-    t.string   "braintree_plan_id",                                 null: false
-    t.string   "name",                                              null: false
-    t.string   "description",       default: "",                    null: false
-    t.boolean  "delete_flag",       default: false,                 null: false
-    t.datetime "created_at",        default: '2015-12-09 22:20:26', null: false
+    t.string   "braintree_plan_id",                 null: false
+    t.string   "name",                              null: false
+    t.boolean  "default",                           null: false
+    t.string   "description",       default: "",    null: false
+    t.boolean  "delete_flag",       default: false, null: false
     t.datetime "expiry_at"
   end
 
   create_table "subscriptions", force: true do |t|
-    t.string   "braintree_subscription_id",                                 null: false
-    t.datetime "created_at",                default: '2015-12-09 22:20:26', null: false
+    t.string   "braintree_new_subscription_id", null: false
+    t.string   "braintree_old_subscription_id", null: false
+    t.datetime "created_at",                    null: false
     t.datetime "cancelled_at"
     t.integer  "user_id"
     t.integer  "plan_id"

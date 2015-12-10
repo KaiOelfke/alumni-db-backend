@@ -91,7 +91,7 @@ class Subscriptions::DiscountsController < ApplicationController
   private
 
     def discount_create_params
-        params.require(:discount).permit(:code, :name, :description, :expiry_at, :plan_id)
+        params.require(:discount).permit(:code, :name, :description,  :braintree_discount_id, :expiry_at, :plan_id)
     end
 
     def discount_update_params

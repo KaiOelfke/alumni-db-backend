@@ -2,10 +2,10 @@ class BraintreeIntegration < ActiveRecord::Migration
   def change
     create_table(:plans) do |t|
       t.string :braintree_plan_id, :null => false
-      t.string :name, :null => false      
+      t.string :name, :null => false     
+      t.boolean :default, :null => false
       t.string :description, :null => false, :default => ""
       t.boolean  :delete_flag, :null => false, :default => false
-      t.datetime :created_at, :null => false, :default => Time.now
       t.datetime :expiry_at
     end
 
@@ -20,8 +20,9 @@ class BraintreeIntegration < ActiveRecord::Migration
     end
 
     create_table(:subscriptions) do |t|
-      t.string :braintree_subscription_id, :null => false      
-      t.datetime :created_at, :null => false, :default => Time.now
+      t.string :braintree_new_subscription_id, :null => false
+      t.string :braintree_old_subscription_id, :null => false
+      t.datetime :created_at, :null => false
       t.datetime :cancelled_at
       t.belongs_to :user, index: true
       t.belongs_to :plan, index: true

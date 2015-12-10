@@ -6,16 +6,22 @@ class Subscriptions::SubscriptionsController < ApplicationController
     @user = current_user
     if @user.subscription_id?
     	@subscription = @user.subscription
-    	@_subscription = Braintree::Subscription.find(@subscription.braintree_subscription_id)
+    	@new_subscription = Braintree::Subscription.find(@subscription.braintree_new_subscription_id)
+    	@old_subscription = Braintree::Subscription.find(@subscription.braintree_old_subscription_id)
 
-    	if @_subscription.success?
-    			@_subscription.status
-    			@_subscription.slice(:status, :billing_period_start_date, :billing_period_end_date)
+    	if (@new_subscription.success? and @new_subscription.status == Braintree::Subscription::Status::active)
+    		  @new_subscription.slice(:status, :billing_period_start_date, :billing_period_end_date)
     		  render json: {
 		          status: 'success',
 		          data:   @user.as_json()
 		      }, status: 404
-    	else
+    	elsif (@old_subscription.success? and @old_subscription.status == Braintree::Subscription::Status::active)
+    		  @old_subscription.slice(:status, :billing_period_start_date, :billing_period_end_date)
+    		  render json: {
+		          status: 'success',
+		          data:   @user.as_json()
+		      }, status: 404    	
+    	else 
 	      render json: {
 	          status: 'error',
 	          errors: @customer.errors
@@ -67,8 +73,9 @@ class Subscriptions::SubscriptionsController < ApplicationController
 
     if @user.subscription_id?
     	@subscription = @user.subscription
-    	@_subscription = Braintree::Subscription.find(@subscription.braintree_subscription_id)
-    	unless @_subscription.success? 
+    	@new_subscription = Braintree::Subscription.find(@subscription.braintree_new_subscription_id)
+
+    	if @new_subscription.success? and @new_subscription.status == Braintree::Subscription::Status::Active 
 	      render json: {
 	          status: 'error',
 	          errors: @customer.errors
@@ -79,8 +86,8 @@ class Subscriptions::SubscriptionsController < ApplicationController
 
 
     if (not @user.subscription_id? or
-    		(@_subscription? and (@_subscription.status == Braintree::Subscription::Status::Canceled or
-    		@_subscription.status == Braintree::Subscription::Status::Expired)))
+    		(@new_subscription? and (@new_subscription.status == Braintree::Subscription::Status::Canceled or
+    		@new_subscription.status == Braintree::Subscription::Status::Expired)))
 
 		  if @plan?
 
@@ -101,7 +108,7 @@ class Subscriptions::SubscriptionsController < ApplicationController
 			  @_subscription = Braintree::Subscription.create(@subscriptionRequest)
 
 			  if @_subscription.success?
-			  	params[:braintree_subscription_id] = @_subscription.subscription.id
+			  	params[:braintree_new_subscription_id] = @_subscription.subscription.id
 		      @user.subscription = Subscription.new(subscription_create_params)
 		      if @user.save
 		        render json: {
@@ -143,9 +150,10 @@ class Subscriptions::SubscriptionsController < ApplicationController
     @plan = Plan.find(params[:plan_id]) 
 
     if @user.subscription? and @user.customer_id? and @plan?
-
+		  
 		  @_subscription = Braintree::Subscription.update(
-			  :plan_id =>  @plan.braintree_plan_id
+			  :plan_id =>  @plan.braintree_plan_id,
+			  :braintree_new_subscription_id => @user.subscription.braintree_new_subscription_id
 		  )
 
 		  if @_subscription.success?
@@ -180,27 +188,48 @@ class Subscriptions::SubscriptionsController < ApplicationController
     @user = current_user
     @subscription = @user.subscription
     if @subscription?
-      @_subscription = Braintree::Subscription.find(@subscription.braintree_subscription_id)
+    	@new_subscription = Braintree::Subscription.find(@subscription.braintree_new_subscription_id)
+    	@old_subscription = Braintree::Subscription.find(@subscription.braintree_old_subscription_id)
 
-      if  @_subscription.success?
-        @subscription.cancelled_at = @_subscription.billing_period_end_date 
+    	if (@new_subscription.status == Braintree::Subscription::Status::Canceled or
+    		@new_subscription.status == Braintree::Subscription::Status::Expired)
+        render json: {
+          status: 'error',
+          errors: ['subscription is already cancelled/expired']
+        }, status: 500
+     	else
+	      @_subscription = Braintree::Subscription.cancel(@subscription.braintree_new_subscription_id)
 
-	      if @subscription.save
-	        render json: {
-	          status: 'success'
-	        }
+	      if  @_subscription.success?
+	      	if @new_subscription.status == Braintree::Subscription::Status::Active
+	      		@subscription.braintree_old_subscription_id = @subscription.braintree_new_subscription_id
+	        	@subscription.cancelled_at = @new_subscription.billing_period_end_date 
+			      if @subscription.save
+			        render json: {
+			          status: 'success'
+			        }
+			      else
+			        render json: {
+			          status: 'error',
+			          errors: @subscription.errors
+			        }, status: 403
+			      end
+		      else
+		        render json: {
+		          status: 'error',
+		          errors: ['subscription is already cancelled/expired']
+		        }, status: 500
+		      end
 	      else
-	        render json: {
-	          status: 'error',
-	          errors: @subscription.errors
-	        }, status: 403
+		        render json: {
+		          status: 'error',
+		          errors: @_subscription.errors
+		        }, status: 500
 	      end
-      else
-	        render json: {
-	          status: 'error',
-	          errors: @_subscription.errors
-	        }, status: 500
-      end
+
+
+
+    	end
 
 
     else

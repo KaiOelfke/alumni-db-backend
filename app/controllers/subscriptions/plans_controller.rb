@@ -19,9 +19,13 @@ class Subscriptions::PlansController < ApplicationController
     @user = current_user
 
     if @user.is_super_user
-      @plan = Plan.new(plan_create_params)
 
+      @plan = Plan.new(plan_create_params)
+      if params[:default]
+        Plan.find_by(default: ture).destroy_all
+      end
       if @plan.save
+
         render json: {
           status: 'success',
           data:   @plan.as_json()
@@ -45,7 +49,11 @@ class Subscriptions::PlansController < ApplicationController
     @user = current_user
     @plan = plan.find(params[:id])
 
-    if @user.is_super_user 
+    if @user.is_super_user
+      if params[:default]
+        Plan.find_by(default: ture).destroy_all
+      end
+
       if @plan.update(plan_update_params)
         render json: {
           data: @plan.as_json(),
@@ -92,11 +100,11 @@ class Subscriptions::PlansController < ApplicationController
   private
 
     def plan_create_params
-        params.require(:plan).permit(:name, :description, :created_at)
+        params.require(:plan).permit(:name, :description, :created_at,  :default, :braintree_plan_id)
     end
 
     def plan_update_params
-        params.require(:plan).permit(:name, :description, :expiry_at)
+        params.require(:plan).permit(:name, :description, :expiry_at, :default)
     end
 
 end
