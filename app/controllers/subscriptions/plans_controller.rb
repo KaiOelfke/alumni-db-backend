@@ -100,11 +100,11 @@ class Subscriptions::PlansController < ApplicationController
   private
 
     def plan_create_params
-        params.require(:plan).permit(:name, :description, :created_at,  :default, :braintree_plan_id)
+        params.require(:plan).permit(:name, :description, :created_at, :price, :default, :braintree_plan_id)
     end
 
     def plan_update_params
-        params.require(:plan).permit(:name, :description, :expiry_at, :default)
+        params.require(:plan).permit(:name, :description, :expiry_at, :price, :default)
     end
 
 end

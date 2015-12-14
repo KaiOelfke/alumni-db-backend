@@ -2,7 +2,8 @@ class BraintreeIntegration < ActiveRecord::Migration
   def change
     create_table(:plans) do |t|
       t.string :braintree_plan_id, :null => false
-      t.string :name, :null => false     
+      t.string :name, :null => false
+      t.integer :price, :null => false
       t.boolean :default, :null => false
       t.string :description, :null => false, :default => ""
       t.boolean  :delete_flag, :null => false, :default => false
@@ -13,6 +14,7 @@ class BraintreeIntegration < ActiveRecord::Migration
       t.string :braintree_discount_id, :null => false     
       t.string :name, :null => false
       t.string :code, :null => false
+      t.integer :price, :null => false
       t.string :description, :null => false, :default => ""
       t.boolean  :delete_flag, :null => false, :default => false
       t.datetime :expiry_at
