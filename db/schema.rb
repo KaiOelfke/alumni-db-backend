@@ -20,6 +20,7 @@ ActiveRecord::Schema.define(version: 20151209193631) do
     t.string   "braintree_discount_id",                 null: false
     t.string   "name",                                  null: false
     t.string   "code",                                  null: false
+    t.integer  "price",                                 null: false
     t.string   "description",           default: "",    null: false
     t.boolean  "delete_flag",           default: false, null: false
     t.datetime "expiry_at"
@@ -57,6 +58,7 @@ ActiveRecord::Schema.define(version: 20151209193631) do
   create_table "plans", force: true do |t|
     t.string   "braintree_plan_id",                 null: false
     t.string   "name",                              null: false
+    t.integer  "price",                             null: false
     t.boolean  "default",                           null: false
     t.string   "description",       default: "",    null: false
     t.boolean  "delete_flag",       default: false, null: false
@@ -128,6 +130,7 @@ ActiveRecord::Schema.define(version: 20151209193631) do
     t.datetime "updated_at"
     t.boolean  "is_super_user",            default: false
     t.string   "customer_id",              default: ""
+    t.string   "subscription_id"
   end
 
   add_index "users", ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true, using: :btree

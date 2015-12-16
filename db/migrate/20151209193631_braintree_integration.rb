@@ -30,6 +30,7 @@ class BraintreeIntegration < ActiveRecord::Migration
       t.belongs_to :plan, index: true
       t.belongs_to :discount, index: true   
     end
-
+    
+    add_column :users, :subscription_id, :string
   end
 end
