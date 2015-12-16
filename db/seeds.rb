@@ -5,9 +5,6 @@
 #
 
 
-
-
-
   users = [{uid: 'kai@alumnieurope.org',
               provider: 'email',
               email: '_kai@alumnieurope.org',
@@ -138,9 +135,9 @@
 
 
   plans = [{
-        braintree_plan_id: "7hcr",
         name: "default plan",
-        price: 2,
+        price: 10,
+        duration: 120,
         default: true
         }]
 

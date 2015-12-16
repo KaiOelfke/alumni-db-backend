@@ -6,26 +6,16 @@ class Subscriptions::SubscriptionsController < ApplicationController
     @user = current_user
     if @user.subscription_id
     	@subscription = @user.subscription
-    	@new_subscription = Braintree::Subscription.find(@subscription.braintree_new_subscription_id)
-    	@old_subscription = Braintree::Subscription.find(@subscription.braintree_old_subscription_id)
-
-    	if @new_subscription.success? and @new_subscription.status == Braintree::Subscription::Status::active
-    		  
+    	if @subscription
     		  render json: {
 		          status: 'success',
-		          data:   @new_subscription.slice(:status, :billing_period_start_date, :billing_period_end_date)
-		      }, status: 404
-    	elsif (@old_subscription.success? and @old_subscription.status == Braintree::Subscription::Status::active)
-    		  
-    		  render json: {
-		          status: 'success',
-		          data:   @old_subscription.slice(:status, :billing_period_start_date, :billing_period_end_date)
-		      }, status: 404    	
+		          data:   @subscription
+		      }, status: 200
     	else 
 	      render json: {
 	          status: 'error',
 	          errors: ['subscription is not vaild']
-	      }, status: 500
+	      }, status: 404
 	    end    		
     else
       render json: {
@@ -46,8 +36,18 @@ class Subscriptions::SubscriptionsController < ApplicationController
     	@discount = Subscriptions::Discount.find(params[:subscription][:discount_id])
     end    
 
-    @nonce_from_the_client = params[:subscription][:payment_method_nonce]
-    puts @nonce_from_the_client
+    if params[:subscription][:payment_method_nonce]
+    	@nonce_from_the_client = params[:subscription][:payment_method_nonce]
+    end
+
+    unless @nonce_from_the_client
+	      render json: {
+	          status: 'error',
+	          errors: ['nonce token isn\'t provided']
+	      }, status: 500
+	      return  	
+    end
+
     unless @plan
     	@plan = Subscriptions::Plan.find_by default: true
     end
@@ -82,12 +82,11 @@ class Subscriptions::SubscriptionsController < ApplicationController
 
     if @user.subscription_id?
     	@subscription = @user.subscription
-    	@new_subscription = Braintree::Subscription.find(@subscription.braintree_new_subscription_id)
 
-    	if @new_subscription.success? and @new_subscription.status == Braintree::Subscription::Status::Active 
+    	if @subscription.expiry_at.to_datetime >= Time.zone.now
 	      render json: {
 	          status: 'error',
-	          errors: @customer.errors
+	          errors: ['you have already a vaild subscription']
 	      }, status: 500
 	     	return
     	end
@@ -95,45 +94,38 @@ class Subscriptions::SubscriptionsController < ApplicationController
 
 
     if (not @user.subscription_id? or
-    		(@new_subscription and (@new_subscription.status == Braintree::Subscription::Status::Canceled or
-    		@new_subscription.status == Braintree::Subscription::Status::Expired)))
+    		(@subscription and @subscription.expiry_at.to_datetime < Time.zone.now))
 
 		  if @plan
-		  	puts @customer
-		  	puts "asdasds"
-		  	p @customer.methods.sort
-		  	puts "asdasds"
-
-		  	puts @customer.default_payment_method
-		  	puts "asdasds"
-
-		  	puts @customer.payment_methods
-		  	@subscriptionRequest = {
-				  :payment_method_token => @customer.payment_methods[0].token,
-				  :plan_id =>  @plan.braintree_plan_id
+		  	@transactionRequest = {
+				  :amount => @plan.price,
+				  :customer_id => @user.customer_id,
+				  :options => {
+				    :store_in_vault_on_success => true
+				  },
+				  :payment_method_token => @customer.payment_methods[0].token
 				}
 
 				if @discount and @plan.id == @discount.plan_id
-			  	params[:subscription][:discount_id] = @discount.id					
-					@subscriptionRequest[:discounts] = {
-						:add => [
-					      {
-					        :inherited_from_id => @discount.braintree_discount_id
-					      }
-					    ]
-					}
+			  	params[:subscription][:discount_id] = @discount.id
+			  	@transactionRequest[:amount] -= @discount.price
+
+			  	if @transactionRequest[:amount] < 0
+			  		@transactionRequest[:amount] = 0
+			  	end
 				end
 
-			  @_subscription = Braintree::Subscription.create(@subscriptionRequest)
+				@transaction = Braintree::Transaction.sale(@transactionRequest)
 
-			  if @_subscription.success?
-			  	params[:subscription][:braintree_new_subscription_id] = @_subscription.subscription.id
-			  	params[:subscription][:braintree_old_subscription_id] = @_subscription.subscription.id			  	
+			  if @transaction.success?
 			  	params[:subscription][:user_id] = @user.id
 			  	params[:subscription][:plan_id] = @plan.id
+			  	params[:subscription][:expiry_at] = @plan.duration.month.from_now
+			  	params[:subscription][:braintree_transaction_id] = @transaction.transaction.id
 			  	params[:subscription] = params[:subscription].except(:payment_method_nonce)
 
 		      @user.subscription = Subscriptions::Subscription.new(subscription_create_params)
+			  	@user.subscription_id = @user.subscription.id
 		      if @user.save
 		        render json: {
 		          status: 'success',
@@ -149,7 +141,7 @@ class Subscriptions::SubscriptionsController < ApplicationController
 			  else 
 	        render json: {
 	          status: 'error',
-	          errors: @_subscription.errors
+	          errors: @transaction.errors
 	        }, status: 500
 
 			  end
@@ -169,113 +161,20 @@ class Subscriptions::SubscriptionsController < ApplicationController
     end
   end
 
-  def update
-    @user = current_user
-    @plan = Subscriptions::Plan.find(params[:subscription][:plan_id]) 
 
-    if @user.subscription and @user.customer_id and @plan
-		  
-		  @_subscription = Braintree::Subscription.update(
-			  :plan_id =>  @plan.braintree_plan_id,
-			  :braintree_new_subscription_id => @user.subscription.braintree_new_subscription_id
-		  )
-
-		  if @_subscription.success?
-		      if @user.subscription.update(subscription_update_params)
-		        render json: {
-		          data: @user.as_json(),
-		          status: 'success'
-		        }
-		      else
-		        render json: {
-		          status: 'error',
-		          errors: @user.errors
-		        }, status: 403
-		      end
-		  else
-        render json: {
-          status: 'error',
-          errors: @_subscription.errors
-        }, status: 500
-		  end
-
-
-    else
-      render json: {
-        status: 'error',
-        errors: ["not authourized"]
-      }, status: 403
-    end
-  end
-
-  def destroy
-    @user = current_user
-    @subscription = @user.subscription
-    if @subscription
-    	@new_subscription = Braintree::Subscription.find(@subscription.braintree_new_subscription_id)
-    	@old_subscription = Braintree::Subscription.find(@subscription.braintree_old_subscription_id)
-
-    	if (@new_subscription.status == Braintree::Subscription::Status::Canceled or
-    		@new_subscription.status == Braintree::Subscription::Status::Expired)
-        render json: {
-          status: 'error',
-          errors: ['subscription is already cancelled/expired']
-        }, status: 500
-     	else
-	      @_subscription = Braintree::Subscription.cancel(@subscription.braintree_new_subscription_id)
-
-	      if  @_subscription.success?
-	      	if @new_subscription.status == Braintree::Subscription::Status::Active
-	      		@subscription.braintree_old_subscription_id = @subscription.braintree_new_subscription_id
-	        	@subscription.cancelled_at = @new_subscription.billing_period_end_date 
-			      if @subscription.save
-			        render json: {
-			          status: 'success'
-			        }
-			      else
-			        render json: {
-			          status: 'error',
-			          errors: @subscription.errors
-			        }, status: 403
-			      end
-		      else
-		        render json: {
-		          status: 'error',
-		          errors: ['subscription is already cancelled/expired']
-		        }, status: 500
-		      end
-	      else
-		        render json: {
-		          status: 'error',
-		          errors: @_subscription.errors
-		        }, status: 500
-	      end
-
-
-
-    	end
-
-
-    else
-      render json: {
-        status: 'error',
-        errors: ["not authourized"]
-      }, status: 403
-    end
-  end
 
 
   #
   def client_token
     @client_token = Braintree::ClientToken.generate
-    render json: {client_token: @client_token}
+    render json: {clientToken: @client_token}
   end
 
   private
 
     def subscription_create_params
-        params.require(:subscription).permit( :plan_id, :braintree_old_subscription_id,
-        :braintree_new_subscription_id, :user_id, :discount_id, :payment_method_nonce)
+        params.require(:subscription).permit( :plan_id, :braintree_transaction_id,
+        :user_id, :discount_id, :expiry_at, :payment_method_nonce)
     end
 
     def subscription_update_params

@@ -33,7 +33,7 @@ Rails.application.routes.draw do
 
   scope module: 'subscriptions' do
     get '/subscriptions/client_token', to: 'subscriptions#client_token'
-    resource :subscriptions      
+    resource :subscriptions, only: [:show, :create]  
   end
 
 
