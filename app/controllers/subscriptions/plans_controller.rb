@@ -3,16 +3,46 @@ class Subscriptions::PlansController < ApplicationController
   before_action :authenticate_user!
 
   def index
-    #braintree 
-    if params['btree']?
-      @plans = Braintree::Plan.all
+    @user = current_user
+
+    if @user.is_super_user
+      render json: Subscriptions::Plan.all
     else
-      @plans = Discount.all
+      render json: {
+        status: 'error',
+        errors: ["not authourized"]
+      }, status: 403
     end
 
-    render json: @plans
   end
 
+
+  def show
+    @user = current_user
+
+    if @user.is_super_user
+      @plan = Subscriptions::Plan.find_by_id(params[:id])
+
+      if @plan
+        render json: {
+          status: 'success',
+          data: @plan.to_json()
+        }, status: 200
+      else
+        render json: {
+          status: 'error',
+          error: ["plan not found"]
+        }, status: 404
+      end
+
+    else
+      render json: {
+        status: 'error',
+        errors: ["not authourized"]
+      }, status: 403
+    end
+
+  end
 
 
   def create
@@ -20,12 +50,12 @@ class Subscriptions::PlansController < ApplicationController
 
     if @user.is_super_user
 
-      @plan = Plan.new(plan_create_params)
+      @plan = Subscriptions::Plan.new(plan_create_params)
       if params[:default]
-        Plan.find_by(default: ture).destroy_all
+        Subscriptions::Plan.where(default: true).update_all(default: false)
+        puts Subscriptions::Plan.all.to_json
       end
       if @plan.save
-
         render json: {
           status: 'success',
           data:   @plan.as_json()
@@ -47,24 +77,35 @@ class Subscriptions::PlansController < ApplicationController
 
   def update
     @user = current_user
-    @plan = plan.find(params[:id])
+    @plan = Subscriptions::Plan.find_by_id(params[:id])
 
     if @user.is_super_user
-      if params[:default]
-        Plan.find_by(default: ture).destroy_all
-      end
+      if @plan
 
-      if @plan.update(plan_update_params)
-        render json: {
-          data: @plan.as_json(),
-          status: 'success'
-        }
+        if params[:plan] and params[:plan][:default]
+          Subscriptions::Plan.where(default: true).update_all(default: false)
+        end
+
+
+        if @plan.update(plan_update_params)
+          render json: {
+            data: @plan.as_json(),
+            status: 'success'
+          }
+        else
+          render json: {
+            status: 'error',
+            errors: @plan.errors
+          }, status: 403
+        end
+
       else
         render json: {
           status: 'error',
-          errors: @plan.errors
-        }, status: 403
+          error: ["plan not found"]
+        }, status: 404
       end
+
     else
       render json: {
         status: 'error',
@@ -75,18 +116,28 @@ class Subscriptions::PlansController < ApplicationController
 
   def destroy
     @user = current_user
-    @plan = plan.find(params[:id])
+    @plan = Subscriptions::Plan.find_by_id(params[:id])
     if @user.is_super_user
-      @plan.delete_flag = true
-      if @plan.save
-        render json: {
-          status: 'success'
-        }
+
+      if @plan
+        @plan.delete_flag = true
+
+        if @plan.save
+          render json: {
+            status: 'success'
+          }
+        else
+          render json: {
+            status: 'error',
+            errors: @plan.errors
+          }, status: 403
+        end
+
       else
         render json: {
           status: 'error',
-          errors: @plan.errors
-        }, status: 403
+          error: ["plan not found"]
+        }, status: 404
       end
 
     else
@@ -100,11 +151,11 @@ class Subscriptions::PlansController < ApplicationController
   private
 
     def plan_create_params
-        params.require(:plan).permit(:name, :description, :created_at, :price, :default, :braintree_plan_id)
+        params.require(:plan).permit(:name, :description, :price, :default)
     end
 
     def plan_update_params
-        params.require(:plan).permit(:name, :description, :expiry_at, :price, :default)
+        params.require(:plan).permit(:name, :description, :price, :default)
     end
 
 end

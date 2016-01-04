@@ -55,27 +55,22 @@ ActiveRecord::Schema.define(version: 20151209193631) do
   add_index "memberships", ["user_id"], name: "index_memberships_on_user_id", using: :btree
 
   create_table "plans", force: true do |t|
-    t.string   "name",                        null: false
-    t.integer  "price",                       null: false
-    t.boolean  "default",                     null: false
-    t.integer  "duration",                    null: false
-    t.string   "description", default: "",    null: false
-    t.boolean  "delete_flag", default: false, null: false
-    t.datetime "expiry_at"
+    t.string  "name",                        null: false
+    t.integer "price",                       null: false
+    t.boolean "default",                     null: false
+    t.string  "description", default: "",    null: false
+    t.boolean "delete_flag", default: false, null: false
   end
 
   create_table "subscriptions", force: true do |t|
-    t.string   "braintree_transaction_id", null: false
+    t.string   "braintree_transaction_id"
     t.datetime "created_at",               null: false
-    t.datetime "expiry_at",                null: false
-    t.integer  "user_id"
     t.integer  "plan_id"
     t.integer  "discount_id"
   end
 
   add_index "subscriptions", ["discount_id"], name: "index_subscriptions_on_discount_id", using: :btree
   add_index "subscriptions", ["plan_id"], name: "index_subscriptions_on_plan_id", using: :btree
-  add_index "subscriptions", ["user_id"], name: "index_subscriptions_on_user_id", using: :btree
 
   create_table "users", force: true do |t|
     t.string   "email",                                    null: false
@@ -128,7 +123,7 @@ ActiveRecord::Schema.define(version: 20151209193631) do
     t.datetime "updated_at"
     t.boolean  "is_super_user",            default: false
     t.string   "customer_id",              default: ""
-    t.string   "subscription_id"
+    t.integer  "subscription_id"
   end
 
   add_index "users", ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true, using: :btree

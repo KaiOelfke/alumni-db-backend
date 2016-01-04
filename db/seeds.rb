@@ -5,6 +5,7 @@
 #
 
 
+
   users = [{uid: 'kai@alumnieurope.org',
               provider: 'email',
               email: '_kai@alumnieurope.org',
@@ -134,10 +135,10 @@
               completed_profile: true}       ]
 
 
+
   plans = [{
         name: "default plan",
-        price: 10,
-        duration: 120,
+        price: 25,
         default: true
         }]
 

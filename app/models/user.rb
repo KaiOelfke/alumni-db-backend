@@ -3,10 +3,9 @@ require 'uri'
 class User < ActiveRecord::Base
   include DeviseTokenAuth::Concerns::User
 
-  has_one :subscription, :class_name => "Subscriptions::Subscription",dependent: :destroy
-
   has_many :memberships
   has_many :groups, through: :memberships
+  belongs_to :subscription, :class_name => "Subscriptions::Subscription", foreign_key: "subscription_id", dependent: :destroy
 
   mount_uploader :avatar, AvatarUploader
 
@@ -120,4 +119,17 @@ class User < ActiveRecord::Base
   rescue URI::InvalidURIError
     false
   end
+
+  def token_validation_response
+    self.as_json(
+      :methods => [:is_premium],
+      except: [
+      :tokens, :created_at, :updated_at, :customer_id
+    ])
+  end
+
+  def is_premium
+    !!self.subscription_id
+  end
+
 end

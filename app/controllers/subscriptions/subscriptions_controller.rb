@@ -3,20 +3,31 @@ class Subscriptions::SubscriptionsController < ApplicationController
   before_action :authenticate_user!
 
   def show
-    @user = current_user
-    if @user.subscription_id
-    	@subscription = @user.subscription
-    	if @subscription
-    		  render json: {
-		          status: 'success',
-		          data:   @subscription
-		      }, status: 200
-    	else 
-	      render json: {
-	          status: 'error',
-	          errors: ['subscription is not vaild']
-	      }, status: 404
-	    end    		
+    @current_user = current_user
+    @user = User.find_by_id(params[:id])
+    unless @user
+      render json: {
+          status: 'error',
+          errors: ['user not found']
+      }, status: 404
+      return
+    end
+
+    if ((@current_user.is_super_user and @user.subscription_id) or
+       (@user and @user.id ==  @current_user.id and @user.subscription_id))
+
+      @subscription = @user.subscription
+      if @subscription
+          render json: {
+              status: 'success',
+              data:   @subscription.to_json
+          }, status: 200
+      else
+        render json: {
+            status: 'error',
+            errors: ['subscription is not vaild']
+        }, status: 404
+      end
     else
       render json: {
           status: 'error',
@@ -27,133 +38,178 @@ class Subscriptions::SubscriptionsController < ApplicationController
   end
 
   def create
-    @user = current_user
+    @current_user = current_user
+
+    if params[:subscription][:user_id]
+      @user = User.find(params[:subscription][:user_id])
+    end
+
     if params[:subscription][:plan_id]
-    	@plan = Subscriptions::Plan.find(params[:subscription][:plan_id]) 
+      @plan = Subscriptions::Plan.find_by_id(params[:subscription][:plan_id])
     end
 
     if params[:subscription][:discount_id]
-    	@discount = Subscriptions::Discount.find(params[:subscription][:discount_id])
-    end    
+      @discount = Subscriptions::Discount.find_by_id(params[:subscription][:discount_id])
+      unless @discount
+        render json: {
+          status: 'error',
+          errors: ["discount not found"]
+        }, status: 404
+        return
+      end
+    end
 
     if params[:subscription][:payment_method_nonce]
-    	@nonce_from_the_client = params[:subscription][:payment_method_nonce]
+      @nonce_from_the_client = params[:subscription][:payment_method_nonce]
     end
 
-    unless @nonce_from_the_client
-	      render json: {
-	          status: 'error',
-	          errors: ['nonce token isn\'t provided']
-	      }, status: 500
-	      return  	
+    if not @current_user.is_super_user? and not @nonce_from_the_client
+        render json: {
+            status: 'error',
+            errors: ['nonce token isn\'t provided']
+        }, status: 404
+        return
     end
 
+    # default plan
     unless @plan
-    	@plan = Subscriptions::Plan.find_by default: true
+      @plan = Subscriptions::Plan.find_by default: true
     end
 
-    unless @user.customer_id?
-    	@customer = Braintree::Customer.create(
-			  :first_name => @user.first_name,
-			  :last_name => @user.last_name,
-			  :payment_method_nonce => @nonce_from_the_client
-		  )
-
-		  if @customer.success?
-			  @user.customer_id = @customer.customer.id
-			  @customer = @customer.customer
-	      unless @user.save
-	        render json: {
-	          status: 'error',
-	          errors: @user.errors
-	        }, status: 403
-	        return
-	      end
-		  else
-	      render json: {
-	          status: 'error',
-	          errors: @customer.errors
-	      }, status: 500
-	     	return
-		  end
-    else
-    	@customer = Braintree::Customer.find(@user.customer_id)
+    unless @user
+      render json: {
+        status: 'error',
+        errors: ["user not found"]
+      }, status: 404
+      return
     end
 
-    if @user.subscription_id?
-    	@subscription = @user.subscription
+    # super user can set user as premium without paying
+    if @current_user.is_super_user and not @nonce_from_the_client
+      if @plan
+        params[:subscription][:plan_id] = @plan.id
+        params[:subscription] = params[:subscription].except(:payment_method_nonce)
 
-    	if @subscription.expiry_at.to_datetime >= Time.zone.now
-	      render json: {
-	          status: 'error',
-	          errors: ['you have already a vaild subscription']
-	      }, status: 500
-	     	return
-    	end
-    end
+        @user.subscription = Subscriptions::Subscription.new(subscription_create_params)
+        @user.subscription_id = @user.subscription.id
+        if @user.save
+          render json: {
+            status: 'success',
+            data:  @user.as_json()
+          }
+        else
+          render json: {
+            status: 'error',
+            errors: @user.errors
+          }, status: 403
+        end
 
-
-    if (not @user.subscription_id? or
-    		(@subscription and @subscription.expiry_at.to_datetime < Time.zone.now))
-
-		  if @plan
-		  	@transactionRequest = {
-				  :amount => @plan.price,
-				  :customer_id => @user.customer_id,
-				  :options => {
-				    :store_in_vault_on_success => true
-				  },
-				  :payment_method_token => @customer.payment_methods[0].token
-				}
-
-				if @discount and @plan.id == @discount.plan_id
-			  	params[:subscription][:discount_id] = @discount.id
-			  	@transactionRequest[:amount] -= @discount.price
-
-			  	if @transactionRequest[:amount] < 0
-			  		@transactionRequest[:amount] = 0
-			  	end
-				end
-
-				@transaction = Braintree::Transaction.sale(@transactionRequest)
-
-			  if @transaction.success?
-			  	params[:subscription][:user_id] = @user.id
-			  	params[:subscription][:plan_id] = @plan.id
-			  	params[:subscription][:expiry_at] = @plan.duration.month.from_now
-			  	params[:subscription][:braintree_transaction_id] = @transaction.transaction.id
-			  	params[:subscription] = params[:subscription].except(:payment_method_nonce)
-
-		      @user.subscription = Subscriptions::Subscription.new(subscription_create_params)
-			  	@user.subscription_id = @user.subscription.id
-		      if @user.save
-		        render json: {
-		          status: 'success',
-		          data:   @user.as_json()
-		        }
-		      else
-		        render json: {
-		          status: 'error',
-		          errors: @user.errors
-		        }, status: 403
-		      end
-
-			  else 
-	        render json: {
-	          status: 'error',
-	          errors: @transaction.errors
-	        }, status: 500
-
-			  end
-
-			else
+      else
         render json: {
           status: 'error',
           errors: ["plan not found"]
         }, status: 404
-			end
-    
-    else 
+      end
+      return
+    end
+
+
+
+    unless @user.customer_id?
+      @customer = Braintree::Customer.create(
+        :first_name => @user.first_name,
+        :last_name => @user.last_name,
+        :payment_method_nonce => @nonce_from_the_client
+      )
+
+      if @customer.success?
+        @user.customer_id = @customer.customer.id
+        @customer = @customer.customer
+        unless @user.save
+          render json: {
+            status: 'error',
+            errors: @user.errors
+          }, status: 403
+          return
+        end
+      else
+        render json: {
+            status: 'error',
+            errors: @customer.errors
+        }, status: 500
+        return
+      end
+    else
+      @customer = Braintree::Customer.find(@user.customer_id)
+    end
+
+    if @user.subscription_id?
+        render json: {
+            status: 'error',
+            errors: ['you have already a vaild subscription']
+        }, status: 500
+        return
+    end
+
+
+    if (not @user.subscription_id?)
+
+      if @plan
+        @transactionRequest = {
+          :amount => @plan.price,
+          :customer_id => @user.customer_id,
+          :options => {
+            :store_in_vault_on_success => true
+          },
+          :payment_method_token => @customer.payment_methods[0].token
+        }
+
+        if @discount and @plan.id == @discount.plan_id
+          params[:subscription][:discount_id] = @discount.id
+          @transactionRequest[:amount] -= @discount.price
+
+          if @transactionRequest[:amount] < 0
+            @transactionRequest[:amount] = 0
+          end
+        end
+
+        @transaction = Braintree::Transaction.sale(@transactionRequest)
+
+        if @transaction.success?
+          params[:subscription][:plan_id] = @plan.id
+          params[:subscription][:braintree_transaction_id] = @transaction.transaction.id
+          params[:subscription] = params[:subscription].except(:user_id,:payment_method_nonce)
+
+          @user.subscription = Subscriptions::Subscription.new(subscription_create_params)
+
+          if @user.save
+            render json: {
+              status: 'success',
+              data:   @user.as_json()
+            }
+          else
+            render json: {
+              status: 'error',
+              errors: @user.errors
+            }, status: 403
+          end
+
+        else
+          render json: {
+            status: 'error',
+            errors: @transaction.errors
+          }, status: 500
+
+        end
+
+      else
+        render json: {
+          status: 'error',
+          errors: ["plan not found"]
+        }, status: 404
+      end
+
+    else
       render json: {
         status: 'error',
         errors: ["not authourized"]
@@ -161,10 +217,43 @@ class Subscriptions::SubscriptionsController < ApplicationController
     end
   end
 
+  def destroy
+    @current_user = current_user
+
+    @subscription = Subscriptions::Subscription.find_by_id(params[:id])
+
+    if @subscription
+      @user = User.find_by_subscription_id( @subscription.id)
+
+      if @current_user.is_super_user or @current_user.id == @user.id
+
+        if @user.subscription.destroy
+          render json: {
+            status: 'success'
+          }
+        else
+          render json: {
+            status: 'error',
+            errors: @subscription.errors
+          }, status: 403
+        end
+      else
+        render json: {
+          status: 'error',
+          errors: ["not authourized"]
+        }, status: 403
+      end
+
+    else
+      render json: {
+        status: 'error',
+        errors: ["subscription not found"]
+      }, status: 404
+    end
 
 
+  end
 
-  #
   def client_token
     @client_token = Braintree::ClientToken.generate
     render json: {clientToken: @client_token}
@@ -174,11 +263,7 @@ class Subscriptions::SubscriptionsController < ApplicationController
 
     def subscription_create_params
         params.require(:subscription).permit( :plan_id, :braintree_transaction_id,
-        :user_id, :discount_id, :expiry_at, :payment_method_nonce)
+         :discount_id, :payment_method_nonce)
     end
-
-    def subscription_update_params
-        params.require(:subscription).permit(:plan_id)
-    end  
 
 end
