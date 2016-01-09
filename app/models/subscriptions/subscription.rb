@@ -4,7 +4,6 @@ class Subscriptions::Subscription < ActiveRecord::Base
   before_destroy :nullify_subscription_id
 
   validates :plan, presence: true
-  validates :discount, presence: true
 
   private
     def nullify_subscription_id

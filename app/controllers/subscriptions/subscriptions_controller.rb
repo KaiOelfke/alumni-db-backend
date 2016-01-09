@@ -185,7 +185,7 @@ class Subscriptions::SubscriptionsController < ApplicationController
           if @user.save
             render json: {
               status: 'success',
-              data:   @user.as_json()
+              data:   @user.token_validation_response
             }
           else
             render json: {
