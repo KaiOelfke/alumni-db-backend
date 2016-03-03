@@ -8,10 +8,8 @@ class Subscriptions::PlansController < ApplicationController
     if @user.is_super_user
       render json: Subscriptions::Plan.all
     else
-      render json: {
-        status: 'error',
-        errors: ["not authourized"]
-      }, status: 403
+      # Returns array with always only the one default plan
+      render json: Subscriptions::Plan.where(default: true)
     end
 
   end

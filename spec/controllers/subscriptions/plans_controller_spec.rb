@@ -16,11 +16,13 @@ RSpec.describe Subscriptions::PlansController, type: :controller do
 
   describe 'GET /subscriptions/plans' do
 
-    it "should return 404 if user isn't super user" do
+    it "should return default plan if user is not super user" do
       auth_headers = @completed_profile_user.create_new_auth_token
       request.headers.merge!(auth_headers)
       get :index, format: :json
-      expect(response.code).to eq "403"
+      expect(response.code).to eq "200"
+      jsonbody = JSON.parse(response.body)
+      expect(jsonbody[0]['default']).to eq true
     end
 
     it "should allow super user to access all discounts" do
