@@ -51,7 +51,6 @@ class Subscriptions::PlansController < ApplicationController
       @plan = Subscriptions::Plan.new(plan_create_params)
       if params[:default]
         Subscriptions::Plan.where(default: true).update_all(default: false)
-        puts Subscriptions::Plan.all.to_json
       end
       if @plan.save
         render json: {
