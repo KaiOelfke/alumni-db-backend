@@ -122,10 +122,13 @@ class User < ActiveRecord::Base
 
   def token_validation_response
     self.as_json(
-      :methods => [:is_premium],
       except: [
       :tokens, :created_at, :updated_at, :customer_id
     ])
+  end
+
+  def as_json(options = {})
+    super(options.reverse_merge(:methods => [:is_premium]))
   end
 
   def is_premium
