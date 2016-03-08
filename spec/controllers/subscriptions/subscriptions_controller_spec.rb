@@ -53,19 +53,6 @@ RSpec.describe Subscriptions::SubscriptionsController, type: :controller do
   describe 'POST /subscriptions' do
 
 
-    it "should return 404 if user_id is missing" do
-      auth_headers = @completed_profile_user.create_new_auth_token
-      request.headers.merge!(auth_headers)
-      attrs = FactoryGirl.attributes_for(:subscription)
-      newSubscription = Hash.new
-      newSubscription[:subscription] = attrs
-      newSubscription[:subscription][:plan_id] = @plan.id
-      newSubscription[:subscription][:payment_method_nonce] = Braintree::Test::Nonce::Transactable
-
-      post :create, newSubscription, format: :json
-      expect(response.code).to eq "404"
-    end
-
 
     it "should return 404 if discount_id isn't valid" do
       auth_headers = @completed_profile_user.create_new_auth_token
@@ -87,7 +74,6 @@ RSpec.describe Subscriptions::SubscriptionsController, type: :controller do
       newSubscription = Hash.new
       newSubscription[:subscription] = attrs
       newSubscription[:subscription][:plan_id] = 456
-      newSubscription[:subscription][:user_id] =  @completed_profile_user.id
 
       post :create, newSubscription, format: :json
       expect(response.code).to eq "404"
@@ -100,7 +86,6 @@ RSpec.describe Subscriptions::SubscriptionsController, type: :controller do
       newSubscription = Hash.new
       newSubscription[:subscription] = attrs
       newSubscription[:subscription][:plan_id] = @plan.id
-      newSubscription[:subscription][:user_id] =  @completed_profile_user.id
 
       post :create, newSubscription, format: :json
       expect(response.code).to eq "404"
@@ -114,7 +99,6 @@ RSpec.describe Subscriptions::SubscriptionsController, type: :controller do
       newSubscription = Hash.new
       newSubscription[:subscription] = attrs
       newSubscription[:subscription][:plan_id] = @plan.id
-      newSubscription[:subscription][:user_id] =  @completed_profile_user.id
       newSubscription[:subscription][:payment_method_nonce] = Braintree::Test::Nonce::Transactable
 
       post :create, newSubscription, format: :json
@@ -129,7 +113,6 @@ RSpec.describe Subscriptions::SubscriptionsController, type: :controller do
       newSubscription[:subscription] = attrs
       newSubscription[:subscription][:plan_id] =  @discount.plan.id
       newSubscription[:subscription][:discount_id] =  @discount.id
-      newSubscription[:subscription][:user_id] =  @completed_profile_user.id
 
       newSubscription[:subscription][:payment_method_nonce] = Braintree::Test::Nonce::TransactableVisa
 
@@ -145,7 +128,6 @@ RSpec.describe Subscriptions::SubscriptionsController, type: :controller do
 
       newSubscription = Hash.new
       newSubscription[:subscription] = attrs
-      newSubscription[:subscription][:user_id] =  @completed_profile_user.id
       newSubscription[:subscription][:payment_method_nonce] = Braintree::Test::Nonce::TransactableMasterCard
 
       post :create, newSubscription, format: :json
