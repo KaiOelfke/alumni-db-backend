@@ -6,7 +6,7 @@
 
 
 
-  users = [{uid: 'kai@alumnieurope.org',
+  users = [{uid: '_kai@alumnieurope.org',
               provider: 'email',
               email: '_kai@alumnieurope.org',
               password: '12345678',

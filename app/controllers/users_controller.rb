@@ -7,7 +7,14 @@ class UsersController < ApplicationController
   def index
     @users = User.all
 
-    render json: @users
+    render :json => @users.map { |user| 
+      if current_user.id != user.id and not current_user.is_super_user
+        user.as_json(:except => [:subscription_id]) 
+      else
+        user.as_json()
+      end
+    }
+
   end
 
   # GET /users/1
