@@ -179,7 +179,8 @@ class Subscriptions::SubscriptionsController < ApplicationController
         :amount => @plan.price,
         :customer_id => @current_user.customer_id,
         :options => {
-          :store_in_vault_on_success => true
+          :store_in_vault_on_success => true,
+          :submit_for_settlement => true
         },
         :payment_method_token => @customer.payment_methods[0].token
       }
@@ -214,10 +215,24 @@ class Subscriptions::SubscriptionsController < ApplicationController
           }, status: 403
         end
 
-      else
+      elsif @transaction.errors.any?
+        
         render json: {
           status: 'error',
           errors: @transaction.errors
+        }, status: 500
+
+      else
+        @transcation_status = @transaction.transaction.status
+        @transcation_message = @transaction.transaction.processor_response_text or
+                               @transaction.transaction.processor_settlement_response_text
+
+        @transaction_code = @transaction.transaction.processor_response_code or
+                            @transaction.transaction.processor_settlement_response_code
+
+        render json: {
+          status: 'error',
+          errors: [{status: @transcation_status, code: @transaction_code , message:@transcation_message}]
         }, status: 500
 
       end

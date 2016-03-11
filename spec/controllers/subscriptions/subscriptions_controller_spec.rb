@@ -120,6 +120,55 @@ RSpec.describe Subscriptions::SubscriptionsController, type: :controller do
       expect(response).to be_success
     end
 
+
+    it "should return 500 if the user trying to pay with declined credit card" do
+      auth_headers = @completed_profile_user.create_new_auth_token
+      request.headers.merge!(auth_headers)
+      attrs = FactoryGirl.attributes_for(:subscription)
+      @defaultPlan = FactoryGirl.create(:plan, :default)
+
+      newSubscription = Hash.new
+      newSubscription[:subscription] = attrs
+      newSubscription[:subscription][:payment_method_nonce] = Braintree::Test::Nonce::ProcessorDeclinedMasterCard
+
+      post :create, newSubscription, format: :json
+      expect(response.code).to eq "500"
+    end
+
+
+
+    it "should return 500 if the user trying to pay with failed credit card" do
+      auth_headers = @completed_profile_user.create_new_auth_token
+      request.headers.merge!(auth_headers)
+      attrs = FactoryGirl.attributes_for(:subscription)
+      @defaultPlan = FactoryGirl.create(:plan, :default)
+
+      newSubscription = Hash.new
+      newSubscription[:subscription] = attrs
+      newSubscription[:subscription][:payment_method_nonce] = Braintree::Test::Nonce::ProcessorFailureJCB
+
+      post :create, newSubscription, format: :json
+      expect(response.code).to eq "500"
+    end
+
+
+=begin
+    it "should return 500 if there's fraud"  do
+      auth_headers = @completed_profile_user.create_new_auth_token
+      request.headers.merge!(auth_headers)
+      attrs = FactoryGirl.attributes_for(:subscription)
+      @defaultPlan = FactoryGirl.create(:plan, :default)
+
+      newSubscription = Hash.new
+      newSubscription[:subscription] = attrs
+      newSubscription[:subscription][:payment_method_nonce] = Braintree::Test::Nonce::GatewayRejectedFraud
+
+      post :create, newSubscription, format: :json
+      expect(response.code).to eq "500"
+    end
+=end
+
+
     it "should allow user to be permium user with default plan" do
       auth_headers = @completed_profile_user.create_new_auth_token
       request.headers.merge!(auth_headers)
@@ -161,7 +210,7 @@ RSpec.describe Subscriptions::SubscriptionsController, type: :controller do
     it "should return 404 if user isn't subscribred" do
       auth_headers = @completed_profile_user.create_new_auth_token
       request.headers.merge!(auth_headers)
-      delete :destroy, :id => @completed_profile_user.subscription_id, format: :json
+      delete :destroy, :id => 9999999, format: :json
       expect(response.code).to eq "404"
     end
 
@@ -180,6 +229,9 @@ RSpec.describe Subscriptions::SubscriptionsController, type: :controller do
       expect(response).to be_success
       expect(@completed_profile_subscribred_user.reload.subscription_id).to eq nil
     end
+
+
+
   end
 
 
