@@ -3,8 +3,8 @@ require 'uri'
 class User < ActiveRecord::Base
   include DeviseTokenAuth::Concerns::User
 
-  has_many :memberships
-  has_many :groups, through: :memberships
+  scope :completed_profile, -> { where(completed_profile: true) }
+
   belongs_to :subscription, :class_name => "Subscriptions::Subscription", foreign_key: "subscription_id", dependent: :destroy
 
   mount_uploader :avatar, AvatarUploader

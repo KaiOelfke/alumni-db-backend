@@ -48,20 +48,6 @@ FactoryGirl.define do
     end
 
 
-
-    factory :user_with_groups do
-
-      transient do
-        groups_count 1
-        is_admin false
-        group_email_subscribed false
-      end
-
-      after(:create) do |user, evaluator|
-          create_list(:membership, 1,is_admin: evaluator.is_admin, group_email_subscribed: false, user: user)
-
-      end
-    end
   end
 
 end

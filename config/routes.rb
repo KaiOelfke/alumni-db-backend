@@ -10,26 +10,13 @@ Rails.application.routes.draw do
   #resources :users, only: [:show,:index]
 
   put 'users', to: 'users#update'
-  get 'users/:user_id/memberships', to: 'users#memberships'
 
   resources :users, only: [:show, :index]
-
-  resources :groups, except: [:edit, :new] do
-    member do
-      get :users
-    end
-  end
-
-  resources :memberships, only: [:show, :update, :create, :destroy]
-
-
-
 
   namespace :subscriptions do
 
     resources :discounts, :plans, only: [:index, :show, :update, :create, :destroy]
   end
-
 
   scope module: 'subscriptions' do
     get '/subscriptions/client_token', to: 'subscriptions#client_token'

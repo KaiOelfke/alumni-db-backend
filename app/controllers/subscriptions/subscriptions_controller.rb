@@ -77,6 +77,7 @@ class Subscriptions::SubscriptionsController < ApplicationController
       return
     end
 
+
     #
     # pay in cash
     # super user feature
@@ -123,6 +124,7 @@ class Subscriptions::SubscriptionsController < ApplicationController
     #
     elsif @nonce_from_the_client
 
+
       if @current_user.subscription_id?
         render json: {
             status: 'error',
@@ -145,15 +147,48 @@ class Subscriptions::SubscriptionsController < ApplicationController
           }
         )
 
+
         if @customer.success?
+
           @customer = @customer.customer
           @current_user.customer_id = @customer.id
+
+        elsif @customer.credit_card_verification 
+          @verification = @customer.credit_card_verification
+          if @verification.status.eql?("gateway_rejected")
+            render json: {
+              status: 'error',
+              errors: [{ status: @verification.status,
+                         message: @verification.gateway_rejection_reason}]
+            }, status: 500
+
+          elsif @verification.status.eql?("processor_declined")
+
+            render json: {
+              status: 'error',
+              errors: [{ status: @verification.status,
+                         code: @verification.processor_response_code,
+                         message:@verification.processor_response_text}]
+            }, status: 500
+
+          else 
+            render json: {
+              status: 'error',
+              errors: [{ status: "unknown_error",
+                         message: "unknown server error"}]
+            }, status: 500
+
+          end
+            
+          return
+
         else
           render json: {
               status: 'error',
               errors: @customer.errors
           }, status: 500
           return
+
         end
       else
         @customer = Braintree::Customer.find(@current_user.customer_id)
@@ -165,15 +200,49 @@ class Subscriptions::SubscriptionsController < ApplicationController
           }
         )
 
-        unless @updatePaymentMethodResult.success? 
+        if @updatePaymentMethodResult.success?
+          
+        elsif @updatePaymentMethodResult.credit_card_verification 
+          @verification = @updatePaymentMethodResult.credit_card_verification
+          if @verification.status.eql?("gateway_rejected")
+            render json: {
+              status: 'error',
+              errors: [{ status: @verification.status,
+                         message: @verification.gateway_rejection_reason}]
+            }, status: 500
+
+          elsif @verification.status.eql?("processor_declined")
+
+            render json: {
+              status: 'error',
+              errors: [{ status: @verification.status,
+                         code: @verification.processor_response_code,
+                         message:@verification.processor_response_text}]
+            }, status: 500
+
+          else 
+            render json: {
+              status: 'error',
+              errors: [{ status: "unknown_error",
+                         message: "unknown server error"}]
+            }, status: 500
+
+          end
+            
+          return
+
+        else
           render json: {
               status: 'error',
               errors: @updatePaymentMethodResult.errors
           }, status: 500
           return
+
         end
 
+
       end
+
 
       @transactionRequest = {
         :amount => @plan.price,
@@ -215,20 +284,20 @@ class Subscriptions::SubscriptionsController < ApplicationController
           }, status: 403
         end
 
-      elsif @transaction.errors.any?
+      elsif @transaction.transaction.errors.any?
         
         render json: {
           status: 'error',
-          errors: @transaction.errors
+          errors: @transaction.transaction.errors
         }, status: 500
 
       else
-        @transcation_status = @transaction.transaction.status
+        @transcation_status = @transaction.transaction.status or "processor_declined"
         @transcation_message = @transaction.transaction.processor_response_text or
-                               @transaction.transaction.processor_settlement_response_text
+                               @transaction.transaction.processor_settlement_response_text or "unknown_error"
 
         @transaction_code = @transaction.transaction.processor_response_code or
-                            @transaction.transaction.processor_settlement_response_code
+                            @transaction.transaction.processor_settlement_response_code or "unknown server error"
 
         render json: {
           status: 'error',

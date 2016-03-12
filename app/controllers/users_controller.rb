@@ -2,13 +2,23 @@ class UsersController < ApplicationController
 
   before_action :authenticate_user!
   before_action :configure_permitted_parameters, on: :update
+
   # GET /users
   # GET /users.json
   def index
-    @users = User.all
+    @current_user = current_user
+
+    if @current_user.is_super_user
+      @users = User.all
+    else
+      @users = User.completed_profile
+    end
+    
+
 
     render :json => @users.map { |user| 
-      if current_user.id != user.id and not current_user.is_super_user
+
+      if @current_user.id != user.id and not @current_user.is_super_user
         user.as_json(:except => [:subscription_id]) 
       else
         user.as_json()
@@ -65,47 +75,6 @@ class UsersController < ApplicationController
       end
   end
 
-  def memberships
-
-    @memberships = User.find(params[:user_id]).memberships
-    render json: {
-      status: 'success',
-      data:   @memberships.as_json()
-    }    
-  end
-
-
-  def checkout
-    nonce = params[:payment_method_nonce]
-    plan = params[:plan]
-    discounts = params[:discounts]
-
-    if init_braintree(nonce)
-      charge 
-
-    else
-
-    end
-
-  end
-
-  def init_braintree(payment_nonce)
-    result = Braintree::Customer.create(
-      :credit_card => {
-        :payment_method_nonce => payment_nonce,
-        :options => {
-          :verify_card => true
-        }
-      }
-    )
-    if result.success?
-      self.customer_id = result.customer.id
-      self.save
-      true
-    else
-      false
-    end
-  end  
 
   def account_update_params
     params.permit(devise_parameter_sanitizer.for(:account_update))
