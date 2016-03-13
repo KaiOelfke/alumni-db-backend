@@ -18,4 +18,3 @@ deploy:
     master: alumni-db-backend
 notifications:
   slack: alumnidb:B2rQLHtUQoFgsDPeuImC8dzh
-
