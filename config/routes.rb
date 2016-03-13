@@ -7,7 +7,7 @@ Rails.application.routes.draw do
     confirmations: 'users/confirmations'
   }
 
-  #resources :users, only: [:show,:index]
+  get 'search', to: 'search#search'
 
   put 'users', to: 'users#update'
 
