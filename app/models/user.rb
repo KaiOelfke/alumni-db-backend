@@ -4,7 +4,8 @@ class User < ActiveRecord::Base
   include DeviseTokenAuth::Concerns::User
   include PgSearch
 
-  multisearchable :against => [:first_name, :last_name]
+  # multisearchable :against => [:first_name, :last_name]
+  pg_search_scope :search, :against => [:first_name, :last_name] #, :using => [:tsearch, :trigram, :dmetaphone]
 
   scope :completed_profile, -> { where(completed_profile: true) }
 
