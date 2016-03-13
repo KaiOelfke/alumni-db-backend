@@ -5,9 +5,10 @@
 #
 
 
-    users = [{uid: 'kai@alumnieurope.org',
+
+  users = [{uid: '_kai@alumnieurope.org',
               provider: 'email',
-              email: 'kai@alumnieurope.org',
+              email: '_kai@alumnieurope.org',
               password: '12345678',
               first_name: 'Kai',
               last_name: 'Oelfke',
@@ -35,7 +36,8 @@
               linkedin_url: 'https://de.linkedin.com/pub/kai-oelfke/58/191/a74/en',
               mobile_phone: '+4917670261855',
               registered: true,
-              completed_profile: true},
+              completed_profile: true,
+              is_super_user: true},
              {uid: 'neuissa@gmail.com',
               provider: 'email',
               email: 'neuissa@gmail.com',
@@ -66,10 +68,11 @@
               linkedin_url: '',
               mobile_phone: '',
               registered: true,
-              completed_profile: true},
+              completed_profile: true,
+              is_super_user: true},
              {uid: 'can.goektas@gmail.com',
               provider: 'email',
-              email: 'can.goektas@gmail.com',
+              email: '_can.goektas@gmail.com',
               password: '00000000',
               first_name: 'Can',
               last_name: 'Göktas',
@@ -97,6 +100,48 @@
               linkedin_url: '',
               mobile_phone: '',
               registered: true,
-              completed_profile: true}]
-   users = User.create(users)
+              completed_profile: true,
+              is_super_user: true},
+             {uid: 'test@example.de',
+              provider: 'email',
+              email: 'test@example.de',
+              password: '00000000',
+              first_name: 'Can',
+              last_name: 'Göktas',
+              country: 'DE',
+              city: 'Berlin',
+              date_of_birth: '12.10.1990',
+              gender: 0,
+              program_type: 0,
+              institution: 'TBC',
+              year_of_participation: 2010,
+              country_of_participation: 'DE',
+              student_company_name: 'TBC',
+              university_name: 'FU Berlin',
+              university_major: 'Informatik',
+              founded_company_name: '',
+              current_company_name: 'DAI Labor',
+              current_job_position: 'Entwickler',
+              interests: 'Fußball',
+              short_bio: 'TBC',
+              alumni_position: 'Volunteer',
+              member_since: '01.10.2014',
+              facebook_url: 'https://www.facebook.com/cgoektas',
+              skype_id: 'cangoektas',
+              twitter_url: '',
+              linkedin_url: '',
+              mobile_phone: '',
+              registered: true,
+              completed_profile: true}       ]
 
+
+
+  plans = [{
+        name: "default plan",
+        price: 25,
+        default: true
+        }]
+
+  users = User.create(users)
+
+  plans = Subscriptions::Plan.create(plans)

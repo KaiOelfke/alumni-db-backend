@@ -4,8 +4,6 @@ gem 'rails', '4.1.7'
 
 gem 'rails-api'
 
-gem 'spring', :group => :development
-
 gem 'rack-cors', :require => 'rack/cors'
 
 gem 'pg'
@@ -29,3 +27,12 @@ gem 'carrierwave'
 gem "fog"
 
 gem "fog-aws"
+
+gem "braintree" , '~> 2.56'
+
+group :test, :development do
+  gem 'spring'
+  gem 'rspec-rails', '~> 3.2'
+  gem 'factory_girl_rails', '~> 4.5'
+  gem "accept_values_for"  
+end
