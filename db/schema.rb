@@ -28,31 +28,15 @@ ActiveRecord::Schema.define(version: 20151209193631) do
 
   add_index "discounts", ["plan_id"], name: "index_discounts_on_plan_id", using: :btree
 
-  create_table "groups", force: true do |t|
-    t.string   "description"
-    t.string   "picture"
-    t.string   "name",                null: false
-    t.boolean  "group_email_enabled"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+  create_table "pg_search_documents", force: true do |t|
+    t.text     "content"
+    t.integer  "searchable_id"
+    t.string   "searchable_type"
+    t.datetime "created_at",      null: false
+    t.datetime "updated_at",      null: false
   end
 
-  add_index "groups", ["name"], name: "index_groups_on_name", using: :btree
-
-  create_table "memberships", force: true do |t|
-    t.boolean  "is_admin",               default: false
-    t.date     "join_date",                              null: false
-    t.boolean  "group_email_subscribed", default: true
-    t.string   "position"
-    t.integer  "user_id"
-    t.integer  "group_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  add_index "memberships", ["group_id"], name: "index_memberships_on_group_id", using: :btree
-  add_index "memberships", ["join_date"], name: "index_memberships_on_join_date", using: :btree
-  add_index "memberships", ["user_id"], name: "index_memberships_on_user_id", using: :btree
+  add_index "pg_search_documents", ["searchable_id", "searchable_type"], name: "index_pg_search_documents_on_searchable_id_and_searchable_type", using: :btree
 
   create_table "plans", force: true do |t|
     t.string  "name",                        null: false

@@ -173,6 +173,10 @@ GEM
       rack (~> 1.0)
     orm_adapter (0.5.0)
     pg (0.18.1)
+    pg_search (1.0.5)
+      activerecord (>= 3.1)
+      activesupport (>= 3.1)
+      arel
     pundit (0.3.0)
       activesupport (>= 3.0.0)
     rack (1.5.2)
@@ -260,6 +264,7 @@ DEPENDENCIES
   mini_magick
   omniauth
   pg
+  pg_search
   pundit
   rack-cors
   rails (= 4.1.7)
@@ -269,4 +274,4 @@ DEPENDENCIES
   spring
 
 BUNDLED WITH
-   1.10.6
+   1.11.2

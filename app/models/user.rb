@@ -2,6 +2,9 @@ require 'date'
 require 'uri'
 class User < ActiveRecord::Base
   include DeviseTokenAuth::Concerns::User
+  include PgSearch
+
+  multisearchable :against => [:first_name, :last_name]
 
   scope :completed_profile, -> { where(completed_profile: true) }
 
