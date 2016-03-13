@@ -6,5 +6,16 @@ before_script:
   - bundle exec rake db:migrate
 script:
   - bundle exec rspec
+deploy:
+  provider: heroku
+  api_key:
+    development:   
+      secure: "jelbRYiPbWuS4cW9AbJMjwDvk/+Zy+HZM4VgVVfl7CXCCC3Yrd5bbrs3aiTuA80jh+ZnoPV1imp+AIAMFx2+MM245XYUTQhKOy9zVa+SMqOVL2e2EEtb6scTQpq89cPZpfmaOKf5l9ARGQExBS5KWjH/4e9DfLVCoSs2xt/Tqvc="
+    master:
+      secure: "jelbRYiPbWuS4cW9AbJMjwDvk/+Zy+HZM4VgVVfl7CXCCC3Yrd5bbrs3aiTuA80jh+ZnoPV1imp+AIAMFx2+MM245XYUTQhKOy9zVa+SMqOVL2e2EEtb6scTQpq89cPZpfmaOKf5l9ARGQExBS5KWjH/4e9DfLVCoSs2xt/Tqvc="
+  app:
+    development: alumni-db-backend-dev
+    master: alumni-db-backend
 notifications:
   slack: alumnidb:B2rQLHtUQoFgsDPeuImC8dzh
+
