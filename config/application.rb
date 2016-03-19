@@ -21,7 +21,11 @@ module AlumniDbBackend
     # config.i18n.default_locale = :de
 
     config.member_countries = ['BG','DK','EE','DE','SE','CH','IT','LT','PT','FI','ES','NO','AT','RS','CZ','BE','GR','NL','MT','SK','FR','LU','PL']
+    config.generators do |g|
+        g.fixture_replacement :factory_girl
+    end
 
+    
   end
 end
 

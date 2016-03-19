@@ -4,12 +4,27 @@ Rails.application.routes.draw do
     token_validations:  'users/token_validations',
     registrations:  'users/registrations',
     sessions:  'users/sessions',
-    confirmations: 'users/confirmations'  
+    confirmations: 'users/confirmations'
   }
 
-  resources :users, only: [:show,:index]
+  #resources :users, only: [:show,:index]
 
   put 'users', to: 'users#update'
+
+  resources :users, only: [:show, :index]
+
+  namespace :subscriptions do
+
+    resources :discounts, :plans, only: [:index, :show, :update, :create, :destroy]
+  end
+
+  scope module: 'subscriptions' do
+    get '/subscriptions/client_token', to: 'subscriptions#client_token'
+    get '/subscriptions/discounts/check', to: 'discounts#check'
+    resources :subscriptions, only: [:show, :destroy]
+    resource :subscriptions, only: [:create]
+  end
+
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

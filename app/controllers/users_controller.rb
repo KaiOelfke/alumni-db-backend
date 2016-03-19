@@ -2,12 +2,29 @@ class UsersController < ApplicationController
 
   before_action :authenticate_user!
   before_action :configure_permitted_parameters, on: :update
+
   # GET /users
   # GET /users.json
   def index
-    @users = User.all
+    @current_user = current_user
 
-    render json: @users
+    if @current_user.is_super_user
+      @users = User.all
+    else
+      @users = User.completed_profile
+    end
+    
+
+
+    render :json => @users.map { |user| 
+
+      if @current_user.id != user.id and not @current_user.is_super_user
+        user.as_json(:except => [:subscription_id]) 
+      else
+        user.as_json()
+      end
+    }
+
   end
 
   # GET /users/1
@@ -57,6 +74,7 @@ class UsersController < ApplicationController
         }, status: 404
       end
   end
+
 
   def account_update_params
     params.permit(devise_parameter_sanitizer.for(:account_update))

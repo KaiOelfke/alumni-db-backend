@@ -2,6 +2,11 @@ require 'date'
 require 'uri'
 class User < ActiveRecord::Base
   include DeviseTokenAuth::Concerns::User
+
+  scope :completed_profile, -> { where(completed_profile: true) }
+
+  belongs_to :subscription, :class_name => "Subscriptions::Subscription", foreign_key: "subscription_id", dependent: :destroy
+
   mount_uploader :avatar, AvatarUploader
 
   #before_create :skip_confirmation!
@@ -25,10 +30,10 @@ class User < ActiveRecord::Base
   validates :program_type, inclusion: { in: [0, 1, 2], message: "%(value) is not valid."}, on: :update, if: :profile_completed?
 
   validates :year_of_participation, numericality: {only_integer: true}, on: :update, if: :profile_completed?
-  validate :reasonable_year_of_participation , on: :update, if: :profile_completed?
+  validate :reasonable_year_of_participation,  on: :update, if: :profile_completed?
 
   validate :reasonable_date_of_birth, on: :update, if: :profile_completed?
-  validate :reasonable_country_of_participation, on: :update, if: :profile_completed?
+  validate :reasonable_country_of_participation,  on: :update, if: :profile_completed?
 
   validate :valid_urls
 
@@ -51,21 +56,22 @@ class User < ActiveRecord::Base
             allow_nil: true,
             length: {maximum: 160}
 
-  validate :reasonable_member
+  #validate :reasonable_member
 
   def reasonable_member
-    if !member_since.is_a? Date ||  member_since < Date.parse('01.01.1900') || member_since.year > Date.today.year
+    if (!member_since.is_a? Date) ||  member_since < Date.parse('01.01.1900') || member_since.year > Date.today.year
+
     end
   end
 
   def reasonable_year_of_participation
-    if !year_of_participation.is_a? Integer ||  year_of_participation < 1900 || year_of_participation > Date.today.year
+    if (!year_of_participation.is_a? Integer) ||  year_of_participation < 1900 || year_of_participation > Date.today.year
       errors.add(:year_of_participation, "is not valid")
     end
   end
 
   def reasonable_date_of_birth
-    if !date_of_birth.is_a? Date ||  date_of_birth < Date.parse('01.01.1900') || date_of_birth.year > Date.today.year
+    if (!date_of_birth.is_a? Date) ||  date_of_birth < Date.parse('01.01.1900') || date_of_birth.year > Date.today.year
       errors.add(:date_of_birth, "is not valid")
     end
   end
@@ -113,4 +119,20 @@ class User < ActiveRecord::Base
   rescue URI::InvalidURIError
     false
   end
+
+  def token_validation_response
+    self.as_json(
+      except: [
+      :tokens, :created_at, :updated_at, :customer_id, :subscription_id
+    ])
+  end
+
+  def as_json(options = {})
+    super(options.reverse_merge(:methods => [:is_premium]))
+  end
+
+  def is_premium
+    !!self.subscription_id
+  end
+
 end

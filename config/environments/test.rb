@@ -36,4 +36,26 @@ Rails.application.configure do
 
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
+
+  config.middleware.use Rack::Cors do
+    allow do
+      origins '*'
+      resource '*',
+        :headers => :any,
+        :expose  => ['access-token', 'expiry', 'token-type', 'uid', 'client'],
+        :methods => [:get, :post, :options, :delete, :put]
+    end
+  end
+
+
+  config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }
+  config.action_mailer.delivery_method = :smtp
+  config.action_mailer.smtp_settings = {
+    address:              'smtp.gmail.com',
+    port:                 587,
+    domain:               'alumnieurope.org',
+    user_name:            'db@alumnieurope.org',
+    password:             'BP^46g4DjtuC2s,,P*yYyncaa',
+    authentication:       'plain',
+    enable_starttls_auto: true  }  
 end

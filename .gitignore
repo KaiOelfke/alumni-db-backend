@@ -36,4 +36,5 @@ bower.json
 .sublime-project
 
 
+.env
 public/avatar
