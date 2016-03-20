@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'rails', '4.1.7'
+gem 'rails', '4.2.6'
 
 gem 'rails-api'
 
@@ -36,6 +36,8 @@ gem "faker"
 gem "braintree" , '~> 2.56'
 
 gem 'will_paginate', '~> 3.0.6'
+
+gem 'responders', '~> 2.0'
 
 group :test, :development do
   gem 'spring'

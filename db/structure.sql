@@ -35,10 +35,10 @@ SET default_with_oids = false;
 
 CREATE TABLE discounts (
     id integer NOT NULL,
-    name character varying(255) NOT NULL,
-    code character varying(255) NOT NULL,
+    name character varying NOT NULL,
+    code character varying NOT NULL,
     price integer NOT NULL,
-    description character varying(255) DEFAULT ''::character varying NOT NULL,
+    description character varying DEFAULT ''::character varying NOT NULL,
     delete_flag boolean DEFAULT false NOT NULL,
     expiry_at timestamp without time zone,
     plan_id integer
@@ -70,10 +70,10 @@ ALTER SEQUENCE discounts_id_seq OWNED BY discounts.id;
 
 CREATE TABLE plans (
     id integer NOT NULL,
-    name character varying(255) NOT NULL,
+    name character varying NOT NULL,
     price integer NOT NULL,
     "default" boolean NOT NULL,
-    description character varying(255) DEFAULT ''::character varying NOT NULL,
+    description character varying DEFAULT ''::character varying NOT NULL,
     delete_flag boolean DEFAULT false NOT NULL
 );
 
@@ -102,7 +102,7 @@ ALTER SEQUENCE plans_id_seq OWNED BY plans.id;
 --
 
 CREATE TABLE schema_migrations (
-    version character varying(255) NOT NULL
+    version character varying NOT NULL
 );
 
 
@@ -112,7 +112,7 @@ CREATE TABLE schema_migrations (
 
 CREATE TABLE subscriptions (
     id integer NOT NULL,
-    braintree_transaction_id character varying(255),
+    braintree_transaction_id character varying,
     created_at timestamp without time zone NOT NULL,
     plan_id integer,
     discount_id integer
@@ -144,48 +144,48 @@ ALTER SEQUENCE subscriptions_id_seq OWNED BY subscriptions.id;
 
 CREATE TABLE users (
     id integer NOT NULL,
-    email character varying(255) NOT NULL,
-    encrypted_password character varying(255) DEFAULT ''::character varying NOT NULL,
-    reset_password_token character varying(255),
+    email character varying NOT NULL,
+    encrypted_password character varying DEFAULT ''::character varying NOT NULL,
+    reset_password_token character varying,
     reset_password_sent_at timestamp without time zone,
     remember_created_at timestamp without time zone,
     sign_in_count integer DEFAULT 0 NOT NULL,
     current_sign_in_at timestamp without time zone,
     last_sign_in_at timestamp without time zone,
-    current_sign_in_ip character varying(255),
-    last_sign_in_ip character varying(255),
-    confirmation_token character varying(255),
+    current_sign_in_ip character varying,
+    last_sign_in_ip character varying,
+    confirmation_token character varying,
     confirmed_at timestamp without time zone,
     confirmation_sent_at timestamp without time zone,
-    unconfirmed_email character varying(255),
-    first_name character varying(255),
-    last_name character varying(255),
-    country character varying(255),
-    city character varying(255),
+    unconfirmed_email character varying,
+    first_name character varying,
+    last_name character varying,
+    country character varying,
+    city character varying,
     date_of_birth date,
     gender integer DEFAULT 0,
     program_type integer DEFAULT 0,
-    institution character varying(255),
+    institution character varying,
     year_of_participation integer,
-    country_of_participation character varying(255),
-    student_company_name character varying(255),
-    university_name character varying(255),
-    university_major character varying(255),
-    founded_company_name character varying(255),
-    current_company_name character varying(255),
-    current_job_position character varying(255),
-    interests character varying(255),
-    short_bio character varying(255),
-    alumni_position character varying(255),
+    country_of_participation character varying,
+    student_company_name character varying,
+    university_name character varying,
+    university_major character varying,
+    founded_company_name character varying,
+    current_company_name character varying,
+    current_job_position character varying,
+    interests character varying,
+    short_bio character varying,
+    alumni_position character varying,
     member_since date,
-    facebook_url character varying(255),
-    skype_id character varying(255),
-    twitter_url character varying(255),
-    linkedin_url character varying(255),
-    mobile_phone character varying(255),
-    avatar character varying(255),
-    provider character varying(255),
-    uid character varying(255) DEFAULT ''::character varying NOT NULL,
+    facebook_url character varying,
+    skype_id character varying,
+    twitter_url character varying,
+    linkedin_url character varying,
+    mobile_phone character varying,
+    avatar character varying,
+    provider character varying,
+    uid character varying DEFAULT ''::character varying NOT NULL,
     tokens text,
     registered boolean,
     confirmed_email boolean,
@@ -193,7 +193,7 @@ CREATE TABLE users (
     created_at timestamp without time zone,
     updated_at timestamp without time zone,
     is_super_user boolean DEFAULT false,
-    customer_id character varying(255) DEFAULT ''::character varying,
+    customer_id character varying DEFAULT ''::character varying,
     subscription_id integer,
     tsv tsvector
 );
