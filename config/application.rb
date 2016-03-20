@@ -20,10 +20,13 @@ module AlumniDbBackend
     # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}').to_s]
     # config.i18n.default_locale = :de
 
+
     config.member_countries = ['BG','DK','EE','DE','SE','CH','IT','LT','PT','FI','ES','NO','AT','RS','CZ','BE','GR','NL','MT','SK','FR','LU','PL']
     config.generators do |g|
         g.fixture_replacement :factory_girl
     end
+    
+    config.active_record.raise_in_transactional_callbacks = true
     config.active_record.schema_format = :sql
 
     
