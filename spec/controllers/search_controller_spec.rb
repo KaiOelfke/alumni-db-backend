@@ -20,6 +20,8 @@ RSpec.describe SearchController, type: :controller do
 
       end
 
+
+
       it "should return 400 if the page param isn't number" do
         auth_headers = @registered_user.create_new_auth_token
         request.headers.merge!(auth_headers)
@@ -39,6 +41,19 @@ RSpec.describe SearchController, type: :controller do
         expect(response.code).to eq "400"
 
       end
+
+
+
+      it "should return 200 if the page param is null and text exists" do
+        auth_headers = @registered_user.create_new_auth_token
+        request.headers.merge!(auth_headers)
+
+        get :search, {:text => "kai Bio"}, format: :json
+
+        expect(response.code).to eq "200"
+
+      end
+
 
       it "should return 200 and users who's first name is first_test" do
         auth_headers = @registered_user.create_new_auth_token

@@ -6,7 +6,7 @@ class SearchController < ApplicationController
 
     @current_user = current_user
 
-    if not (is_integer?(params[:page])) or params[:page] == "0"
+    if params[:page] and (not (is_integer?(params[:page])) or params[:page] == "0")
       render json: {
         status: 'error',
         errors: ['page number is wrong']
