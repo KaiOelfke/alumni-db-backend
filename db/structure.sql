@@ -2,12 +2,16 @@
 -- PostgreSQL database dump
 --
 
+-- Dumped from database version 9.5.1
+-- Dumped by pg_dump version 9.5.1
+
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SET check_function_bodies = false;
 SET client_min_messages = warning;
+SET row_security = off;
 
 --
 -- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: -
@@ -30,7 +34,7 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
--- Name: discounts; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: discounts; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE discounts (
@@ -65,7 +69,7 @@ ALTER SEQUENCE discounts_id_seq OWNED BY discounts.id;
 
 
 --
--- Name: plans; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: plans; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE plans (
@@ -98,7 +102,7 @@ ALTER SEQUENCE plans_id_seq OWNED BY plans.id;
 
 
 --
--- Name: schema_migrations; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: schema_migrations; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE schema_migrations (
@@ -107,7 +111,7 @@ CREATE TABLE schema_migrations (
 
 
 --
--- Name: subscriptions; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: subscriptions; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE subscriptions (
@@ -139,7 +143,7 @@ ALTER SEQUENCE subscriptions_id_seq OWNED BY subscriptions.id;
 
 
 --
--- Name: users; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: users; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE users (
@@ -247,7 +251,7 @@ ALTER TABLE ONLY users ALTER COLUMN id SET DEFAULT nextval('users_id_seq'::regcl
 
 
 --
--- Name: discounts_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: discounts_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY discounts
@@ -255,7 +259,7 @@ ALTER TABLE ONLY discounts
 
 
 --
--- Name: plans_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: plans_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY plans
@@ -263,7 +267,7 @@ ALTER TABLE ONLY plans
 
 
 --
--- Name: subscriptions_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: subscriptions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY subscriptions
@@ -271,7 +275,7 @@ ALTER TABLE ONLY subscriptions
 
 
 --
--- Name: users_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: users_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY users
@@ -279,63 +283,63 @@ ALTER TABLE ONLY users
 
 
 --
--- Name: index_discounts_on_plan_id; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_discounts_on_plan_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_discounts_on_plan_id ON discounts USING btree (plan_id);
 
 
 --
--- Name: index_subscriptions_on_discount_id; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_subscriptions_on_discount_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_subscriptions_on_discount_id ON subscriptions USING btree (discount_id);
 
 
 --
--- Name: index_subscriptions_on_plan_id; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_subscriptions_on_plan_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_subscriptions_on_plan_id ON subscriptions USING btree (plan_id);
 
 
 --
--- Name: index_users_on_confirmation_token; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_users_on_confirmation_token; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX index_users_on_confirmation_token ON users USING btree (confirmation_token);
 
 
 --
--- Name: index_users_on_email; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_users_on_email; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_users_on_email ON users USING btree (email);
 
 
 --
--- Name: index_users_on_reset_password_token; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_users_on_reset_password_token; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX index_users_on_reset_password_token ON users USING btree (reset_password_token);
 
 
 --
--- Name: index_users_on_tsv; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_users_on_tsv; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_users_on_tsv ON users USING gin (tsv);
 
 
 --
--- Name: index_users_on_uid; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_users_on_uid; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX index_users_on_uid ON users USING btree (uid);
 
 
 --
--- Name: unique_schema_migrations; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: unique_schema_migrations; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX unique_schema_migrations ON schema_migrations USING btree (version);
@@ -352,7 +356,7 @@ CREATE TRIGGER tsvectorupdate BEFORE INSERT OR UPDATE ON users FOR EACH ROW EXEC
 -- PostgreSQL database dump complete
 --
 
-SET search_path TO "$user",public;
+SET search_path TO "$user", public;
 
 INSERT INTO schema_migrations (version) VALUES ('20141214132501');
 

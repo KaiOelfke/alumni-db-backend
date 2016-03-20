@@ -15,6 +15,7 @@ class UsersController < ApplicationController
     end
     
 
+
     render :json => @users.map { |user| 
 
       if @current_user.id != user.id and not @current_user.is_super_user
@@ -25,6 +26,7 @@ class UsersController < ApplicationController
     }
 
   end
+
 
   # GET /users/1
   # GET /users/1.json
