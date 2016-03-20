@@ -19,7 +19,7 @@ class User < ActiveRecord::Base
     :short_bio
   ], :using => {
     tsearch: {
-      dictionary: "english",
+      dictionary: "simple",
       prefix: true,
       tsvector_column: "tsv"
     }

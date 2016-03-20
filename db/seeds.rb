@@ -41,7 +41,7 @@
               is_super_user: true},
              {uid: 'neuissa@gmail.com',
               provider: 'email',
-              email: 'neuissa@gmail.com',
+              email: '_neuissa@gmail.com',
               password: '12345678',
               first_name: 'Ahmed',
               last_name: 'Issa',

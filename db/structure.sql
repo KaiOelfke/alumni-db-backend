@@ -349,7 +349,7 @@ CREATE UNIQUE INDEX unique_schema_migrations ON schema_migrations USING btree (v
 -- Name: tsvectorupdate; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER tsvectorupdate BEFORE INSERT OR UPDATE ON users FOR EACH ROW EXECUTE PROCEDURE tsvector_update_trigger('tsv', 'pg_catalog.english', 'first_name', 'last_name', 'country', 'city', 'institution', 'country_of_participation', 'student_company_name', 'university_name', 'current_company_name', 'current_job_position', 'alumni_position', 'short_bio');
+CREATE TRIGGER tsvectorupdate BEFORE INSERT OR UPDATE ON users FOR EACH ROW EXECUTE PROCEDURE tsvector_update_trigger('tsv', 'pg_catalog.simple', 'first_name', 'last_name', 'country', 'city', 'institution', 'country_of_participation', 'student_company_name', 'university_name', 'current_company_name', 'current_job_position', 'alumni_position', 'short_bio');
 
 
 --

@@ -7,7 +7,7 @@ class AddTsvectorColumns < ActiveRecord::Migration
       CREATE TRIGGER tsvectorupdate BEFORE INSERT OR UPDATE
       ON users FOR EACH ROW EXECUTE PROCEDURE
       tsvector_update_trigger(
-        tsv, 'pg_catalog.english', first_name, last_name, country,
+        tsv, 'pg_catalog.simple', first_name, last_name, country,
         city, institution, country_of_participation,
         student_company_name, university_name, current_company_name,
         current_job_position, alumni_position, short_bio
