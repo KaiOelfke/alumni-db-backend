@@ -30,7 +30,12 @@ gem "fog"
 
 gem "fog-aws"
 
+# fake data
+gem "faker"
+
 gem "braintree" , '~> 2.56'
+
+gem 'will_paginate', '~> 3.0.6'
 
 group :test, :development do
   gem 'spring'

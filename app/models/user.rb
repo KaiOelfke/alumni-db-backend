@@ -9,7 +9,6 @@ class User < ActiveRecord::Base
     :last_name,
     :country,
     :city,
-    :program_type,
     :institution,
     :country_of_participation,
     :student_company_name,
@@ -18,7 +17,13 @@ class User < ActiveRecord::Base
     :current_job_position,
     :alumni_position,
     :short_bio
-  ], :using => [:tsearch]
+  ], :using => {
+    tsearch: {
+      dictionary: "english",
+      prefix: true,
+      tsvector_column: "tsv"
+    }
+  }
 
   scope :completed_profile, -> { where(completed_profile: true) }
 
@@ -73,7 +78,17 @@ class User < ActiveRecord::Base
             allow_nil: true,
             length: {maximum: 160}
 
+  # will_paginate
+  self.per_page = 10
+
   #validate :reasonable_member
+  before_save :my_method
+
+
+
+  def my_method
+    self.skip_confirmation!
+  end
 
   def reasonable_member
     if (!member_since.is_a? Date) ||  member_since < Date.parse('01.01.1900') || member_since.year > Date.today.year
@@ -140,12 +155,13 @@ class User < ActiveRecord::Base
   def token_validation_response
     self.as_json(
       except: [
-      :tokens, :created_at, :updated_at, :customer_id, :subscription_id
+      :tokens, :created_at, :updated_at, :customer_id, :subscription_id, :tsv
     ])
   end
 
   def as_json(options = {})
-    super(options.reverse_merge(:methods => [:is_premium]))
+    super(options.reverse_merge( except: [:tsv],:methods => [:is_premium]))
+    
   end
 
   def is_premium

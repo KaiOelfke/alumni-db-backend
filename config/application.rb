@@ -24,6 +24,7 @@ module AlumniDbBackend
     config.generators do |g|
         g.fixture_replacement :factory_girl
     end
+    config.active_record.schema_format = :sql
 
     
   end
