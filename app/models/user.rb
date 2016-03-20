@@ -82,14 +82,6 @@ class User < ActiveRecord::Base
   self.per_page = 10
 
   #validate :reasonable_member
-  before_save :my_method
-
-
-
-  def my_method
-    self.skip_confirmation!
-  end
-
   def reasonable_member
     if (!member_since.is_a? Date) ||  member_since < Date.parse('01.01.1900') || member_since.year > Date.today.year
 
