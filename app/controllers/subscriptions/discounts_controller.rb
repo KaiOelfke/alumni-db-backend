@@ -26,7 +26,8 @@ class Subscriptions::DiscountsController < ApplicationController
         render json: {
           status: 'error',
           errors: ['code and plan_id are required']
-        }, status: 404
+        }, status: 400
+        return
     end
 
 
@@ -44,11 +45,12 @@ class Subscriptions::DiscountsController < ApplicationController
         render json: {
           status: 'success',
           data: @discount.as_json()
-        }
+        }, status: 200
     else
         render json: {
-          status: 'error'
-        }
+          status: 'error',
+          errors: ["plan_id does not match"]
+        }, status: 400
     end
 
   end
@@ -62,13 +64,13 @@ class Subscriptions::DiscountsController < ApplicationController
       if @discount
         render json: {
           status: 'success',
-          data: @discount.to_json()
+          data: @discount.as_json()
         }, status: 200
       else
         render json: {
           status: 'error',
           data: @discount.errors
-        }, status: 404
+        }, status: 500
       end
     else
       render json: {
@@ -90,12 +92,12 @@ class Subscriptions::DiscountsController < ApplicationController
         render json: {
           status: 'success',
           data:   @discount.as_json()
-        }
+        }, status: 200
       else
         render json: {
           status: 'error',
           errors: @discount.errors
-        }, status: 403
+        }, status: 500
       end
 
     else
@@ -121,7 +123,7 @@ class Subscriptions::DiscountsController < ApplicationController
           render json: {
             status: 'error',
             errors: @discount.errors
-          }, status: 403
+          }, status: 500
         end
       else
           render json: {
@@ -147,13 +149,13 @@ class Subscriptions::DiscountsController < ApplicationController
           if @discount.save
             render json: {
               status: 'success',
-              data: @discount.to_json
-            }
+              data: @discount.as_json
+            }, status: 200
           else
             render json: {
               status: 'error',
               errors: @discount.errors
-            }, status: 403
+            }, status: 500
           end
       else
           render json: {

@@ -36,7 +36,7 @@ RSpec.describe Subscriptions::PlansController, type: :controller do
 
   describe 'POST /subscriptions/plans' do
 
-    it "should return 404 if user isn't super user" do
+    it "should return 403 if user isn't super user" do
       auth_headers = @completed_profile_user.create_new_auth_token
       request.headers.merge!(auth_headers)
       attrs = FactoryGirl.attributes_for(:plan)
@@ -62,7 +62,7 @@ RSpec.describe Subscriptions::PlansController, type: :controller do
 
   describe 'GET /subscriptions/plans/:id' do
 
-    it "should return 404 if user isn't super user" do
+    it "should return 403 if user isn't super user" do
       auth_headers = @completed_profile_user.create_new_auth_token
       request.headers.merge!(auth_headers)
       get :show, :id => @plan.id, format: :json

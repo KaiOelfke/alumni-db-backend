@@ -69,6 +69,80 @@ ALTER SEQUENCE discounts_id_seq OWNED BY discounts.id;
 
 
 --
+-- Name: events; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE events (
+    id integer NOT NULL,
+    name character varying NOT NULL,
+    description text DEFAULT ''::text,
+    location character varying DEFAULT ''::character varying,
+    dates character varying DEFAULT ''::character varying,
+    facebook_url character varying,
+    published boolean DEFAULT false NOT NULL,
+    agenda character varying,
+    contact_email character varying,
+    delete_flag boolean DEFAULT false NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: events_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE events_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: events_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE events_id_seq OWNED BY events.id;
+
+
+--
+-- Name: fees; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE fees (
+    id integer NOT NULL,
+    name character varying NOT NULL,
+    price integer NOT NULL,
+    deadline date NOT NULL,
+    event_id integer,
+    delete_flag boolean DEFAULT false NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: fees_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE fees_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: fees_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE fees_id_seq OWNED BY fees.id;
+
+
+--
 -- Name: plans; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -233,6 +307,20 @@ ALTER TABLE ONLY discounts ALTER COLUMN id SET DEFAULT nextval('discounts_id_seq
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
+ALTER TABLE ONLY events ALTER COLUMN id SET DEFAULT nextval('events_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY fees ALTER COLUMN id SET DEFAULT nextval('fees_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
 ALTER TABLE ONLY plans ALTER COLUMN id SET DEFAULT nextval('plans_id_seq'::regclass);
 
 
@@ -256,6 +344,22 @@ ALTER TABLE ONLY users ALTER COLUMN id SET DEFAULT nextval('users_id_seq'::regcl
 
 ALTER TABLE ONLY discounts
     ADD CONSTRAINT discounts_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: events_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY events
+    ADD CONSTRAINT events_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: fees_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY fees
+    ADD CONSTRAINT fees_pkey PRIMARY KEY (id);
 
 
 --
@@ -287,6 +391,13 @@ ALTER TABLE ONLY users
 --
 
 CREATE INDEX index_discounts_on_plan_id ON discounts USING btree (plan_id);
+
+
+--
+-- Name: index_fees_on_event_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_fees_on_event_id ON fees USING btree (event_id);
 
 
 --
@@ -353,6 +464,38 @@ CREATE TRIGGER tsvectorupdate BEFORE INSERT OR UPDATE ON users FOR EACH ROW EXEC
 
 
 --
+-- Name: fk_rails_63d3df128b; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY subscriptions
+    ADD CONSTRAINT fk_rails_63d3df128b FOREIGN KEY (plan_id) REFERENCES plans(id);
+
+
+--
+-- Name: fk_rails_87bc3eacd6; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY discounts
+    ADD CONSTRAINT fk_rails_87bc3eacd6 FOREIGN KEY (plan_id) REFERENCES plans(id);
+
+
+--
+-- Name: fk_rails_9c81909ca2; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY fees
+    ADD CONSTRAINT fk_rails_9c81909ca2 FOREIGN KEY (event_id) REFERENCES events(id);
+
+
+--
+-- Name: fk_rails_c7bba2837d; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY subscriptions
+    ADD CONSTRAINT fk_rails_c7bba2837d FOREIGN KEY (discount_id) REFERENCES discounts(id);
+
+
+--
 -- PostgreSQL database dump complete
 --
 
@@ -367,4 +510,8 @@ INSERT INTO schema_migrations (version) VALUES ('20151209131046');
 INSERT INTO schema_migrations (version) VALUES ('20151209193631');
 
 INSERT INTO schema_migrations (version) VALUES ('20160319170659');
+
+INSERT INTO schema_migrations (version) VALUES ('20160321141649');
+
+INSERT INTO schema_migrations (version) VALUES ('20160321143809');
 

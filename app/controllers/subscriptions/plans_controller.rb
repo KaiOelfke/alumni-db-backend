@@ -24,7 +24,7 @@ class Subscriptions::PlansController < ApplicationController
       if @plan
         render json: {
           status: 'success',
-          data: @plan.to_json()
+          data: @plan.as_json()
         }, status: 200
       else
         render json: {
@@ -56,12 +56,12 @@ class Subscriptions::PlansController < ApplicationController
         render json: {
           status: 'success',
           data:   @plan.as_json()
-        }
+        }, status: 200
       else
         render json: {
           status: 'error',
           errors: @plan.errors
-        }, status: 403
+        }, status: 500
       end
 
     else
@@ -88,12 +88,12 @@ class Subscriptions::PlansController < ApplicationController
           render json: {
             data: @plan.as_json(),
             status: 'success'
-          }
+          }, status: 200
         else
           render json: {
             status: 'error',
             errors: @plan.errors
-          }, status: 403
+          }, status: 500
         end
 
       else
@@ -122,12 +122,12 @@ class Subscriptions::PlansController < ApplicationController
         if @plan.save
           render json: {
             status: 'success'
-          }
+          }, status: 200
         else
           render json: {
             status: 'error',
             errors: @plan.errors
-          }, status: 403
+          }, status: 500
         end
 
       else

@@ -20,7 +20,7 @@ class Subscriptions::SubscriptionsController < ApplicationController
       if @subscription
           render json: {
               status: 'success',
-              data:   @subscription.to_json
+              data:   @subscription.as_json
           }, status: 200
       else
         render json: {
@@ -110,12 +110,12 @@ class Subscriptions::SubscriptionsController < ApplicationController
         render json: {
           status: 'success',
           data:  @user.as_json()
-        }
+        }, status: 200
       else
         render json: {
           status: 'error',
           errors: @user.errors
-        }, status: 403
+        }, status: 500
       end
       return
 
@@ -276,12 +276,12 @@ class Subscriptions::SubscriptionsController < ApplicationController
           render json: {
             status: 'success',
             data:   @current_user.token_validation_response
-          }
+          }, status: 200
         else
           render json: {
             status: 'error',
             errors: @current_user.errors
-          }, status: 403
+          }, status: 500
         end
 
       elsif @transaction.transaction.errors.any?
@@ -331,12 +331,12 @@ class Subscriptions::SubscriptionsController < ApplicationController
         if @user.subscription.destroy
           render json: {
             status: 'success'
-          }
+          }, status: 200
         else
           render json: {
             status: 'error',
             errors: @subscription.errors
-          }, status: 403
+          }, status: 500
         end
       else
         render json: {

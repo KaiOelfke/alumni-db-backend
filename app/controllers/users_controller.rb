@@ -16,14 +16,16 @@ class UsersController < ApplicationController
     
 
 
-    render :json => @users.map { |user| 
-
-      if @current_user.id != user.id and not @current_user.is_super_user
-        user.as_json(:except => [:subscription_id]) 
-      else
-        user.as_json()
-      end
-    }
+    render json: {
+      status: 'success',
+      data: @users.map { |user| 
+        if @current_user.id != user.id and not @current_user.is_super_user
+          user.as_json(:except => [:subscription_id]) 
+        else
+          user.as_json()
+        end
+        }
+      }, status: 200
 
   end
 
@@ -33,7 +35,17 @@ class UsersController < ApplicationController
   def show
     @user = User.find(params[:id])
 
-    render json: @user
+    if @user
+        render json: {
+          status: 'success',
+          data: @user.as_json()
+        }, status: 200
+    else
+        render json: {
+          status: 'error',
+          error: ["user not found"]
+        }, status: 404
+    end
   end
 
   def update
@@ -61,12 +73,12 @@ class UsersController < ApplicationController
           render json: {
             status: 'success',
             data:   @resource.as_json()
-          }
+          }, status: 200
         else
           render json: {
             status: 'error',
             errors: @resource.errors
-          }, status: 403
+          }, status: 500
         end
       else
         render json: {
