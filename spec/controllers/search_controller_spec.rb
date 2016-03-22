@@ -62,7 +62,7 @@ RSpec.describe SearchController, type: :controller do
         get :search, {page: "1", :text => "first_test"}, format: :json
 
         expect(response.code).to eq "200"
-        expect(json.length).to eq 2
+        expect(json["data"].length).to eq 2
 
       end
 
@@ -74,7 +74,7 @@ RSpec.describe SearchController, type: :controller do
         get :search, {page: "1", :text => "first_test berlin"}, format: :json
 
         expect(response.code).to eq "200"
-        expect(json.length).to eq 1
+        expect(json["data"].length).to eq 1
 
       end
 
