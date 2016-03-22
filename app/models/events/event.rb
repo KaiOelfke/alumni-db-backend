@@ -1,4 +1,4 @@
-class Event < ActiveRecord::Base
+class Events::Event < ActiveRecord::Base
   has_many :fees
   scope :published, -> { where(published: true) }
 

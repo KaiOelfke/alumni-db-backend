@@ -132,7 +132,7 @@ RSpec.describe Subscriptions::DiscountsController, type: :controller do
       request.headers.merge!(auth_headers)
       delete :destroy, :id => @discount.id,  format: :json
       expect(response).to be_success
-      expect(json["data"]).to include('"delete_flag":true')
+      expect(response.body).to include('"delete_flag":true')
     end
   end
 

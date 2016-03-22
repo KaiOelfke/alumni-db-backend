@@ -1,5 +1,5 @@
 FactoryGirl.define do
-  factory :event, :class => Event do
+  factory :event, :class => Events::Event do
     sequence(:name) {|n| "Conference#{n}"}
     description "Awesome conference"
     location "Copenhagen"

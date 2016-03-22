@@ -51,9 +51,9 @@ RSpec.describe UsersController, type: :controller do
 
           expect(response).to be_success
 
-          userswithcompletedprofile = json.select {|v| v["completed_profile"] == true }
+          userswithcompletedprofile = json["data"].select {|v| v["completed_profile"] == true }
 
-          expect(json.length).to eq userswithcompletedprofile.length
+          expect(json["data"].length).to eq userswithcompletedprofile.length
         end
 
         it "should not allow normal users, who completed their profiles, to access subscription_id of other users" do
@@ -65,11 +65,11 @@ RSpec.describe UsersController, type: :controller do
 
           expect(response).to be_success
 
-          userswithsubscriptionid = json.select {|v| v.has_key? "subscription_id" }
-          userswithispremium = json.select {|v| v.has_key? "is_premium" }
+          userswithsubscriptionid = json["data"].select {|v| v.has_key? "subscription_id" }
+          userswithispremium = json["data"].select {|v| v.has_key? "is_premium" }
 
           expect(userswithsubscriptionid.length).to eq 1
-          expect(json.length).to eq userswithispremium.length
+          expect(json["data"].length).to eq userswithispremium.length
 
         end        
 
@@ -81,9 +81,9 @@ RSpec.describe UsersController, type: :controller do
           get :index, format: :json
 
           expect(response).to be_success
-          userswithsubscriptionid = json.select {|v| v.has_key? "subscription_id" }
+          userswithsubscriptionid = json["data"].select {|v| v.has_key? "subscription_id" }
 
-          expect(json.length).to eq userswithsubscriptionid.length
+          expect(json["data"].length).to eq userswithsubscriptionid.length
         end
 
 

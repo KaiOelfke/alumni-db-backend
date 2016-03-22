@@ -1,4 +1,4 @@
-class FeesController < ApplicationController
+class Events::FeesController < ApplicationController
   before_action :authenticate_user!
 
   def index

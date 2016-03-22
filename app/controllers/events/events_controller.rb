@@ -1,4 +1,4 @@
-class EventsController < ApplicationController
+class Events::EventsController < ApplicationController
 
   before_action :authenticate_user!
 
@@ -6,17 +6,19 @@ class EventsController < ApplicationController
     @current_user = current_user
 
     if @current_user.is_super_user
-      @events = Event.all
+      @events = Events::Event.all
     else
-      @events = Event.published
+      @events = Events::Event.published
     end
   
-    render :json => @events
-
+    render json: {
+        status: 'success',
+        data: @events.as_json()
+      }, status: 200
   end
 
   def show
-    @event = Event.find_by_id(params[:id])
+    @event = Events::Event.find_by_id(params[:id])
     @current_user = current_user
 
     if @event
@@ -40,7 +42,7 @@ class EventsController < ApplicationController
   end
 
   def update
-    @event = Event.find_by_id(params[:id])
+    @event = Events::Event.find_by_id(params[:id])
     @current_user = current_user
 
     if @current_user.is_super_user
@@ -75,7 +77,7 @@ class EventsController < ApplicationController
     @current_user = current_user
 
     if @current_user.is_super_user
-        if Event.create(event_params)
+        if Events::Event.create(event_params)
           render json: {
             data: @event.as_json(),
             status: 'success'
@@ -98,7 +100,7 @@ class EventsController < ApplicationController
 
   def destroy
     @current_user = current_user
-    @event = Event.find_by_id(params[:id])
+    @event = Events::Event.find_by_id(params[:id])
     if @current_user.is_super_user
 
       if @event

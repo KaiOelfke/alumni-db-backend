@@ -25,11 +25,14 @@ Rails.application.routes.draw do
     resource :subscriptions, only: [:create]
   end
 
-  namespace :events do
-    resource :fees, only: [:index, :show, :update, :create, :destroy]
+  scope module: 'events' do
+    resources :events, only: [:index, :show, :update, :create, :destroy]
+    namespace :events do
+      resource :fees, only: [:index, :show, :update, :create, :destroy]
+    end
   end
 
-  resources :events, only: [:index, :show, :update, :create, :destroy]
+  # 
 
 
   # The priority is based upon order of creation: first created -> highest priority.

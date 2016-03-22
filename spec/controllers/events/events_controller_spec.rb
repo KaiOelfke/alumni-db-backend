@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Subscriptions::EventsController, type: :controller do
+RSpec.describe Events::EventsController, type: :controller do
 
   before(:each) do
 
@@ -21,9 +21,9 @@ RSpec.describe Subscriptions::EventsController, type: :controller do
       get :index, format: :json
       expect(response.code).to eq "200"
       
-      publishedEvents = json.select {|v| v["published"] == true }
-      notPublishedEvents = json.select {|v| v["published"] == false }
-      expect(json.length).to eq publishedEvents.length
+      publishedEvents = json["data"].select {|v| v["published"] == true }
+      notPublishedEvents = json["data"].select {|v| v["published"] == false }
+      expect(json["data"].length).to eq publishedEvents.length
       expect(notPublishedEvents.length).to eq 0
     end
 
@@ -33,11 +33,11 @@ RSpec.describe Subscriptions::EventsController, type: :controller do
       get :index, format: :json
       expect(response.code).to eq "200"
 
-      publishedEvents = json.select {|v| v["published"] == true }
-      notPublishedEvents = json.select {|v| v["published"] == false }
+      publishedEvents = json["data"].select {|v| v["published"] == true }
+      notPublishedEvents = json["data"].select {|v| v["published"] == false }
       expect(publishedEvents.length).to eq 1
       expect(notPublishedEvents.length).to eq 1
-      expect(json.length).to eq (publishedEvents.length + notPublishedEvents.length)
+      expect(json["data"].length).to eq (publishedEvents.length + notPublishedEvents.length)
     end
   end
 
