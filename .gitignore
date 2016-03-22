@@ -33,8 +33,8 @@ bower.json
 .DS_Store
 
 #Sublime settings for e.g. tab size
-.sublime-project
-
+*.sublime-project
+*.sublime-workspace
 
 .env
 public/avatar
