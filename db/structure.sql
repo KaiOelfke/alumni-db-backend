@@ -464,11 +464,43 @@ CREATE TRIGGER tsvectorupdate BEFORE INSERT OR UPDATE ON users FOR EACH ROW EXEC
 
 
 --
+-- Name: fk_rails_63d3df128b; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY subscriptions
+    ADD CONSTRAINT fk_rails_63d3df128b FOREIGN KEY (plan_id) REFERENCES plans(id) ON DELETE RESTRICT;
+
+
+--
+-- Name: fk_rails_87bc3eacd6; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY discounts
+    ADD CONSTRAINT fk_rails_87bc3eacd6 FOREIGN KEY (plan_id) REFERENCES plans(id) ON DELETE RESTRICT;
+
+
+--
 -- Name: fk_rails_9c81909ca2; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY fees
-    ADD CONSTRAINT fk_rails_9c81909ca2 FOREIGN KEY (event_id) REFERENCES events(id);
+    ADD CONSTRAINT fk_rails_9c81909ca2 FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE RESTRICT;
+
+
+--
+-- Name: fk_rails_a1780b6d6c; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY users
+    ADD CONSTRAINT fk_rails_a1780b6d6c FOREIGN KEY (subscription_id) REFERENCES subscriptions(id) ON DELETE SET NULL;
+
+
+--
+-- Name: fk_rails_c7bba2837d; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY subscriptions
+    ADD CONSTRAINT fk_rails_c7bba2837d FOREIGN KEY (discount_id) REFERENCES discounts(id) ON DELETE RESTRICT;
 
 
 --

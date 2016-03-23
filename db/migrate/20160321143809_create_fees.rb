@@ -4,10 +4,13 @@ class CreateFees < ActiveRecord::Migration
       t.string :name, null: false
       t.integer :price, null: false
       t.date :deadline, null: false 
-      t.belongs_to :event, index: true, foreign_key: true
+      t.belongs_to :event, index: true
       t.boolean  :delete_flag, :null => false, :default => false
 
       t.timestamps null: false
     end
+
+    add_foreign_key :fees, :events, on_delete: :restrict
+
   end
 end
