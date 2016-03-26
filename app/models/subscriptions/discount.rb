@@ -1,12 +1,10 @@
 class Subscriptions::Discount < ActiveRecord::Base
-	belongs_to  :plan
-	has_many :subscriptions
-	has_many :subscriptions, through: :plan
+	belongs_to :plan
+	has_many :subscriptions, inverse_of: :discount
+	has_many :subscriptions, through: :plan, inverse_of: :discount
 
-	validates :plan, presence: true
-	validates :name, presence: true
-	validates :price, presence: true
-	validates :code, presence: true
+	validates :delete_flag, inclusion: { in: [true, false] }
+	validates :plan, :name, :price, :code,   presence: true
 	validates :code, uniqueness: true
 
 end

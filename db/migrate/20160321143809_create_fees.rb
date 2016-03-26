@@ -10,7 +10,7 @@ class CreateFees < ActiveRecord::Migration
       t.timestamps null: false
     end
 
-    add_foreign_key :fees, :events, on_delete: :restrict
+    add_foreign_key :fees, :events, on_delete: :cascade
 
   end
 end

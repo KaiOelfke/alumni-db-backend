@@ -476,7 +476,7 @@ ALTER TABLE ONLY subscriptions
 --
 
 ALTER TABLE ONLY discounts
-    ADD CONSTRAINT fk_rails_87bc3eacd6 FOREIGN KEY (plan_id) REFERENCES plans(id) ON DELETE RESTRICT;
+    ADD CONSTRAINT fk_rails_87bc3eacd6 FOREIGN KEY (plan_id) REFERENCES plans(id) ON DELETE CASCADE;
 
 
 --
@@ -484,7 +484,7 @@ ALTER TABLE ONLY discounts
 --
 
 ALTER TABLE ONLY fees
-    ADD CONSTRAINT fk_rails_9c81909ca2 FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE RESTRICT;
+    ADD CONSTRAINT fk_rails_9c81909ca2 FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE;
 
 
 --

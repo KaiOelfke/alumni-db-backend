@@ -27,11 +27,11 @@ Rails.application.routes.draw do
 
   scope module: 'events' do
     resources :events, only: [:index, :show, :update, :create, :destroy]
-    namespace :events do
-      resource :fees, only: [:index, :show, :update, :create, :destroy]
-    end
   end
-
+  
+  namespace :events do
+    resources :fees, only: [:index, :show, :update, :create, :destroy]
+  end
   # 
 
 

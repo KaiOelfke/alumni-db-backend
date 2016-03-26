@@ -27,7 +27,7 @@ class BraintreeIntegration < ActiveRecord::Migration
 
     add_foreign_key :subscriptions, :plans, on_delete: :restrict
     add_foreign_key :subscriptions, :discounts, on_delete: :restrict
-    add_foreign_key :discounts, :plans, on_delete: :restrict
+    add_foreign_key :discounts, :plans, on_delete: :cascade
 
 
     add_column :users, :subscription_id, :integer, index: true

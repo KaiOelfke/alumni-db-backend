@@ -3,6 +3,6 @@ FactoryGirl.define do
     name "MyString"
     price 1
     deadline "2016-03-21"
-    event nil
+    association :event, factory: :event, strategy: :build
   end
 end

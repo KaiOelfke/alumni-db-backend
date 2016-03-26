@@ -7,8 +7,13 @@ FactoryGirl.define do
     delete_flag false    
     agenda "Agenda TBC"
     contact_email "nobody@alumnieurope.org"
+    published false
     trait :published do
         published true
     end
+
+    trait :with_fees do
+      fees {[FactoryGirl.create(:fee)]}
+    end    
   end
 end

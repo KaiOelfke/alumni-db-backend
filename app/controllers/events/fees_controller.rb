@@ -3,6 +3,10 @@ class Events::FeesController < ApplicationController
 
   def index
     #Returns all fees for one specific event, not all fees for all events
+
+=begin
+    ## wired way to do it .. you cannt fee jsonbonject with get http call
+    ## should be tested ..
     params.require(:fee).require(:event_id)
     @permitted = params.require(:fee).permit(:event_id)
 
@@ -14,24 +18,33 @@ class Events::FeesController < ApplicationController
         return
     end
 
-    
-    @event = Event.find_by_id(params[:fee][:event_id])
-
-    unless @event
-      render json: {
+=end
+    unless params[:event_id]
+        render json: {
           status: 'error',
-          errors: ["event not found"]
-        }, status: 404
+          errors: ['event_id is required']
+        }, status: 400
         return
     end
-    
+
     @current_user = current_user
 
-    if @current_user.is_super_user or @event.published
-      render json: {
-          status: 'success',
-          data: event.fees.as_json()
-        }, status: 200
+    if @current_user.is_super_user
+
+      @event = Events::Event.find_by_id(params[:event_id])
+
+      if @event
+        render json: {
+            status: 'success',
+            data: @event.fees.as_json()
+          }, status: 200        
+      else 
+        render json: {
+            status: 'error',
+            errors: ["event not found"]
+          }, status: 404
+      end
+
     else
       render json: {
         status: 'error',
@@ -41,11 +54,11 @@ class Events::FeesController < ApplicationController
   end
 
   def show
-    @fee = Fee.find_by_id(params[:id])
     @current_user = current_user
 
-    if @fee 
-      if @fee.event.published or current_user.is_super_user
+    if @current_user.is_super_user 
+      @fee = Events::Fee.find_by_id(params[:id])
+      if @fee
         render json: {
           status: 'success',
           data: @fee.as_json()
@@ -53,23 +66,24 @@ class Events::FeesController < ApplicationController
       else
         render json: {
           status: 'error',
-          errors: ["not authourized"]
-        }, status: 403
+          data: ["fee not found"]
+        }, status: 404        
       end
     else
       render json: {
         status: 'error',
-        data: ["fee not found"]
-      }, status: 404
+        errors: ["not authourized"]
+      }, status: 403
     end
   end
 
   def update
 
     @user = current_user
-    @fee = Fee.find_by_id(params[:id])
 
     if @user.is_super_user
+
+      @fee = Events::Fee.find_by_id(params[:id])
       if @fee
         if @fee.update(fee_update_params)
           render json: {
@@ -101,7 +115,7 @@ class Events::FeesController < ApplicationController
 
     if @user.is_super_user
 
-      @fee = Fee.new(fee_create_params)
+      @fee = Events::Fee.new(fee_create_params)
 
       if @fee.save
         render json: {
@@ -125,7 +139,7 @@ class Events::FeesController < ApplicationController
 
   def destroy
     @user = current_user
-    @fee = Fee.find_by_id(params[:id])
+    @fee = Events::Fee.find_by_id(params[:id])
     if @user.is_super_user
       if @fee
           @fee.delete_flag = true
