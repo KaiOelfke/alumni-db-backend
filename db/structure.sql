@@ -143,6 +143,38 @@ ALTER SEQUENCE fees_id_seq OWNED BY fees.id;
 
 
 --
+-- Name: participations; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE participations (
+    id integer NOT NULL,
+    fee_id integer,
+    user_id integer,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: participations_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE participations_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: participations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE participations_id_seq OWNED BY participations.id;
+
+
+--
 -- Name: plans; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -321,6 +353,13 @@ ALTER TABLE ONLY fees ALTER COLUMN id SET DEFAULT nextval('fees_id_seq'::regclas
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
+ALTER TABLE ONLY participations ALTER COLUMN id SET DEFAULT nextval('participations_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
 ALTER TABLE ONLY plans ALTER COLUMN id SET DEFAULT nextval('plans_id_seq'::regclass);
 
 
@@ -363,6 +402,14 @@ ALTER TABLE ONLY fees
 
 
 --
+-- Name: participations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY participations
+    ADD CONSTRAINT participations_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: plans_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -398,6 +445,20 @@ CREATE INDEX index_discounts_on_plan_id ON discounts USING btree (plan_id);
 --
 
 CREATE INDEX index_fees_on_event_id ON fees USING btree (event_id);
+
+
+--
+-- Name: index_participations_on_fee_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_participations_on_fee_id ON participations USING btree (fee_id);
+
+
+--
+-- Name: index_participations_on_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_participations_on_user_id ON participations USING btree (user_id);
 
 
 --
@@ -472,6 +533,14 @@ ALTER TABLE ONLY subscriptions
 
 
 --
+-- Name: fk_rails_69a6ba0466; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY participations
+    ADD CONSTRAINT fk_rails_69a6ba0466 FOREIGN KEY (fee_id) REFERENCES fees(id) ON DELETE CASCADE;
+
+
+--
 -- Name: fk_rails_87bc3eacd6; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -504,6 +573,14 @@ ALTER TABLE ONLY subscriptions
 
 
 --
+-- Name: fk_rails_e80f5ca3a2; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY participations
+    ADD CONSTRAINT fk_rails_e80f5ca3a2 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
+
+
+--
 -- PostgreSQL database dump complete
 --
 
@@ -522,4 +599,6 @@ INSERT INTO schema_migrations (version) VALUES ('20160319170659');
 INSERT INTO schema_migrations (version) VALUES ('20160321141649');
 
 INSERT INTO schema_migrations (version) VALUES ('20160321143809');
+
+INSERT INTO schema_migrations (version) VALUES ('20160327174220');
 

@@ -1,10 +1,12 @@
 class Events::Fee < ActiveRecord::Base
+
+  has_one :participation, :class_name => "Events::Participation", inverse_of: :fee
+
   belongs_to :event
 
 	validates :event, :name, :price, :deadline, presence: true
 	validates :delete_flag, inclusion: { in: [true, false] }
   validates :price, numericality: true
-  validates :name, length: { minimum: 1 }
   validate :check_deadline
 
 =begin

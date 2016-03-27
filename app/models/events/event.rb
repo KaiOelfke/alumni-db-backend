@@ -7,7 +7,7 @@ class Events::Event < ActiveRecord::Base
 
 	validates :published, :delete_flag, inclusion: { in: [true, false] }
 
-	validates :description, :location, :dates, :agenda, :contact_email, length: { minimum: 1 }, allow_blank: true
+	validates :description, :location, :dates, :agenda, :contact_email, length: { minimum: 1 }, allow_nil: true
 
   validate :valid_facebook_url
 

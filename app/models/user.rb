@@ -29,6 +29,8 @@ class User < ActiveRecord::Base
 
   belongs_to :subscription, :class_name => "Subscriptions::Subscription", foreign_key: "subscription_id", dependent: :destroy
 
+  has_many :participations, :class_name => "Events::Participation", inverse_of: :user
+
   mount_uploader :avatar, AvatarUploader
 
   #before_create :skip_confirmation!
