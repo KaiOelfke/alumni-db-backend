@@ -139,6 +139,7 @@ class Subscriptions::SubscriptionsController < ApplicationController
         @customer = Braintree::Customer.create(
           :first_name => @current_user.first_name,
           :last_name => @current_user.last_name,
+          :email => @current_user.email,
           :credit_card => {
             :payment_method_nonce => @nonce_from_the_client,
             :options => {

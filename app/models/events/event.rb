@@ -1,13 +1,14 @@
 class Events::Event < ActiveRecord::Base
   has_many :fees, inverse_of: :event
+  has_many :participations, inverse_of: :event
 
-  scope :published, -> { where(published: true) }
+  scope :published, -> { where({delete_flag: false, published: true}) }
 
 	validates :name, presence: true
 
 	validates :published, :delete_flag, inclusion: { in: [true, false] }
 
-	validates :description, :location, :dates, :agenda, :contact_email, length: { minimum: 1 }, allow_nil: true
+	validates :description, :location, :dates, :agenda, :contact_email, length: { minimum: 0 }, allow_nil: true
 
   validate :valid_facebook_url
 

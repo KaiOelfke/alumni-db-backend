@@ -1,6 +1,6 @@
 class Events::Fee < ActiveRecord::Base
 
-  has_one :participation, :class_name => "Events::Participation", inverse_of: :fee
+  has_many :participations, inverse_of: :fee
 
   belongs_to :event
 

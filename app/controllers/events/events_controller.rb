@@ -77,7 +77,8 @@ class Events::EventsController < ApplicationController
     @current_user = current_user
 
     if @current_user.is_super_user
-        if Events::Event.create(event_params)
+        @event = Events::Event.create(event_params)
+        if @event
           render json: {
             data: @event.as_json(),
             status: 'success'
