@@ -7,6 +7,7 @@ class CreateParticipations < ActiveRecord::Migration
       
     	t.timestamps null: false
     	t.string   :braintree_transaction_id
+    	
     	# in review 1 / approved 2 / paid 3
     	t.integer  :status, default: 0
     	t.boolean :delete_flag, default: false 

@@ -4,11 +4,13 @@ class Events::Event < ActiveRecord::Base
 
   scope :published, -> { where({delete_flag: false, published: true}) }
 
-	validates :name, presence: true
+  enum type: [ :without_application, :with_application ]
+
+	validates :name, :type, presence: true
 
 	validates :published, :delete_flag, inclusion: { in: [true, false] }
 
-	validates :description, :location, :dates, :agenda, :contact_email, length: { minimum: 0 }, allow_nil: true
+	validates :description, :location, :slogen, :dates, :agenda, :contact_email, length: { minimum: 0 }, allow_nil: true
 
   validate :valid_facebook_url
 
