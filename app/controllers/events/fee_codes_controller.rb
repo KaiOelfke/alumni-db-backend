@@ -41,9 +41,9 @@ class Events::FeeCodesController < ApplicationController
 
     if @current_user.is_super_user
 
-        @feeCode = Events::FeeCode.create(create_feecode_params);
+        @feeCode = Events::FeeCode.new(create_feecode_params);
 
-        if @feeCode
+        if @feeCode.save
           success_response( @feeCode.as_json())
 
         else

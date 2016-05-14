@@ -44,6 +44,9 @@ RSpec.describe Events::EventsController, type: :controller do
 
   describe 'POST /events' do
 
+
+
+
     it "should return 403 if user isn't super user" do
       auth_headers = @completed_profile_user.create_new_auth_token
       request.headers.merge!(auth_headers)
@@ -53,6 +56,19 @@ RSpec.describe Events::EventsController, type: :controller do
       post :create, newEvent, format: :json
       expect(response.code).to eq "403"
     end
+
+    it "should return 500 if event params are wrong" do
+      auth_headers = @super_user.create_new_auth_token
+      request.headers.merge!(auth_headers)
+      attrs = FactoryGirl.attributes_for(:event)
+      attrs.delete(:etype)
+      newEvent = Hash.new
+      newEvent[:event] = attrs
+      puts newEvent
+      post :create, newEvent, format: :json
+      expect(response.code).to eq "500"
+    end
+
 
     it "should allow super user to create a new event" do
       auth_headers = @super_user.create_new_auth_token
