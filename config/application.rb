@@ -29,6 +29,7 @@ module AlumniDbBackend
     config.active_record.raise_in_transactional_callbacks = true
     config.active_record.schema_format = :sql
 
+    config.autoload_paths += Dir["#{config.root}/lib/**/"]
     
   end
 end

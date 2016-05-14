@@ -3,6 +3,7 @@ FactoryGirl.define do
     sequence(:name) {|n| "Conference#{n}"}
     description "Awesome conference"
     location "Copenhagen"
+    etype "without_application"
     dates "11.11.16 - 13.13.16"
     delete_flag false    
     agenda "Agenda TBC"

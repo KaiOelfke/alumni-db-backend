@@ -1,7 +1,7 @@
 class CreateEvents < ActiveRecord::Migration
   def change
     create_table :events do |t|
-      t.integer  :type, null: false
+      t.integer :etype, null: false
 
       t.string :name, null: false
       t.string :slogen, default: ""

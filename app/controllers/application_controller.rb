@@ -4,7 +4,14 @@ class ApplicationController < ActionController::API
     include HttpExcptions
 
     before_action :configure_permitted_parameters, if: :devise_controller?
-    rescue_from ActiveRecord::RecordNotFound, with: :not_found
+
+    rescue_from ActiveRecord::RecordNotFound,      with: :not_found
+    rescue_from HttpExcptions::BadRequest,          with: :bad_request_response
+    rescue_from HttpExcptions::NotAuthourized,      with: :not_authourized_response
+    rescue_from HttpExcptions::Forbidden,           with: :forbidden_response
+    rescue_from HttpExcptions::NotFound,            with: :not_found_response
+    rescue_from HttpExcptions::InternalServerError, with: :internal_error_response
+
 
     respond_to :json
 

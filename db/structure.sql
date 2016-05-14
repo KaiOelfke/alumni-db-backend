@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 9.5.1
--- Dumped by pg_dump version 9.5.1
+-- Dumped from database version 9.5.3
+-- Dumped by pg_dump version 9.5.3
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -74,7 +74,9 @@ ALTER SEQUENCE discounts_id_seq OWNED BY discounts.id;
 
 CREATE TABLE events (
     id integer NOT NULL,
+    etype integer NOT NULL,
     name character varying NOT NULL,
+    slogen character varying DEFAULT ''::character varying,
     description text DEFAULT ''::text,
     location character varying DEFAULT ''::character varying,
     dates character varying DEFAULT ''::character varying,
@@ -105,6 +107,40 @@ CREATE SEQUENCE events_id_seq
 --
 
 ALTER SEQUENCE events_id_seq OWNED BY events.id;
+
+
+--
+-- Name: fee_codes; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE fee_codes (
+    id integer NOT NULL,
+    code character varying NOT NULL,
+    user_id integer,
+    fee_id integer,
+    delete_flag boolean DEFAULT false,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: fee_codes_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE fee_codes_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: fee_codes_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE fee_codes_id_seq OWNED BY fee_codes.id;
 
 
 --
@@ -150,8 +186,20 @@ CREATE TABLE participations (
     id integer NOT NULL,
     fee_id integer,
     user_id integer,
+    event_id integer,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    braintree_transaction_id character varying,
+    status integer DEFAULT 0,
+    delete_flag boolean DEFAULT false,
+    arrival timestamp without time zone,
+    departure timestamp without time zone,
+    diet integer,
+    allergies text,
+    extra_nights text,
+    other text,
+    motivation text,
+    cv_file character varying
 );
 
 
@@ -346,6 +394,13 @@ ALTER TABLE ONLY events ALTER COLUMN id SET DEFAULT nextval('events_id_seq'::reg
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
+ALTER TABLE ONLY fee_codes ALTER COLUMN id SET DEFAULT nextval('fee_codes_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
 ALTER TABLE ONLY fees ALTER COLUMN id SET DEFAULT nextval('fees_id_seq'::regclass);
 
 
@@ -391,6 +446,14 @@ ALTER TABLE ONLY discounts
 
 ALTER TABLE ONLY events
     ADD CONSTRAINT events_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: fee_codes_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY fee_codes
+    ADD CONSTRAINT fee_codes_pkey PRIMARY KEY (id);
 
 
 --
@@ -441,10 +504,38 @@ CREATE INDEX index_discounts_on_plan_id ON discounts USING btree (plan_id);
 
 
 --
+-- Name: index_fee_codes_on_code; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_fee_codes_on_code ON fee_codes USING btree (code);
+
+
+--
+-- Name: index_fee_codes_on_fee_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_fee_codes_on_fee_id ON fee_codes USING btree (fee_id);
+
+
+--
+-- Name: index_fee_codes_on_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_fee_codes_on_user_id ON fee_codes USING btree (user_id);
+
+
+--
 -- Name: index_fees_on_event_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_fees_on_event_id ON fees USING btree (event_id);
+
+
+--
+-- Name: index_participations_on_event_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_participations_on_event_id ON participations USING btree (event_id);
 
 
 --
@@ -525,6 +616,14 @@ CREATE TRIGGER tsvectorupdate BEFORE INSERT OR UPDATE ON users FOR EACH ROW EXEC
 
 
 --
+-- Name: fk_rails_321cba9d8a; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY fee_codes
+    ADD CONSTRAINT fk_rails_321cba9d8a FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
+
+
+--
 -- Name: fk_rails_63d3df128b; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -565,11 +664,27 @@ ALTER TABLE ONLY users
 
 
 --
+-- Name: fk_rails_bae88c7ffa; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY participations
+    ADD CONSTRAINT fk_rails_bae88c7ffa FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE;
+
+
+--
 -- Name: fk_rails_c7bba2837d; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY subscriptions
     ADD CONSTRAINT fk_rails_c7bba2837d FOREIGN KEY (discount_id) REFERENCES discounts(id) ON DELETE RESTRICT;
+
+
+--
+-- Name: fk_rails_decd766d36; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY fee_codes
+    ADD CONSTRAINT fk_rails_decd766d36 FOREIGN KEY (fee_id) REFERENCES fees(id) ON DELETE CASCADE;
 
 
 --
@@ -601,4 +716,6 @@ INSERT INTO schema_migrations (version) VALUES ('20160321141649');
 INSERT INTO schema_migrations (version) VALUES ('20160321143809');
 
 INSERT INTO schema_migrations (version) VALUES ('20160327174220');
+
+INSERT INTO schema_migrations (version) VALUES ('20160508031133');
 

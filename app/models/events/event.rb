@@ -4,9 +4,9 @@ class Events::Event < ActiveRecord::Base
 
   scope :published, -> { where({delete_flag: false, published: true}) }
 
-  enum type: [ :without_application, :with_application ]
+  enum etype: [ :without_application, :with_application ]
 
-	validates :name, :type, presence: true
+	validates :name, :etype, presence: true
 
 	validates :published, :delete_flag, inclusion: { in: [true, false] }
 
