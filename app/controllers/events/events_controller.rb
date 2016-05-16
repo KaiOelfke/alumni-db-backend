@@ -10,7 +10,7 @@ class Events::EventsController < ApplicationController
     else
       @events = Events::Event.published
     end
-  
+
     render json: {
         status: 'success',
         data: @events.as_json()
@@ -33,7 +33,7 @@ class Events::EventsController < ApplicationController
         errors: ["not authourized"]
       }, status: 403
       end
-    else 
+    else
       render json: {
           status: 'error',
           error: ["event not found"]
@@ -90,7 +90,7 @@ class Events::EventsController < ApplicationController
           }, status: 500
         end
 
-    else 
+    else
       render json: {
         status: 'error',
         errors: ["not authourized"]
@@ -135,7 +135,7 @@ class Events::EventsController < ApplicationController
   private
 
     def event_params
-        params.require(:event).permit(:etype, :name, :description, :slogen, :location, :dates, 
+        params.require(:event).permit(:etype, :name, :description, :slogan, :location, :dates, 
           :facebook_url, :published, :contact_email)
     end
 
