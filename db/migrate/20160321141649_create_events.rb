@@ -4,7 +4,7 @@ class CreateEvents < ActiveRecord::Migration
       t.integer   :etype, null: false
 
       t.string    :name, null: false
-      t.string    :slogen, default: ""
+      t.string    :slogan, default: ""
       t.text      :description, default: ""
       t.string    :location, default: ""
       t.string    :dates, default: ""
