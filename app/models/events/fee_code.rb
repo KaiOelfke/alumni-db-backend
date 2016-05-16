@@ -4,9 +4,9 @@ class Events::FeeCode < ActiveRecord::Base
   belongs_to :fee
   belongs_to :user
 
-  before_create :generate_token
+  before_validation :generate_token
 
-	validates :fee, :user, presence: true
+	validates :code, :fee, :user, presence: true
   validates_uniqueness_of :code
 
 

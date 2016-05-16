@@ -9,6 +9,7 @@ FactoryGirl.define do
     agenda "Agenda TBC"
     contact_email "nobody@alumnieurope.org"
     published false
+    slogan "ah"
     trait :published do
         published true
     end

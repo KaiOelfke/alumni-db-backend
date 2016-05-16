@@ -76,7 +76,7 @@ CREATE TABLE events (
     id integer NOT NULL,
     etype integer NOT NULL,
     name character varying NOT NULL,
-    slogen character varying DEFAULT ''::character varying,
+    slogan character varying DEFAULT ''::character varying,
     description text DEFAULT ''::text,
     location character varying DEFAULT ''::character varying,
     dates character varying DEFAULT ''::character varying,
