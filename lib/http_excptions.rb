@@ -20,7 +20,7 @@ module HttpExcptions
   # HTTP-CODE 400
   class BadRequest < HttpError
 
-    def initialize(options = ["bad request"])
+    def initialize(options = "bad request")
       super(options)
     end
 
@@ -29,7 +29,7 @@ module HttpExcptions
   # HTTP-CODE 401
   class NotAuthourized < HttpError
 
-    def initialize(options = ["not authourized"])
+    def initialize(options = "not authourized")
       super(options)
     end
 

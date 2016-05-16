@@ -4,11 +4,12 @@ class Events::FeeCodesController < ApplicationController
 
   def index
     @current_user = current_user
-
     if @current_user.is_super_user
+      
       @feeCodes = Events::FeeCode.all
+
     else 
-      raise NotAuthourized
+      raise Forbidden
     end
     
     success_response( @feeCodes.as_json())
@@ -20,9 +21,13 @@ class Events::FeeCodesController < ApplicationController
 
     if @current_user.is_super_user
 
-      @feeCode = Events::FeeCode.where( "code = ? OR id = ?",
-                                        params[:code],
-                                        params[:id]).take
+      if /\A\d+\z/.match(params[:id])
+        @feeCode = Events::FeeCode.where( "code = ? OR id = ?",
+                                          params[:id],
+                                          params[:id]).take
+      else
+        @feeCode = Events::FeeCode.where( code: params[:id]).take
+      end
 
       if @feeCode
         success_response( @feeCode.as_json())
@@ -31,7 +36,7 @@ class Events::FeeCodesController < ApplicationController
       end
 
     else
-      raise NotAuthourized
+      raise Forbidden
     end
 
   end
@@ -45,13 +50,12 @@ class Events::FeeCodesController < ApplicationController
 
         if @feeCode.save
           success_response( @feeCode.as_json())
-
         else
-          raise InternalServerError record: @feeCode
+          raise InternalServerError, record: @feeCode
         end
 
     else 
-      raise NotAuthourized
+      raise Forbidden
     end
 
   end
@@ -64,15 +68,18 @@ class Events::FeeCodesController < ApplicationController
       @feeCode = Events::FeeCode.where( "code = ? OR id = ?",
                                         params[:code],
                                         params[:id]).take
-
-      if @feeCode.update(update_feecode_params)
-        success_response( @feeCode.as_json())
-      else
-        raise InternalServerError record: @feeCode
+      if @feeCode
+        if @feeCode.update(update_feecode_params)
+          success_response( @feeCode.as_json())
+        else
+          raise InternalServerError, record: @feeCode
+        end        
+      else 
+        raise NotFound
       end
 
     else
-      raise NotAuthourized
+      raise Forbidden
     end
 
   end
@@ -92,14 +99,14 @@ class Events::FeeCodesController < ApplicationController
         if @feeCode.save
           success_response( @feeCode.as_json())
         else
-          raise InternalServerError record: @feeCode
+          raise InternalServerError, record: @feeCode
         end
 
       else
         raise NotFound
       end
     else
-      raise NotAuthourized
+      raise Forbidden
     end
 
   end
@@ -107,7 +114,7 @@ class Events::FeeCodesController < ApplicationController
   private
 
     def create_feecode_params
-        params.require(:fee_code).permit(:user, :fee)
+        params.require(:fee_code).permit(:user_id, :fee_id)
     end
 
     def update_feecode_params

@@ -33,7 +33,8 @@ class User < ActiveRecord::Base
 
   mount_uploader :avatar, AvatarUploader
 
-  #before_create :skip_confirmation!
+
+  before_create :skip_confirmation!, :if => :isTestEnv?
 
   validates :first_name,
             :last_name,
@@ -160,6 +161,10 @@ class User < ActiveRecord::Base
 
   def is_premium
     !!self.subscription_id
+  end
+
+  def isTestEnv?
+    Rails.env.test?
   end
 
 end

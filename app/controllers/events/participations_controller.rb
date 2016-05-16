@@ -10,7 +10,7 @@ class Events::ParticipationsController < ApplicationController
     end
 
     unless params[:event_id]
-      raise BadRequest errors: ['event_id is required']
+      raise BadRequest, errors: ['event_id is required']
     end
     
     @event = Events::Event.find_by_id( params[:event_id])
@@ -65,7 +65,7 @@ class Events::ParticipationsController < ApplicationController
         if @particiption.update update_particiption_form
           success_response( @particiption.as_json())
         else
-          raise InternalServerError record: @particiption
+          raise InternalServerError, record: @particiption
         end
 
       else
@@ -83,7 +83,7 @@ class Events::ParticipationsController < ApplicationController
     @current_user = current_user
 
     unless params[:event_id]
-      raise BadRequest errors: ['event_id is required']
+      raise BadRequest, errors: ['event_id is required']
     end
 
     @event = Events::Event.find_by_id( params[:event_id])
@@ -102,13 +102,13 @@ class Events::ParticipationsController < ApplicationController
       @fee = Events::Fee.find_by_id(params[:particiption][:fee_id])
 
       unless @fee
-        raise BadRequest errors: ['fee_id is required']
+        raise BadRequest, errors: ['fee_id is required']
       end
 
       @nonce_from_the_client = params[:participation][:payment_method_nonce]
 
       unless @nonce_from_the_client
-        raise BadRequest errors: ['payment_method_nonce is required']
+        raise BadRequest, errors: ['payment_method_nonce is required']
       end
 
       create_customer
@@ -127,7 +127,7 @@ class Events::ParticipationsController < ApplicationController
       if @participation.save
         success_response(@participation.as_json())
       else
-        raise InternalServerError record: @participation
+        raise InternalServerError, record: @participation
       end
 
 
@@ -147,7 +147,7 @@ class Events::ParticipationsController < ApplicationController
         if @participation.save
           success_response(@participation.as_json())
         else
-          raise InternalServerError record: @participation
+          raise InternalServerError, record: @participation
         end
 
       else
@@ -162,7 +162,7 @@ class Events::ParticipationsController < ApplicationController
         @fee = @code.fee
         
         if @fee.deadline < Date.current
-          raise BadRequest errors: ["Fee's Deadline has already passed"]  
+          raise BadRequest, errors: ["Fee's Deadline has already passed"]  
         end
 
         create_customer
@@ -180,7 +180,7 @@ class Events::ParticipationsController < ApplicationController
           success_response(@participation.as_json())
 
         else
-          raise InternalServerError record: @participation
+          raise InternalServerError, record: @participation
         end
 
 
