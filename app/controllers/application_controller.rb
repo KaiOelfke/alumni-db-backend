@@ -20,9 +20,10 @@ class ApplicationController < ActionController::API
 
       # HTTP-CODE 200
       def success_response(data)
+        @json_response = data.as_json
         render json: {
               status: 'success',
-              data: data
+              data: @json_response
         }, status: :ok
       end
 

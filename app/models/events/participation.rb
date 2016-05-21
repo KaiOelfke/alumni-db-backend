@@ -1,17 +1,16 @@
 class Events::Participation < ActiveRecord::Base
   belongs_to :user, :class_name => "User"
   belongs_to :fee
+  belongs_to :event
 
-  enum status: [ :new, :in_review, :approved, :paid ]
+  enum status: [ :submitted, :in_review, :approved, :paid ]
 
 
   validates :user, :fee, presence: true
 
-	validates :cv_file, :motivation,  presence: true, if: "in_review?"
+  validates :cv_file, :motivation,  presence: true, if: "in_review?"
 
-	validates :arrival, :departure, :braintree_transaction_id, :diet,  presence: true, if: "paid?"
-  
-
+  validates :arrival, :departure, :braintree_transaction_id, :diet,  presence: true, if: "paid?"
 
 =begin
 

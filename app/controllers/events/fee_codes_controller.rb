@@ -12,7 +12,7 @@ class Events::FeeCodesController < ApplicationController
       raise Forbidden
     end
     
-    success_response( @feeCodes.as_json())
+    success_response( @feeCodes)
   end
 
 
@@ -30,7 +30,7 @@ class Events::FeeCodesController < ApplicationController
       end
 
       if @feeCode
-        success_response( @feeCode.as_json())
+        success_response( @feeCode)
       else
         raise NotFound
       end
@@ -49,7 +49,7 @@ class Events::FeeCodesController < ApplicationController
         @feeCode = Events::FeeCode.new(create_feecode_params);
 
         if @feeCode.save
-          success_response( @feeCode.as_json())
+          success_response( @feeCode)
         else
           raise InternalServerError, record: @feeCode
         end
@@ -70,7 +70,7 @@ class Events::FeeCodesController < ApplicationController
                                         params[:id]).take
       if @feeCode
         if @feeCode.update(update_feecode_params)
-          success_response( @feeCode.as_json())
+          success_response( @feeCode)
         else
           raise InternalServerError, record: @feeCode
         end        
@@ -97,7 +97,7 @@ class Events::FeeCodesController < ApplicationController
         @feeCode.delete_flag = true
 
         if @feeCode.save
-          success_response( @feeCode.as_json())
+          success_response( @feeCode)
         else
           raise InternalServerError, record: @feeCode
         end

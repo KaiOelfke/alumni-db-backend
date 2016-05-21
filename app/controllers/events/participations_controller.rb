@@ -6,7 +6,7 @@ class Events::ParticipationsController < ApplicationController
     @current_user = current_user
 
     unless current_user.is_super_user
-      raise NotAuthourized
+      raise Forbidden
     end
 
     unless params[:event_id]
@@ -16,7 +16,7 @@ class Events::ParticipationsController < ApplicationController
     @event = Events::Event.find_by_id( params[:event_id])
 
     if @event
-      success_response( @event.participations.as_json())
+      success_response( @event.participations)
     else
       raise NotFound
     end
@@ -26,24 +26,21 @@ class Events::ParticipationsController < ApplicationController
   def show
     @current_user = current_user
 
-    unless params[:participation_id]
+    unless params[:id]
       raise BadRequest errors: ['participation_id is required']
     end
 
     unless params[:event_id]
       raise BadRequest errors: ['event_id is required']
     end
-    
-    @participation = Events::Participation.where({
-        id: params[:participation_id],
-        event_id: params[:event_id]
-      }).take
+
+    @participation = Events::Participation.find_by_id( params[:id])
 
     if @participation
       if current_user.is_super_user or @participation.user.id.eql? current_user.id
-        success_response( @particiption.as_json())
+        success_response( @participation)
       else
-        raise NotAuthourized
+        raise Forbidden
       end
     else
       raise NotFound
@@ -59,17 +56,17 @@ class Events::ParticipationsController < ApplicationController
 
 
     if @particiption
-      if (@particiption.user_id.eql? @current_user.id and @particiption.new?) or
+      if (@particiption.user_id.eql? @current_user.id and @particiption.submitted?) or
          @current_user.is_super_user
 
         if @particiption.update update_particiption_form
-          success_response( @particiption.as_json())
+          success_response( @particiption)
         else
           raise InternalServerError, record: @particiption
         end
 
       else
-          raise NotAuthourized
+          raise Forbidden
       end
 
     else 
@@ -125,7 +122,7 @@ class Events::ParticipationsController < ApplicationController
     
 
       if @participation.save
-        success_response(@participation.as_json())
+        success_response(@participation)
       else
         raise InternalServerError, record: @participation
       end
@@ -145,7 +142,7 @@ class Events::ParticipationsController < ApplicationController
         #@participation = Events::Participation.new(@participationsParams)
       
         if @participation.save
-          success_response(@participation.as_json())
+          success_response(@participation)
         else
           raise InternalServerError, record: @participation
         end
@@ -177,7 +174,7 @@ class Events::ParticipationsController < ApplicationController
       
 
         if @participation.update @participationsParams
-          success_response(@participation.as_json())
+          success_response(@participation)
 
         else
           raise InternalServerError, record: @participation
@@ -187,31 +184,6 @@ class Events::ParticipationsController < ApplicationController
       end
     end
 
-
-
-
-
-    #upload 
-
-
-
-    # event type 2 / set particiption data - pay
-
-
-
-
-
-    # find code match with feed code ? 
-    # validate the date 
-    # then 
-    # create customer -> pay fees -> update particiption with particiaption form s and change the status
-
-
-
-    # type 1 of events in which users enter without applying a application (cv, motivation).
-
-
-
   end
 
 
@@ -220,19 +192,23 @@ class Events::ParticipationsController < ApplicationController
 
     @particiption = Events::Participation.find_by_id( params[:id])
 
-    if (@particiption.user_id.eql? @current_user.id and @particiption.new?) or
-       @current_user.is_super_user
+    if @particiption
+      if (@particiption.user_id.eql? @current_user.id and @particiption.submitted?) or
+         @current_user.is_super_user
 
-      @particiption.delete_flag = true
+        @particiption.delete_flag = true
 
-      if @particiption.save
-        success_response( @particiption.as_json())
+        if @particiption.save
+          success_response( @particiption)
+        else
+          raise InternalServerError record: @particiption
+        end
+
       else
-        raise InternalServerError record: @particiption
+          raise Forbidden
       end
-
-    else
-        raise NotAuthourized
+    else 
+      raise NotFound
     end
 
   end

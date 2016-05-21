@@ -14,6 +14,14 @@ FactoryGirl.define do
         published true
     end
 
+    trait :without_application do
+      etype "without_application"
+    end
+
+    trait :with_application do
+      etype "with_application"
+    end
+
     trait :with_fees do
       fees {[FactoryGirl.create(:fee)]}
     end    
