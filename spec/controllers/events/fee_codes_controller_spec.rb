@@ -7,9 +7,12 @@ RSpec.describe Events::FeeCodesController, type: :controller do
     @completed_profile_user = FactoryGirl.create(:user, :registered, :completed_profile, :confirmed_email, :personal_programm_data)
     @super_user = FactoryGirl.create(:user, :registered, :confirmed_email, :personal_programm_data, :super)
     @event_with_fees = FactoryGirl.create(:event, :with_fees)
+    @fee_with_fee_codes = FactoryGirl.create(:fee, :fee_codes)
     @fee_code = FactoryGirl.create(:fee_code)
 
   end
+
+
 
 
 
@@ -32,6 +35,35 @@ RSpec.describe Events::FeeCodesController, type: :controller do
 
 
   end
+
+
+  describe 'GET /events/:event_id/fee_codes' do
+
+    it "should return 403 if user without super_user grants want to access all fee_codes for specific event" do
+      auth_headers = @completed_profile_user.create_new_auth_token
+      request.headers.merge!(auth_headers)
+      get :all_fees_for_event, event_id: @fee_with_fee_codes.event.id, format: :json
+      expect(response.code).to eq "403"
+    end
+
+
+    it "should return 200 with all fees if super user want to access all fee_codes for specific event" do
+      auth_headers = @super_user.create_new_auth_token
+      request.headers.merge!(auth_headers)
+      get :all_fees_for_event, event_id: @fee_with_fee_codes.event.id ,format: :json
+      feeCodes = @fee_with_fee_codes.event.fees.joins(:fee_codes)
+      #puts json['data']
+      expect(response.code).to eq "200"
+      expect(json['data'].length).to eq(3)
+      json['data'].each_with_index do |fee_code, index|
+        expect(fee_code['id']).to eq feeCodes[index][:id]
+      end
+
+    end
+
+
+  end
+
 
 
   describe 'GET /fee_codes/:id' do

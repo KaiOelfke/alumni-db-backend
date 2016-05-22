@@ -16,6 +16,19 @@ class Events::FeeCodesController < ApplicationController
   end
 
 
+  def all_fees_for_event
+
+    @current_user = current_user
+    if @current_user.is_super_user
+      @feeCodes = Events::Event.find_by_id(params[:event_id]).fees.joins(:fee_codes)
+    else 
+      raise Forbidden
+    end
+    
+    success_response( @feeCodes)
+  end
+
+
   def show
     @current_user = current_user
 

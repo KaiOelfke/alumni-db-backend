@@ -24,6 +24,7 @@ FactoryGirl.define do
 
     trait :with_fees do
       fees {[FactoryGirl.create(:fee),FactoryGirl.create(:fee),FactoryGirl.create(:fee)]}
-    end    
+    end
+    
   end
 end

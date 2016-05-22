@@ -1,6 +1,5 @@
 class Events::FeeCode < ActiveRecord::Base
 
-
   belongs_to :fee
   belongs_to :user
 
