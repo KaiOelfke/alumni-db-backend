@@ -129,53 +129,86 @@ RSpec.describe Events::ParticipationsController, type: :controller do
       expect(json["data"]["extra_nights"]).to eq changedAttr[:extra_nights]
     end
 
-  end
-
-=begin
-  
+  end  
 
 
-  describe 'POST /events/fees' do
+  describe 'POST /events/:event_id/participations' do
 
-    it "should return 403 if user without super user permissions want to create a fee" do
+    it "should return 400 if the fee_id doesn't exist" do
+      auth_headers = @completed_profile_user.create_new_auth_token
+      request.headers.merge!(auth_headers)
+      attrs = FactoryGirl.attributes_for(:participation)
+
+      attrs[:event_id] = @event_with_fees.id
+      attrs[:payment_method_nonce] = Braintree::Test::Nonce::Transactable
+
+      newParticipation = Hash.new
+      newParticipation[:participation] = attrs
+      newParticipation[:event_id] = @event_with_fees.id
+
+      post :create, newParticipation, format: :json
+      expect(response.code).to eq "400"
+    end
+
+    it "should return 500 if the payment method is not valid" do
+      auth_headers = @completed_profile_user.create_new_auth_token
+      request.headers.merge!(auth_headers)
+      attrs = FactoryGirl.attributes_for(:participation)
+
+      attrs[:event_id] = @event_with_fees.id
+      attrs[:fee_id] = @event_with_fees.fees.take.id
+      attrs[:payment_method_nonce] = Braintree::Test::Nonce::ProcessorDeclinedMasterCard
+
+      newParticipation = Hash.new
+      newParticipation[:participation] = attrs
+      newParticipation[:event_id] = @event_with_fees.id
+
+      post :create, newParticipation, format: :json
+      expect(response.code).to eq "500"
+      puts json
+    end
+
+    it "should return 500 if the payment method is not valid" do
     	auth_headers = @completed_profile_user.create_new_auth_token
       request.headers.merge!(auth_headers)
-      attrs = FactoryGirl.attributes_for(:fee)
-      attrs[:event_id] = @event_with_fees.id
-      newFee = Hash.new
-      newFee[:fee] = attrs
-      post :create, newFee, format: :json
-      expect(response.code).to eq "403"
-    end
+      attrs = FactoryGirl.attributes_for(:participation)
 
-    it "should return 500 if super user want to a create a fee with wrong params" do
-    	auth_headers = @super_user.create_new_auth_token
-      request.headers.merge!(auth_headers)
-      attrs = FactoryGirl.attributes_for(:fee)
-      newFee = Hash.new
-      newFee[:fee] = attrs
-      post :create, newFee, format: :json
+      attrs[:event_id] = @event_with_fees.id
+      attrs[:fee_id] = @event_with_fees.fees.take.id
+      attrs[:payment_method_nonce] = Braintree::Test::Nonce::ProcessorFailureJCB
+
+      newParticipation = Hash.new
+      newParticipation[:participation] = attrs
+      newParticipation[:event_id] = @event_with_fees.id
+
+      post :create, newParticipation, format: :json
       expect(response.code).to eq "500"
+      puts json
+
     end
 
-
-    it "should return 200 with fee data if super user want to create a fee" do
-    	auth_headers = @super_user.create_new_auth_token
+    it "should return 200 if the payment method is valid" do
+      auth_headers = @completed_profile_user.create_new_auth_token
       request.headers.merge!(auth_headers)
-      attrs = FactoryGirl.attributes_for(:fee)
-      attrs[:event_id] = @event_with_fees.id
-      newFee = Hash.new
-      newFee[:fee] = attrs
-      post :create, newFee, format: :json
-      expect(response.code).to eq "200"
-      expect(json["data"]["name"]).to eq attrs[:name]
-      expect(json["data"]["price"]).to eq attrs[:price]
-      expect(json["data"]["deadline"]).to eq attrs[:deadline]
-    end
+      attrs = FactoryGirl.attributes_for(:participation)
 
+      attrs[:event_id] = @event_with_fees.id
+      attrs[:fee_id] = @event_with_fees.fees.take.id
+      attrs[:payment_method_nonce] = Braintree::Test::Nonce::Transactable
+
+      newParticipation = Hash.new
+      newParticipation[:participation] = attrs
+      newParticipation[:event_id] = @event_with_fees.id
+
+      post :create, newParticipation, format: :json
+      expect(response.code).to eq "200"
+      expect(json['data']['user_id']).to eq @completed_profile_user.id
+      expect(json['data']['fee_id']).to eq attrs[:fee_id]
+      expect(json['data']['event_id']).to eq attrs[:event_id]
+
+    end
 
   end
-=end
 
   describe 'destroy /events/:event_id/participations/:id' do
 

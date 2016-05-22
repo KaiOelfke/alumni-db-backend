@@ -52,17 +52,17 @@ class Events::ParticipationsController < ApplicationController
   def update
     @current_user = current_user
 
-    @particiption = Events::Participation.find_by_id( params[:id])
+    @participation = Events::Participation.find_by_id( params[:id])
 
 
-    if @particiption
-      if (@particiption.user_id.eql? @current_user.id and @particiption.submitted?) or
+    if @participation
+      if (@participation.user_id.eql? @current_user.id and @participation.submitted?) or
          @current_user.is_super_user
 
-        if @particiption.update update_particiption_form
-          success_response( @particiption)
+        if @participation.update update_participation_form
+          success_response( @participation)
         else
-          raise InternalServerError, record: @particiption
+          raise InternalServerError, record: @participation
         end
 
       else
@@ -79,11 +79,11 @@ class Events::ParticipationsController < ApplicationController
   def create
     @current_user = current_user
 
-    unless params[:event_id]
+    unless params[:participation][:event_id]
       raise BadRequest, errors: ['event_id is required']
     end
 
-    @event = Events::Event.find_by_id( params[:event_id])
+    @event = Events::Event.find_by_id( params[:participation][:event_id])
 
     unless @event
       raise NotFound
@@ -91,15 +91,19 @@ class Events::ParticipationsController < ApplicationController
 
     # should deal with 3 process
 
-    # event type 1 / set particiption data - pay
+    # event type 1 / set participation data - pay
 
 
-    if @event.without_application
+    if @event.without_application?
 
-      @fee = Events::Fee.find_by_id(params[:particiption][:fee_id])
+      unless params[:participation][:fee_id]
+        raise BadRequest, errors: ['fee_id is required']
+      end
+
+      @fee = Events::Fee.find_by_id(params[:participation][:fee_id])
 
       unless @fee
-        raise BadRequest, errors: ['fee_id is required']
+        raise NotFound
       end
 
       @nonce_from_the_client = params[:participation][:payment_method_nonce]
@@ -110,14 +114,14 @@ class Events::ParticipationsController < ApplicationController
 
       create_customer
 
-      pay_fees
-
       @participationsParams = create_pay_params
-      @participationsParams[:participation][:status] = 3
-      @participationsParams[:participation][:user_id] = @participationsParams[:participation][:user_id] ||
+      @participationsParams[:braintree_transaction_id] = pay_fees
+
+      @participationsParams[:status] = 3
+      @participationsParams[:user_id] = @participationsParams[:user_id] ||
                                                         @current_user.id
 
-      @participation = @event.participation.new(@participationsParams)
+      @participation = @event.participations.new(@participationsParams)
       #@participation = Events::Participation.new(@participationsParams)
     
 
@@ -165,7 +169,7 @@ class Events::ParticipationsController < ApplicationController
         create_customer
         pay_fees
 
-        @participationsParams = update_particiption_form
+        @participationsParams = update_participation_form
         @participationsParams[:participation][:status] = 3
 
         @participation = Events::Participation.where( event_id: params[:participation][:event_id],
@@ -190,18 +194,18 @@ class Events::ParticipationsController < ApplicationController
   def destroy
     @current_user = current_user
 
-    @particiption = Events::Participation.find_by_id( params[:id])
+    @participation = Events::Participation.find_by_id( params[:id])
 
-    if @particiption
-      if (@particiption.user_id.eql? @current_user.id and @particiption.submitted?) or
+    if @participation
+      if (@participation.user_id.eql? @current_user.id and @participation.submitted?) or
          @current_user.is_super_user
 
-        @particiption.delete_flag = true
+        @participation.delete_flag = true
 
-        if @particiption.save
-          success_response( @particiption)
+        if @participation.save
+          success_response( @participation)
         else
-          raise InternalServerError record: @particiption
+          raise InternalServerError, record: @participation
         end
 
       else
@@ -261,7 +265,7 @@ class Events::ParticipationsController < ApplicationController
         @current_user.customer_id = @customer.id
 
         unless @current_user.save
-          raise InternalServerError record: @current_user
+          raise InternalServerError, record: @current_user
         end
       end
 
@@ -271,20 +275,20 @@ class Events::ParticipationsController < ApplicationController
 
       if @verification.status.eql?("gateway_rejected")
         
-        raise InternalServerError errors: [{ status: @verification.status,
+        raise InternalServerError, errors: [{ status: @verification.status,
                                              message: @verification.gateway_rejection_reason}]
       elsif @verification.status.eql?("processor_declined")
 
-        raise InternalServerError errors: [{ status: @verification.status,
+        raise InternalServerError, errors: [{ status: @verification.status,
                                              code: @verification.processor_response_code,
                                              message:@verification.processor_response_text}]
       else 
-        raise InternalServerError errors: [{ status: "unknown_error",
+        raise InternalServerError, errors: [{ status: "unknown_error",
                                              message: "unknown server error"}]
       end
         
     else
-      raise InternalServerError record: customerResponse
+      raise InternalServerError, record: customerResponse
     end
 
   end
@@ -309,8 +313,8 @@ class Events::ParticipationsController < ApplicationController
 
     transaction = transactionResponse.transaction
 
-    if not transaction.success?
-      if transaction.errors.any?
+    if not transactionResponse.success?
+      if transactionResponse.errors.any?
         raise InternalServerError record: transaction   
       else 
 
@@ -328,6 +332,8 @@ class Events::ParticipationsController < ApplicationController
       end
     end
 
+
+    return transaction.id
   end
 
 
@@ -340,7 +346,7 @@ class Events::ParticipationsController < ApplicationController
     params.require(:participation).permit(:motivation, :cv_file)
   end
 
-  def update_particiption_form
+  def update_participation_form
     params.require(:participation).permit( :arrival, :departure,
     :diet, :allergies, :extra_nights, :other)    
   end

@@ -8,7 +8,7 @@ module HttpExcptions
         @errors = [options]
       else
         @record = options[:record]
-        @errors = @record.nil? ? @record.errors : options[:errors]
+        @errors = @record.nil? ? options[:errors] : @record.errors
       end
       
       message = @errors
