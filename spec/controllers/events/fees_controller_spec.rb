@@ -42,6 +42,11 @@ RSpec.describe Events::FeesController, type: :controller do
       request.headers.merge!(auth_headers)
       get :index, event_id: @event_with_fees.id ,format: :json
       expect(response.code).to eq "200"
+      fees = @event_with_fees.fees.all
+      expect(json['data'].length).to eq(3)
+      json['data'].each_with_index do |fee, index|
+        expect(fee['id']).to eq(fees[index][:id])
+      end
     end
 
 
