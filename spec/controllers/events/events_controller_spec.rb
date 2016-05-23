@@ -44,9 +44,6 @@ RSpec.describe Events::EventsController, type: :controller do
 
   describe 'POST /events' do
 
-
-
-
     it "should return 403 if user isn't super user" do
       auth_headers = @completed_profile_user.create_new_auth_token
       request.headers.merge!(auth_headers)
@@ -64,7 +61,6 @@ RSpec.describe Events::EventsController, type: :controller do
       attrs.delete(:etype)
       newEvent = Hash.new
       newEvent[:event] = attrs
-      puts newEvent
       post :create, newEvent, format: :json
       expect(response.code).to eq "500"
     end

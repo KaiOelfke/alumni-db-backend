@@ -10,10 +10,14 @@ class Events::Event < ActiveRecord::Base
 
 	validates :published, :delete_flag, inclusion: { in: [true, false] }
 
-	validates :description, :location, :slogan, :dates, :agenda, :contact_email, length: { minimum: 0 }, allow_nil: true
+	validates :description, :location, :slogan, :dates, :agenda,
+            :contact_email, :phone_number, length: { minimum: 0 }, allow_nil: true
 
   validate :valid_facebook_url
 
+  mount_uploader :logo_photo, EventLogoUploader
+
+  mount_uploader :cover_photo, EventCoverUploader
 
   def valid_facebook_url
     if (facebook_url.to_s != '')

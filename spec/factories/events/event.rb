@@ -8,8 +8,14 @@ FactoryGirl.define do
     delete_flag false    
     agenda "Agenda TBC"
     contact_email "nobody@alumnieurope.org"
+    phone_number "0049123456789"
     published false
     slogan "ah"
+    cover_photo { Rack::Test::UploadedFile.new(File.join(Rails.root,'/spec',
+                                              '/support','/events','/cover-photo.png')) }
+    logo_photo { Rack::Test::UploadedFile.new(File.join(Rails.root,'/spec',
+                                              '/support','/events','/logo-256.jpg')) }
+
     trait :published do
         published true
     end

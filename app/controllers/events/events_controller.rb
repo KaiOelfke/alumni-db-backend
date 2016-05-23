@@ -135,8 +135,10 @@ class Events::EventsController < ApplicationController
   private
 
     def event_params
-        params.require(:event).permit(:etype, :name, :description, :slogan, :location, :dates, 
-          :facebook_url, :published, :contact_email)
+        params.require(:event).permit(:etype, :name,
+          :description, :slogan, :location, :dates, 
+          :facebook_url, :published, :contact_email,
+          :phone_number, :logo_photo, :cover_photo,)
     end
 
 end
