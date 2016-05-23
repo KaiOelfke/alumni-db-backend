@@ -88,7 +88,7 @@ RSpec.describe Events::FeesController, type: :controller do
       expect(response.code).to eq "200"
       expect(json["data"]["name"]).to eq attrs[:name]
       expect(json["data"]["price"]).to eq attrs[:price]
-      expect(json["data"]["deadline"]).to eq attrs[:deadline]
+      expect(json["data"]["deadline"]).to eq attrs[:deadline].strftime('%F') 
     end
 
 

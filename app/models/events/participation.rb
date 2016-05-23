@@ -6,6 +6,9 @@ class Events::Participation < ActiveRecord::Base
   enum status: [ :submitted, :in_review, :approved, :paid ]
 
 
+
+  mount_uploader :cv_file, CurriculumVitaeUploader
+
   validates :user, :fee, presence: true
 
   validates :cv_file, :motivation,  presence: true, if: "in_review?"

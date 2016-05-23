@@ -79,11 +79,11 @@ class Events::ParticipationsController < ApplicationController
   def create
     @current_user = current_user
 
-    unless params[:participation][:event_id]
+    unless params[:event_id]
       raise BadRequest, errors: ['event_id is required']
     end
 
-    @event = Events::Event.find_by_id( params[:participation][:event_id])
+    @event = Events::Event.find_by_id( params[:event_id])
 
     unless @event
       raise NotFound
@@ -116,8 +116,7 @@ class Events::ParticipationsController < ApplicationController
 
       @participationsParams = create_pay_params
       @participationsParams[:braintree_transaction_id] = pay_fees
-
-      @participationsParams[:status] = 3
+      @participationsParams[:status] = 3 #paid
       @participationsParams[:user_id] = @participationsParams[:user_id] ||
                                                         @current_user.id
 
@@ -136,15 +135,14 @@ class Events::ParticipationsController < ApplicationController
       
     else
 
-
-
       if params[:participation][:fee_id]
-        @participationsParams = create_application_params
-        @participationsParams[:participation][:status] = 0
 
-        @participation = @event.participation.new(@participationsParams)
-        #@participation = Events::Participation.new(@participationsParams)
-      
+        @participationsParams = create_application_params
+        @participationsParams[:status] = 0 #submitted
+        @participationsParams[:user_id] = @participationsParams[:user_id] ||
+                                                        @current_user.id
+        @participation = @event.participations.new(@participationsParams)        
+
         if @participation.save
           success_response(@participation)
         else
@@ -159,24 +157,28 @@ class Events::ParticipationsController < ApplicationController
           raise NotFound record: @code
         end
 
-
         @fee = @code.fee
         
         if @fee.deadline < Date.current
           raise BadRequest, errors: ["Fee's Deadline has already passed"]  
         end
 
+        @nonce_from_the_client = params[:participation][:payment_method_nonce]
+
+        unless @nonce_from_the_client
+          raise BadRequest, errors: ['payment_method_nonce is required']
+        end
+
         create_customer
-        pay_fees
 
         @participationsParams = update_participation_form
-        @participationsParams[:participation][:status] = 3
+        @participationsParams[:braintree_transaction_id] = pay_fees
+        @participationsParams[:status] = 3 #paid
 
-        @participation = Events::Participation.where( event_id: params[:participation][:event_id],
+        @participation = Events::Participation.where( event_id: params[:event_id],
                                                       user_id: @code.user_id).take
         #@participation = Events::Participation.new(@participationsParams)
       
-
         if @participation.update @participationsParams
           success_response(@participation)
 
@@ -233,6 +235,7 @@ class Events::ParticipationsController < ApplicationController
 
     # create braintree customer if no customer_id for the user exists
     unless @current_user.customer_id?
+
       customerResponse = Braintree::Customer.create(
         :first_name => @current_user.first_name,
         :last_name => @current_user.last_name,
@@ -245,6 +248,7 @@ class Events::ParticipationsController < ApplicationController
         }
       )
     else
+
       customerResponse = Braintree::Customer.update(
         @current_user.customer_id,
         :credit_card => {
@@ -256,6 +260,7 @@ class Events::ParticipationsController < ApplicationController
       )
 
     end     
+
 
     if customerResponse.success?
 
@@ -269,7 +274,7 @@ class Events::ParticipationsController < ApplicationController
         end
       end
 
-    elsif customerResponse.credit_card_verification 
+    elsif customerResponse.credit_card_verification
 
       @verification = customerResponse.credit_card_verification
 
@@ -288,6 +293,7 @@ class Events::ParticipationsController < ApplicationController
       end
         
     else
+
       raise InternalServerError, record: customerResponse
     end
 
@@ -325,7 +331,7 @@ class Events::ParticipationsController < ApplicationController
       transaction_code = transaction.processor_response_code or
                           transaction.processor_settlement_response_code or "unknown server error"
 
-      raise InternalServerError errors:  [{status: transcation_status,
+      raise InternalServerError, errors:  [{status: transcation_status,
                                            code:   transaction_code,
                                            message:transcation_message}]
 
@@ -343,14 +349,20 @@ class Events::ParticipationsController < ApplicationController
   end
 
   def create_application_params
-    params.require(:participation).permit(:motivation, :cv_file)
+    params.require(:participation).permit(:user_id, :fee_id, :motivation, :cv_file)
   end
 
   def update_participation_form
-    params.require(:participation).permit( :arrival, :departure,
-    :diet, :allergies, :extra_nights, :other)    
-  end
+    if @current_user.is_super_user
+      params.require(:participation).permit(:status, :arrival, :departure,
+      :diet, :allergies, :extra_nights, :other)    
 
+    else
+      params.require(:participation).permit(:arrival, :departure,
+      :diet, :allergies, :extra_nights, :other)    
+
+    end
+  end
 
 
 
