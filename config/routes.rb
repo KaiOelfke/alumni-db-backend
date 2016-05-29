@@ -25,7 +25,12 @@ Rails.application.routes.draw do
     resource :subscriptions, only: [:create]
   end
 
+  namespace :events do
+    resources :fees, only: [:index, :show, :update, :create, :destroy]
+  end
+
   scope module: 'events' do
+
     resources :events, only: [:index, :show, :update, :create, :destroy]  do
       resources :participations, only: [:index, :show, :update, :create, :destroy]
       get '/fee_codes', to: 'fee_codes#all_fees_for_event'
@@ -33,10 +38,6 @@ Rails.application.routes.draw do
     resources :fee_codes, only: [:index, :show, :update, :create, :destroy]
   end
   
-  namespace :events do
-    resources :fees, only: [:index, :show, :update, :create, :destroy]
-  end
-
 
   #
 
