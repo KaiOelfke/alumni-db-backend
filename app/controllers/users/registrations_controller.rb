@@ -66,12 +66,33 @@ class Users::RegistrationsController < DeviseTokenAuth::RegistrationsController
   end
 
   def update
+    puts params
+    if @resource
+      if @resource.send(resource_update_method, account_update_params)
+        yield @resource if block_given?
+        render_update_success
+      else
+        render_update_error
+      end
+    else
+      render_update_error_user_not_found
+    end
+  end
+=begin
+  def update
+      return
+      puts 'asdjkhjlaskdljaskdjlaksljaskaljskdalsjdkaljsdklkj'
       if @resource
-        if params[:file]
-          params[:avatar] = params[:file] 
-          params.delete(:file)
+        if params.has_key?('file')
+          puts 'aslkjdjkalslkd'
+          params[:avatar] = params['file'] 
+          params.delete('file')
         end
-        
+        puts params.has_key?('file')
+        puts params.has_key?(:file)
+        puts params[:file]
+        puts params
+        puts account_update_params
         if @resource.update_attributes(account_update_params)
           render json: {
             status: 'success',
@@ -90,7 +111,7 @@ class Users::RegistrationsController < DeviseTokenAuth::RegistrationsController
         }, status: 404
       end    
   end
-
+=end
   def destroy
     super
   end
