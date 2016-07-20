@@ -11,7 +11,7 @@ Rails.application.routes.draw do
 
   put 'users', to: 'users#update'
 
-  resources :users, only: [:show, :index]
+  resources :users, only: [:show, :index], :defaults => {:format => 'json'}
 
   namespace :subscriptions do
 

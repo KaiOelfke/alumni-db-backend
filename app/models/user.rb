@@ -1,5 +1,6 @@
 require 'date'
 require 'uri'
+require 'csv'
 class User < ActiveRecord::Base
   include DeviseTokenAuth::Concerns::User
   include PgSearch
@@ -24,6 +25,8 @@ class User < ActiveRecord::Base
       tsvector_column: "tsv"
     }
   }
+
+  devise :trackable
 
   scope :completed_profile, -> { where(completed_profile: true) }
 
@@ -159,5 +162,51 @@ class User < ActiveRecord::Base
   def is_premium
     !!self.subscription_id
   end
+
+  def self.to_csv
+    attributes = %w{
+      id 
+      email
+      sign_in_count
+      last_sign_in_at
+      first_name
+      last_name
+      country
+      city
+      date_of_birth
+      gender
+      program_type
+      institution
+      year_of_participation
+      country_of_participation
+      student_company_name
+      university_name
+      university_major
+      founded_company_name
+      current_company_name
+      current_job_position
+      interests
+      short_bio
+      alumni_position
+      member_since
+      facebook_url
+      skype_id
+      twitter_url
+      linkedin_url
+      mobile_phone
+      registered
+      confirmed_email
+      completed_profile
+    }
+
+    CSV.generate(headers: true) do |csv|
+      csv << attributes
+
+      all.each do |user|
+        csv << attributes.map{ |attr| user.send(attr) }
+      end
+    end
+  end
+
 
 end

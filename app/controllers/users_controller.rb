@@ -1,8 +1,7 @@
 class UsersController < ApplicationController
-
+  include ActionController::MimeResponds
   before_action :authenticate_user!
   before_action :configure_permitted_parameters, on: :update
-
   # GET /users
   # GET /users.json
   def index
@@ -13,18 +12,25 @@ class UsersController < ApplicationController
     else
       @users = User.completed_profile
     end
-    
-
-
-    render :json => @users.map { |user| 
-
-      if @current_user.id != user.id and not @current_user.is_super_user
-        user.as_json(:except => [:subscription_id]) 
-      else
-        user.as_json()
-      end
-    }
-
+    respond_to do |format|
+      format.json {
+        render :json => @users.map { |user| 
+          if @current_user.id != user.id and not @current_user.is_super_user
+            user.as_json(:except => [:subscription_id]) 
+          else
+            user.as_json()
+          end
+        }
+      }
+      # format.csv { send_data @users.to_csv, 
+      #   :type => 'text/csv; charset=utf-8',
+      #   :disposition => 'attachment; filename=users.csv'}
+      format.csv { 
+        puts '\n\nDEBUG\n\n'
+        puts @users.to_csv
+        puts '\n\nDEBUG\n\n'
+        render plain: @users.to_csv, :content_type => 'text/csv'}
+    end
   end
 
 
