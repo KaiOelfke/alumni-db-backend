@@ -4,6 +4,9 @@ class CreateFees < ActiveRecord::Migration
       t.string :name, null: false
       t.integer :price, null: false
       t.date :deadline, null: false 
+      t.boolean :early_bird_fee, :null => false, :default => false
+      t.boolean :honoris_fee, :null => false, :default => false 
+
       t.belongs_to :event, index: true
       t.boolean  :delete_flag, :null => false, :default => false
 
