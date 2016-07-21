@@ -5,7 +5,7 @@ class Events::Fee < ActiveRecord::Base
 
   belongs_to :event
 
-	validates :event, :name, :price, :deadline, :early_bird_fee, :honoris_fee, presence: true
+	validates :event, :name, :price, :deadline, presence: true
   validates :name, length: {minimum: 3}
 	validates :delete_flag, :early_bird_fee, :honoris_fee, inclusion: { in: [true, false] }
   validates :price, numericality: true
