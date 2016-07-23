@@ -53,9 +53,7 @@ class Events::FeeCodesController < ApplicationController
     if @current_user.is_super_user
 
       if /\A\d+\z/.match(params[:id])
-        @feeCode = Events::FeeCode.where( "code = ? OR id = ?",
-                                          params[:id],
-                                          params[:id]).take
+        @feeCode = Events::FeeCode.find_by_id(params[:id])
       else
         @feeCode = Events::FeeCode.where( code: params[:id]).take
       end

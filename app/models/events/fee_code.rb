@@ -19,7 +19,7 @@ class Events::FeeCode < ActiveRecord::Base
         random_token = base58(24)
         short_code   = random_token[0..11]
 
-        break short_code unless Events::FeeCode.exists?(code: short_code)
+        break short_code unless Events::FeeCode.exists?(code: short_code) and !!/\A\d+\z/.match(short_code)
       end
     end
   end
