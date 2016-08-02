@@ -13,12 +13,14 @@ class Events::FeeCode < ActiveRecord::Base
 
   def generate_token
   	
-    self.code = loop do
-    	
-      random_token = base58(24)
-      short_code   = random_token[0..11]
+    if self.code.to_s == ''
+      self.code = loop do
+      
+        random_token = base58(24)
+        short_code   = random_token[0..11]
 
-      break short_code unless Events::FeeCode.exists?(code: short_code)
+        break short_code unless Events::FeeCode.exists?(code: short_code) and !!/\A\d+\z/.match(short_code)
+      end
     end
   end
 

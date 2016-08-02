@@ -155,6 +155,8 @@ CREATE TABLE fees (
     name character varying NOT NULL,
     price integer NOT NULL,
     deadline date NOT NULL,
+    early_bird_fee boolean DEFAULT false NOT NULL,
+    honoris_fee boolean DEFAULT false NOT NULL,
     event_id integer,
     delete_flag boolean DEFAULT false NOT NULL,
     created_at timestamp without time zone NOT NULL,

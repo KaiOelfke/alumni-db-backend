@@ -16,11 +16,29 @@ class Events::FeeCodesController < ApplicationController
   end
 
 
+  # def all_fees_for_event
+
+  #   @current_user = current_user
+  #   if @current_user.is_super_user
+  #     @feeCodes = Events::Event.find_by_id(params[:event_id]).fees.joins(:fee_codes)
+  #   else 
+  #     raise Forbidden
+  #   end
+    
+  #   success_response( @feeCodes)
+  # end
+
+  #More like all codes for event
   def all_fees_for_event
 
     @current_user = current_user
     if @current_user.is_super_user
-      @feeCodes = Events::Event.find_by_id(params[:event_id]).fees.joins(:fee_codes)
+      @event = Events::Event.find_by_id(params[:event_id])
+      if @event
+        @feeCodes = Events::FeeCode.joins(:fee).where(:fees => {:event_id => @event.id})
+      else
+        raise NotFound
+      end
     else 
       raise Forbidden
     end
@@ -35,9 +53,7 @@ class Events::FeeCodesController < ApplicationController
     if @current_user.is_super_user
 
       if /\A\d+\z/.match(params[:id])
-        @feeCode = Events::FeeCode.where( "code = ? OR id = ?",
-                                          params[:id],
-                                          params[:id]).take
+        @feeCode = Events::FeeCode.find_by_id(params[:id])
       else
         @feeCode = Events::FeeCode.where( code: params[:id]).take
       end
@@ -73,29 +89,29 @@ class Events::FeeCodesController < ApplicationController
 
   end
 
-  def update
-    @current_user = current_user
+  # def update
+  #   @current_user = current_user
 
-    if @current_user.is_super_user
+  #   if @current_user.is_super_user
 
-      @feeCode = Events::FeeCode.where( "code = ? OR id = ?",
-                                        params[:code],
-                                        params[:id]).take
-      if @feeCode
-        if @feeCode.update(update_feecode_params)
-          success_response( @feeCode)
-        else
-          raise InternalServerError, record: @feeCode
-        end        
-      else 
-        raise NotFound
-      end
+  #     @feeCode = Events::FeeCode.where( "code = ? OR id = ?",
+  #                                       params[:code],
+  #                                       params[:id]).take
+  #     if @feeCode
+  #       if @feeCode.update(update_feecode_params)
+  #         success_response( @feeCode)
+  #       else
+  #         raise InternalServerError, record: @feeCode
+  #       end        
+  #     else 
+  #       raise NotFound
+  #     end
 
-    else
-      raise Forbidden
-    end
+  #   else
+  #     raise Forbidden
+  #   end
 
-  end
+  # end
 
   def destroy
     @current_user = current_user
@@ -130,7 +146,7 @@ class Events::FeeCodesController < ApplicationController
         params.require(:fee_code).permit(:user_id, :fee_id)
     end
 
-    def update_feecode_params
-        params.require(:fee_code).permit(:delete_flag)
-    end
+    # def update_feecode_params
+    #     params.require(:fee_code).permit(:delete_flag)
+    # end
 end

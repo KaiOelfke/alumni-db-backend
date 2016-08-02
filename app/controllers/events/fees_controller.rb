@@ -171,10 +171,10 @@ class Events::FeesController < ApplicationController
   private
 
     def fee_update_params
-        params.require(:fee).permit(:name, :deadline, :price)
+        params.require(:fee).permit(:name, :deadline, :price, :early_bird_fee, :honoris_fee)
     end
 
     def fee_create_params
-        params.require(:fee).permit(:name, :deadline, :price, :event_id)
+        params.require(:fee).permit(:name, :deadline, :price, :event_id, :early_bird_fee, :honoris_fee)
     end
 end
