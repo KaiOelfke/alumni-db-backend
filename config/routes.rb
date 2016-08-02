@@ -1,15 +1,24 @@
 Rails.application.routes.draw do
 
+  # devise token
   mount_devise_token_auth_for 'User', at: '/auth', controllers: {
-    token_validations:  'users/token_validations',
     registrations:  'users/registrations',
-    sessions:  'users/sessions',
     confirmations: 'users/confirmations'
   }
+  
+=begin
+  devise_scope :user do
+    get '/auth/confirmation', to: 'devise_token_auth/confirmations#show'
+    post '/auth/confirmation', to: 'users/confirmations#create'
+  end
+=end
+
 
   get 'search', to: 'search#search'
 
   put 'users', to: 'users#update'
+
+
 
   resources :users, only: [:show, :index]
 

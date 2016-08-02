@@ -2,33 +2,39 @@ class Users::RegistrationsController < DeviseTokenAuth::RegistrationsController
 
   def create
     @resource            = resource_class.new(sign_up_params)
-    @resource.uid        = sign_up_params[:email]
     @resource.provider   = "email"
-    @resource.registered = true
-    @resource.confirmed_email = false
-    @resource.completed_profile = false
+
+    # honor devise configuration for case_insensitive_keys
+    if resource_class.case_insensitive_keys.include?(:email)
+      @resource.email = sign_up_params[:email].try :downcase
+    else
+      @resource.email = sign_up_params[:email]
+    end
+
+    # give redirect value from params priority
+    @redirect_url = params[:confirm_success_url]
+
+    # fall back to default value if provided
+    @redirect_url ||= DeviseTokenAuth.default_confirm_success_url
 
     # success redirect url is required
-    unless params[:confirm_success_url]
-      return render json: {
-        status: 'error',
-        data:   @resource,
-        errors: ["Missing `confirm_success_url` param."]
-      }, status: 403
+    if resource_class.devise_modules.include?(:confirmable) && !@redirect_url
+      return render_create_error_missing_confirm_success_url
+    end
+
+    # if whitelist is set, validate redirect_url against whitelist
+    if DeviseTokenAuth.redirect_whitelist
+      unless DeviseTokenAuth.redirect_whitelist.include?(@redirect_url)
+        return render_create_error_redirect_url_not_allowed
+      end
     end
 
     begin
       # override email confirmation, must be sent manually from ctrl
-      User.skip_callback("create", :after, :send_on_create_confirmation_instructions)
+      resource_class.set_callback("create", :after, :send_on_create_confirmation_instructions)
+      resource_class.skip_callback("create", :after, :send_on_create_confirmation_instructions)
       if @resource.save
-        # send email in seperate thread
-        Thread.new do
-          # user will require email authentication
-          @resource.send_confirmation_instructions({
-            client_config: params[:config_name],
-            redirect_url: params[:confirm_success_url]
-          })
-        end
+        yield @resource if block_given?
 
         # email auth has been bypassed, authenticate user
         @client_id = SecureRandom.urlsafe_base64(nil, false)
@@ -42,28 +48,19 @@ class Users::RegistrationsController < DeviseTokenAuth::RegistrationsController
         @resource.save!
 
         update_auth_header
-
-        render json: {
-          status: 'success',
-          data:   @resource.as_json()
-        }
+        render_create_success
       else
         clean_up_passwords @resource
-        render json: {
-          status: 'error',
-          data:   @resource,
-          errors: @resource.errors.to_hash.merge(full_messages: @resource.errors.full_messages)
-        }, status: 403
+        render_create_error
       end
     rescue ActiveRecord::RecordNotUnique
       clean_up_passwords @resource
-      render json: {
-        status: 'error',
-        data:   @resource,
-        errors: ["An account already exists for #{@resource.email}"]
-      }, status: 403
+      render_create_error_email_already_exists
     end
   end
+
+end
+=begin
 
   def update
     puts params
@@ -78,7 +75,6 @@ class Users::RegistrationsController < DeviseTokenAuth::RegistrationsController
       render_update_error_user_not_found
     end
   end
-=begin
   def update
       return
       puts 'asdjkhjlaskdljaskdjlaksljaskaljskdalsjdkaljsdklkj'
@@ -111,7 +107,6 @@ class Users::RegistrationsController < DeviseTokenAuth::RegistrationsController
         }, status: 404
       end    
   end
-=end
   def destroy
     super
   end
@@ -123,5 +118,7 @@ class Users::RegistrationsController < DeviseTokenAuth::RegistrationsController
   def account_update_params
     params.permit(devise_parameter_sanitizer.for(:account_update))
   end
+=end
 
-end
+
+

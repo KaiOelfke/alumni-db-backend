@@ -19,7 +19,7 @@ class Users::ConfirmationsController < DeviseTokenAuth::ConfirmationsController
         }, status: 403
       end
 
-      unless @resource.confirmed?      
+      if @resource.confirmed?      
         return render json: {
           status: 'error',
           data:   @resource,
@@ -31,12 +31,11 @@ class Users::ConfirmationsController < DeviseTokenAuth::ConfirmationsController
 
       if @resource
         # send email in seperate thread
-        Thread.new do
-          @resource.send_confirmation_instructions({
-            redirect_url: params[:confirm_success_url],
-            client_config: params[:config_name]
-          })
-        end
+        @resource.send_confirmation_instructions({
+          redirect_url: params[:confirm_success_url],
+          client_config: params[:config_name]
+        })
+
       else
         errors = ["Unable to find user with email '#{email}'."]
       end

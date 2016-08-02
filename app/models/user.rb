@@ -1,8 +1,10 @@
 require 'date'
 require 'uri'
 class User < ActiveRecord::Base
-  include DeviseTokenAuth::Concerns::User
   include PgSearch
+  include DeviseTokenAuth::Concerns::User
+
+  
 
   pg_search_scope :search, :against => [
     :first_name,
