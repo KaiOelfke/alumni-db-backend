@@ -37,4 +37,4 @@ bower.json
 *.sublime-workspace
 
 .env
-public/avatar
+public/*/*

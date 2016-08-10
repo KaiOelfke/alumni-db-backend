@@ -347,6 +347,7 @@ CREATE TABLE users (
     linkedin_url character varying,
     mobile_phone character varying,
     avatar character varying,
+    cover character varying,
     provider character varying,
     uid character varying DEFAULT ''::character varying NOT NULL,
     tokens text,

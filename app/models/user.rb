@@ -34,7 +34,7 @@ class User < ActiveRecord::Base
   has_many :participations, :class_name => "Events::Participation", inverse_of: :user
 
   mount_uploader :avatar, AvatarUploader
-
+  mount_uploader :cover, CoverUploader
 
   before_create :skip_confirmation!, :if => :isTestEnv?
 

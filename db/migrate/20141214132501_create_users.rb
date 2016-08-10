@@ -67,8 +67,9 @@ class CreateUsers < ActiveRecord::Migration
       t.string :linkedin_url
       t.string :mobile_phone
 
-      ##Avatar
+      ##Avatar and cover url
       t.string :avatar
+      t.string :cover
 
       ## unique oauth id
       t.string :provider
