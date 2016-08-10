@@ -32,16 +32,4 @@ class Events::Event < ActiveRecord::Base
     false
   end
 
-=begin
-  t.string :name, null: false
-  t.text :description, default: ""
-  t.string :location, default: ""
-  t.string :dates, default: ""
-  t.string :facebook_url
-  t.boolean :published, null: false, default: false
-  t.string :agenda
-  t.string :contact_email
-  t.boolean  :delete_flag, null: false, default: false
-=end
-
 end
