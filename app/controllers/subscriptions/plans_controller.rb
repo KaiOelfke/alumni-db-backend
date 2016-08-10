@@ -4,12 +4,18 @@ class Subscriptions::PlansController < ApplicationController
 
   def index
     @user = current_user
-
+    
     if @user.is_super_user
-      render json: Subscriptions::Plan.all
+      render json: {
+        status: 'success',
+        data: Subscriptions::Plan.all
+      }, status: 200
     else
-      # Returns array with always only the one default plan
-      render json: Subscriptions::Plan.where(default: true)
+      # Returns array with the default plan
+      render json: {
+        status: 'success',
+        data: Subscriptions::Plan.where(default: true)
+      }, status: 200
     end
 
   end
@@ -82,7 +88,6 @@ class Subscriptions::PlansController < ApplicationController
         if params[:plan] and params[:plan][:default]
           Subscriptions::Plan.where(default: true).update_all(default: false)
         end
-
 
         if @plan.update(plan_update_params)
           render json: {

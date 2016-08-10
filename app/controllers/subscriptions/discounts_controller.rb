@@ -6,7 +6,10 @@ class Subscriptions::DiscountsController < ApplicationController
     @user = current_user
 
     if @user.is_super_user
-      render json: Subscriptions::Discount.all
+      render json: {
+        status: 'success',
+        data: Subscriptions::Discount.all
+      }, status: 200
     else
       render json: {
         status: 'error',

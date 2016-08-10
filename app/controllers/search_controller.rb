@@ -18,13 +18,8 @@ class SearchController < ApplicationController
     if params[:text]
       @users = User.search(params[:text]).paginate(:page => params[:page])
       @resp = @users.map { |user| 
-        if (not @current_user) or (@current_user.id != user.id and not @current_user.is_super_user)
           user.as_json(:except => [:subscription_id, :created_at, :updated_at,
-          :customer_id,:tsv]) 
-        else
-          user.as_json(:except => [:created_at, :updated_at,
           :customer_id, :tsv])
-        end
       }
 
       render :json =>{

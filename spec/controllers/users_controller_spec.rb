@@ -27,7 +27,7 @@ RSpec.describe UsersController, type: :controller do
           auth_headers = @registered_user.create_new_auth_token
           request.headers.merge!(auth_headers)
 
-          get :index, format: :json
+          get :index, {limit: 1, page:1}, format: :json
 
           expect(response.code).to eq "401"
 
@@ -35,58 +35,34 @@ RSpec.describe UsersController, type: :controller do
 
         it "should return 401 if user is not registered" do
 
-          get :index, format: :json
+          get :index, {limit: 1, page:1}, format: :json
 
           expect(response.code).to eq "401"
 
         end
 
-        it "should allow users, who completed their profiles, to access their/other profiles" do
-
+        it "shouldn't allow normal users to access other users" do
           auth_headers = @completed_profile_user.create_new_auth_token
           request.headers.merge!(auth_headers)
 
-          get :index, format: :json
+          get :index, {limit: 1, page:1}, format: :json
 
-
-          expect(response).to be_success
-
-          userswithcompletedprofile = json["data"].select {|v| v["completed_profile"] == true }
-
-          expect(json["data"].length).to eq userswithcompletedprofile.length
+          expect(response.code).to eq "403"
         end
 
-        it "should not allow normal users, who completed their profiles, to access subscription_id of other users" do
-
-          auth_headers = @completed_profile_user.create_new_auth_token
-          request.headers.merge!(auth_headers)
-
-          get :index, format: :json
-
-          expect(response).to be_success
-
-          userswithsubscriptionid = json["data"].select {|v| v.has_key? "subscription_id" }
-          userswithispremium = json["data"].select {|v| v.has_key? "is_premium" }
-
-          expect(userswithsubscriptionid.length).to eq 1
-          expect(json["data"].length).to eq userswithispremium.length
-
-        end        
 
         it "should allow super users to access subscription_id of all users" do
 
           auth_headers = @super_user.create_new_auth_token
           request.headers.merge!(auth_headers)
 
-          get :index, format: :json
+          get :index, {limit: 10, page:1}, format: :json
 
           expect(response).to be_success
           userswithsubscriptionid = json["data"].select {|v| v.has_key? "subscription_id" }
 
           expect(json["data"].length).to eq userswithsubscriptionid.length
         end
-
-
 
     end
 

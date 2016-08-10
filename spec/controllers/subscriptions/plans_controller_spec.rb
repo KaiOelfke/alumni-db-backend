@@ -22,7 +22,7 @@ RSpec.describe Subscriptions::PlansController, type: :controller do
       get :index, format: :json
       expect(response.code).to eq "200"
       jsonbody = JSON.parse(response.body)
-      expect(jsonbody[0]['default']).to eq true
+      expect(jsonbody['data'][0]['default']).to eq true
     end
 
     it "should allow super user to access all discounts" do
