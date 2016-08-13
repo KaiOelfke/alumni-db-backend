@@ -1,10 +1,11 @@
 class Events::Event < ActiveRecord::Base
   has_many :fees, inverse_of: :event
   has_many :participations, inverse_of: :event
-
+  has_many :applications, inverse_of: :event
+  
   scope :published, -> { where({delete_flag: false, published: true}) }
 
-  enum etype: [ :without_application, :with_application ]
+  enum etype: [ :without_application_payment, :with_payment, :with_application, :with_payment_application ]
 
 	validates :name, :etype, presence: true
 

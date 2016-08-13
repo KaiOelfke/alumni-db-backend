@@ -23,21 +23,16 @@ class Events::EventsController < ApplicationController
 
     if @event
       if @current_user.is_super_user or @event.published
-        render json: {
-          status: 'success',
-          data: @event.as_json()
-        }, status: 200
+        if @event.with_payment? or @event.with_payment_application?
+          success_response({event: @event, fees: @event.fees})
+        else
+          success_response(@event)
+        end
       else
-        render json: {
-        status: 'error',
-        errors: ["not authourized"]
-      }, status: 403
+        raise NotAuthorized
       end
     else
-      render json: {
-          status: 'error',
-          error: ["event not found"]
-        }, status: 404
+      raise NotFound, record: @event
     end
   end
 

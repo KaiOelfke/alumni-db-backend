@@ -42,7 +42,9 @@ Rails.application.routes.draw do
 
     resources :events, only: [:index, :show, :update, :create, :destroy]  do
       resources :participations, only: [:index, :show, :update, :create, :destroy]
-      get '/fee_codes', to: 'fee_codes#all_fees_for_event'
+      resources :applications, only: [:index, :create]
+      get '/fee_codes', to: 'fee_codes#all_codes_for_event'
+      get '/validate_code', to: 'fee_codes#validate_code'
     end
     resources :fee_codes, only: [:index, :show, :create, :destroy]
   end

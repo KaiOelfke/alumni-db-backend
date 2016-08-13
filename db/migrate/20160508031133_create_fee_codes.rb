@@ -1,4 +1,4 @@
-class CreateFeeCodes < ActiveRecord::Migration
+class CreateCodes < ActiveRecord::Migration
   def change
     create_table :fee_codes do |t|
       t.string :code, null: false
@@ -6,6 +6,7 @@ class CreateFeeCodes < ActiveRecord::Migration
       t.belongs_to :fee, index: true
 
     	t.boolean :delete_flag, default: false 
+      t.boolean :used_flag, default: false 
 
     	t.timestamps null: false
 

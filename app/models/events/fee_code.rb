@@ -5,7 +5,8 @@ class Events::FeeCode < ActiveRecord::Base
 
   before_validation :generate_token
 
-	validates :code, :fee, :user, presence: true
+	validates :code, presence: true
+  validates :used_flag, :delete_flag, inclusion: { in: [true, false] }
   validates_uniqueness_of :code
 
 
