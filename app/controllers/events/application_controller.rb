@@ -12,7 +12,7 @@ class Events::ApplicationController < ApplicationController
     validate_request
     @current_user = current_user
     unless @current_user.is_super_user
-      raise NotAuthorized
+      raise Forbidden
     end
 
     applications = Events:Application.where(:event_id => @event.id)

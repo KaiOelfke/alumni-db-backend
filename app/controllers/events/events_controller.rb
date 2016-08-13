@@ -24,12 +24,13 @@ class Events::EventsController < ApplicationController
     if @event
       if @current_user.is_super_user or @event.published
         if @event.with_payment? or @event.with_payment_application?
-          success_response({event: @event, fees: @event.fees})
+          fees = @event.fees.where(:public_fee => true, :delete_flag => false)
+          success_response({event: @event, fees: fees})
         else
           success_response(@event)
         end
       else
-        raise NotAuthorized
+        raise Forbidden
       end
     else
       raise NotFound, record: @event
