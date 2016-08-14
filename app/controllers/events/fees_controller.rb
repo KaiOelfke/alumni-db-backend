@@ -13,7 +13,6 @@ class Events::FeesController < ApplicationController
   end
 
   def show
-
     validate_request
     @fee = Events::Fee.find_by_id(params[:id])
     if @fee

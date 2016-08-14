@@ -7,8 +7,11 @@ RSpec.describe Events::EventsController, type: :controller do
     @completed_profile_user = FactoryGirl.create(:user, :registered, :completed_profile, :confirmed_email, :personal_programm_data)
     @registered_user = FactoryGirl.create(:user, :registered, :confirmed_email, :personal_programm_data)
     @super_user = FactoryGirl.create(:user, :registered, :confirmed_email, :personal_programm_data, :super)
-    @published_event = FactoryGirl.create(:event, :published)
-    @event = FactoryGirl.create(:event)
+    @published_event = FactoryGirl.build(:event, :published)
+    @event = FactoryGirl.build(:event)
+    @eventWithPayment = FactoryGirl.build(:event, :with_payment)
+    @eventWithApplicationPayment = FactoryGirl.build(:event, :with_payment_application) 
+    @eventWithApplication = FactoryGirl.build(:event, :with_application)
   end
 
 
@@ -20,7 +23,6 @@ RSpec.describe Events::EventsController, type: :controller do
       request.headers.merge!(auth_headers)
       get :index, format: :json
       expect(response.code).to eq "200"
-      
       publishedEvents = json["data"].select {|v| v["published"] == true }
       notPublishedEvents = json["data"].select {|v| v["published"] == false }
       expect(json["data"].length).to eq publishedEvents.length
@@ -35,7 +37,10 @@ RSpec.describe Events::EventsController, type: :controller do
 
       publishedEvents = json["data"].select {|v| v["published"] == true }
       notPublishedEvents = json["data"].select {|v| v["published"] == false }
-      expect(publishedEvents.length).to eq 1
+
+      puts json["data"]
+
+      expect(publishedEvents.length).to eq 4
       expect(notPublishedEvents.length).to eq 1
       expect(json["data"].length).to eq (publishedEvents.length + notPublishedEvents.length)
     end
@@ -115,6 +120,39 @@ RSpec.describe Events::EventsController, type: :controller do
       get :show, :id => @published_event.id, format: :json
       expect(response).to be_success
     end
+
+    it "should include event fees, if event is with payment" do
+      auth_headers = @completed_profile_user.create_new_auth_token
+      request.headers.merge!(auth_headers)
+      get :show, :id => @eventWithPayment.id, format: :json
+      expect(response).to be_success
+
+      fees = json["data"]["fees"]
+      expect(fees.length).to eq @eventWithPayment.fees.where(:public_fee => true).length
+    end
+
+    it "should include no fees, if event has no payment" do
+      auth_headers = @completed_profile_user.create_new_auth_token
+      request.headers.merge!(auth_headers)
+      get :show, :id => @eventWithApplication.id, format: :json
+      expect(response).to be_success
+
+      fees = json["data"]["fees"]
+      expect(fees).to be_nil 
+    end
+
+    it "should show only public fees with event" do
+      auth_headers = @completed_profile_user.create_new_auth_token
+      request.headers.merge!(auth_headers)
+      get :show, :id => @eventWithPayment.id, format: :json
+      expect(response).to be_success
+
+      public_fees = json["data"]["fees"].select {|v| v["public_fee"] == true }
+      not_public_fees = json["data"]["fees"].select {|v| v["public_fee"] == false }
+      expect(public_fees.length).to eq @eventWithPayment.fees.where(:public_fee => true).length
+      expect(not_public_fees.length).to eq 0
+    end
+
   end
 
 

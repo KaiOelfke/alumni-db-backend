@@ -3,8 +3,8 @@ FactoryGirl.define do
     name "MyString"
     price 1
     deadline Date.current + 1.month
-    early_bird_fee false
-    honoris_fee false
+    public_fee true
+    delete_flag false
     association :event, factory: :event, strategy: :build 
     trait :fee_codes do
     	fee_codes {[FactoryGirl.create(:fee_code),

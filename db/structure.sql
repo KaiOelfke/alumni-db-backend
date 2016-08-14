@@ -34,6 +34,40 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
+-- Name: applications; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE applications (
+    id integer NOT NULL,
+    motivation text,
+    cv_file character varying,
+    event_id integer,
+    user_id integer,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: applications_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE applications_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: applications_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE applications_id_seq OWNED BY applications.id;
+
+
+--
 -- Name: discounts; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -122,6 +156,7 @@ CREATE TABLE fee_codes (
     user_id integer,
     fee_id integer,
     delete_flag boolean DEFAULT false,
+    used_flag boolean DEFAULT false,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
 );
@@ -155,8 +190,7 @@ CREATE TABLE fees (
     name character varying NOT NULL,
     price integer NOT NULL,
     deadline date NOT NULL,
-    early_bird_fee boolean DEFAULT false NOT NULL,
-    honoris_fee boolean DEFAULT false NOT NULL,
+    public_fee boolean DEFAULT false NOT NULL,
     event_id integer,
     delete_flag boolean DEFAULT false NOT NULL,
     created_at timestamp without time zone NOT NULL,
@@ -386,6 +420,13 @@ ALTER SEQUENCE users_id_seq OWNED BY users.id;
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
+ALTER TABLE ONLY applications ALTER COLUMN id SET DEFAULT nextval('applications_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
 ALTER TABLE ONLY discounts ALTER COLUMN id SET DEFAULT nextval('discounts_id_seq'::regclass);
 
 
@@ -436,6 +477,14 @@ ALTER TABLE ONLY subscriptions ALTER COLUMN id SET DEFAULT nextval('subscription
 --
 
 ALTER TABLE ONLY users ALTER COLUMN id SET DEFAULT nextval('users_id_seq'::regclass);
+
+
+--
+-- Name: applications_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY applications
+    ADD CONSTRAINT applications_pkey PRIMARY KEY (id);
 
 
 --
@@ -500,6 +549,20 @@ ALTER TABLE ONLY subscriptions
 
 ALTER TABLE ONLY users
     ADD CONSTRAINT users_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: index_applications_on_event_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_applications_on_event_id ON applications USING btree (event_id);
+
+
+--
+-- Name: index_applications_on_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_applications_on_user_id ON applications USING btree (user_id);
 
 
 --
@@ -646,6 +709,14 @@ ALTER TABLE ONLY participations
 
 
 --
+-- Name: fk_rails_703c720730; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY applications
+    ADD CONSTRAINT fk_rails_703c720730 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
+
+
+--
 -- Name: fk_rails_87bc3eacd6; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -702,6 +773,14 @@ ALTER TABLE ONLY participations
 
 
 --
+-- Name: fk_rails_ea85530745; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY applications
+    ADD CONSTRAINT fk_rails_ea85530745 FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE;
+
+
+--
 -- PostgreSQL database dump complete
 --
 
@@ -724,4 +803,6 @@ INSERT INTO schema_migrations (version) VALUES ('20160321143809');
 INSERT INTO schema_migrations (version) VALUES ('20160327174220');
 
 INSERT INTO schema_migrations (version) VALUES ('20160508031133');
+
+INSERT INTO schema_migrations (version) VALUES ('20160813133731');
 

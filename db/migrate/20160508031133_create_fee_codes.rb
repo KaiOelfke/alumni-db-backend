@@ -1,4 +1,4 @@
-class CreateCodes < ActiveRecord::Migration
+class CreateFeeCodes < ActiveRecord::Migration
   def change
     create_table :fee_codes do |t|
       t.string :code, null: false
