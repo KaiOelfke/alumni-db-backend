@@ -7,14 +7,12 @@ RSpec.describe Events::EventsController, type: :controller do
     @completed_profile_user = FactoryGirl.create(:user, :registered, :completed_profile, :confirmed_email, :personal_programm_data)
     @registered_user = FactoryGirl.create(:user, :registered, :confirmed_email, :personal_programm_data)
     @super_user = FactoryGirl.create(:user, :registered, :confirmed_email, :personal_programm_data, :super)
-    @published_event = FactoryGirl.build(:event, :published)
-    @event = FactoryGirl.build(:event)
-    @eventWithPayment = FactoryGirl.build(:event, :with_payment)
-    @eventWithApplicationPayment = FactoryGirl.build(:event, :with_payment_application) 
-    @eventWithApplication = FactoryGirl.build(:event, :with_application)
+    @published_event = FactoryGirl.create(:event, :published)
+    @event = FactoryGirl.create(:event)
+    @eventWithPayment = FactoryGirl.create(:event, :with_payment)
+    @eventWithApplicationPayment = FactoryGirl.create(:event, :with_payment_application) 
+    @eventWithApplication = FactoryGirl.create(:event, :with_application)
   end
-
-
 
   describe 'GET /events' do
 

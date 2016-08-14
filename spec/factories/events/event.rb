@@ -21,7 +21,9 @@ FactoryGirl.define do
     end
 
     trait :with_fees do
-      fees {[FactoryGirl.create(:fee),FactoryGirl.create(:fee),FactoryGirl.create(:fee)]}
+      after(:create) do |event, evaluator|
+        create_list(:fee, 3, event: event)
+      end      
     end
 
     trait :with_payment do
