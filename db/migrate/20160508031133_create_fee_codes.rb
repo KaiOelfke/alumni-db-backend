@@ -4,7 +4,7 @@ class CreateFeeCodes < ActiveRecord::Migration
       t.string :code, null: false
       t.belongs_to :user, index: true
       t.belongs_to :fee, index: true
-
+      t.belongs_to :event, index: true
     	t.boolean :delete_flag, default: false 
       t.boolean :used_flag, default: false 
 
@@ -15,6 +15,7 @@ class CreateFeeCodes < ActiveRecord::Migration
     add_index :fee_codes, :code, unique: true
     add_foreign_key :fee_codes, :fees,  on_delete: :cascade
     add_foreign_key :fee_codes, :users, on_delete: :cascade
+    add_foreign_key :fee_codes, :events, on_delete: :cascade
 
   end
 end

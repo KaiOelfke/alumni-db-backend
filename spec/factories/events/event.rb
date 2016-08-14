@@ -23,6 +23,7 @@ FactoryGirl.define do
     trait :with_fees do
       after(:create) do |event, evaluator|
         create_list(:fee, 3, event: event)
+        create_list(:fee, 1, :not_public, event: event)
       end      
     end
 

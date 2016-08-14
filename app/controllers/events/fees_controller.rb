@@ -16,7 +16,7 @@ class Events::FeesController < ApplicationController
     validate_request
     @fee = Events::Fee.find_by_id(params[:id])
     if @fee
-      success_response (fee)
+      success_response (@fee)
     else
       raise NotFound, record: @fee       
     end
@@ -38,8 +38,11 @@ class Events::FeesController < ApplicationController
 
   def create
     validate_request
-    event_id = fee_create_params[:fee][:event_id]
-    @event = Event.find_by_id(event_id)
+    event_id = fee_create_params[:event_id]
+    unless event_id
+      raise BadRequest, errors: ['event_id is required']
+    end
+    @event = Events::Event.find_by_id(event_id)
     validate_event
     @fee = Events::Fee.new(fee_create_params)
 
@@ -52,6 +55,7 @@ class Events::FeesController < ApplicationController
   end
 
   def destroy
+    validate_request
     @fee = Events::Fee.find_by_id(params[:id])
     if @fee
         @fee.delete_flag = true

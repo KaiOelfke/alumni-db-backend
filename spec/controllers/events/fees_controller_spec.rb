@@ -6,7 +6,8 @@ RSpec.describe Events::FeesController, type: :controller do
 
     @completed_profile_user = FactoryGirl.create(:user, :registered, :completed_profile, :confirmed_email, :personal_programm_data)
     @super_user = FactoryGirl.create(:user, :registered, :confirmed_email, :personal_programm_data, :super)
-    @event_with_fees = FactoryGirl.create(:event, :with_fees)
+    @event_with_fees = FactoryGirl.create(:event, :with_payment)
+    @event_without_payment = FactoryGirl.create(:event)
     @fee = FactoryGirl.create(:fee)
 
   end
@@ -16,11 +17,11 @@ RSpec.describe Events::FeesController, type: :controller do
 
   describe 'GET /events/fees' do
 
-    it "should return 400 if event_id isn't specified" do
+    it "should return 403 if event_id isn't specified" do
     	auth_headers = @completed_profile_user.create_new_auth_token
       request.headers.merge!(auth_headers)
       get :index, format: :json
-      expect(response.code).to eq "400"
+      expect(response.code).to eq "403"
     end
 
     it "should return 403 if user without super_user grants want to access all fees" do
@@ -43,13 +44,18 @@ RSpec.describe Events::FeesController, type: :controller do
       get :index, event_id: @event_with_fees.id ,format: :json
       expect(response.code).to eq "200"
       fees = @event_with_fees.fees.all
-      expect(json['data'].length).to eq(3)
+      expect(json['data'].length).to eq @event_with_fees.fees.length
       json['data'].each_with_index do |fee, index|
         expect(fee['id']).to eq(fees[index][:id])
       end
     end
 
-
+    it "should return 400, if event is without payment" do
+      auth_headers = @super_user.create_new_auth_token
+      request.headers.merge!(auth_headers)
+      get :index, event_id: @event_without_payment.id, format: :json
+      expect(response.code).to eq "400"
+    end
   end
 
 
@@ -66,16 +72,15 @@ RSpec.describe Events::FeesController, type: :controller do
       expect(response.code).to eq "403"
     end
 
-    it "should return 500 if super user want to a create a fee with wrong params" do
+    it "should return 400 if super user want to a create a fee with wrong params" do
     	auth_headers = @super_user.create_new_auth_token
       request.headers.merge!(auth_headers)
       attrs = FactoryGirl.attributes_for(:fee)
       newFee = Hash.new
       newFee[:fee] = attrs
       post :create, newFee, format: :json
-      expect(response.code).to eq "500"
+      expect(response.code).to eq "400"
     end
-
 
     it "should return 200 with fee data if super user want to create a fee" do
     	auth_headers = @super_user.create_new_auth_token
@@ -91,7 +96,16 @@ RSpec.describe Events::FeesController, type: :controller do
       expect(json["data"]["deadline"]).to eq attrs[:deadline].strftime('%F') 
     end
 
-
+    it "should return 400, if referenced event is without payment" do
+      auth_headers = @super_user.create_new_auth_token
+      request.headers.merge!(auth_headers)
+      attrs = FactoryGirl.attributes_for(:fee)
+      attrs[:event_id] = @event_without_payment.id
+      newFee = Hash.new
+      newFee[:fee] = attrs
+      post :create, newFee, format: :json
+      expect(response.code).to eq "400"
+    end
   end
 
   describe 'GET /events/fees/:id' do

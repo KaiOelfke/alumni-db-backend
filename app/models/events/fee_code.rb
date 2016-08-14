@@ -2,10 +2,11 @@ class Events::FeeCode < ActiveRecord::Base
 
   belongs_to :fee
   belongs_to :user
+  belongs_to :event
 
   before_validation :generate_token
 
-	validates :code, presence: true
+	validates :code, :event, presence: true
   validates :used_flag, :delete_flag, inclusion: { in: [true, false] }
   validates_uniqueness_of :code
 

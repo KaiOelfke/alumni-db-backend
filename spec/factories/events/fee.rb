@@ -12,5 +12,9 @@ FactoryGirl.define do
     							FactoryGirl.create(:fee_code)]}
    	end
 
+    trait :not_public do
+      public_fee false
+    end
+
   end
 end

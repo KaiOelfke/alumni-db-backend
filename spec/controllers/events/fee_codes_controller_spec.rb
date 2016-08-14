@@ -42,7 +42,7 @@ RSpec.describe Events::FeeCodesController, type: :controller do
     it "should return 403 if user without super_user grants want to access all fee_codes for specific event" do
       auth_headers = @completed_profile_user.create_new_auth_token
       request.headers.merge!(auth_headers)
-      get :all_fees_for_event, event_id: @fee_with_fee_codes.event.id, format: :json
+      get :all_codes_for_event, event_id: @fee_with_fee_codes.event.id, format: :json
       expect(response.code).to eq "403"
     end
 
@@ -63,7 +63,7 @@ RSpec.describe Events::FeeCodesController, type: :controller do
     it "should return 200 with all fee codes if super user want to access all fee_codes for specific event" do
       auth_headers = @super_user.create_new_auth_token
       request.headers.merge!(auth_headers)
-      get :all_fees_for_event, event_id: @fee_with_fee_codes.event.id ,format: :json
+      get :all_codes_for_event, event_id: @fee_with_fee_codes.event.id ,format: :json
       feeCodes = Events::FeeCode.joins(:fee).where(:fees => {:event_id => @fee_with_fee_codes.event.id})
       #puts json['data']
       expect(response.code).to eq "200"

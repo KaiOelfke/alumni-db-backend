@@ -32,12 +32,8 @@ RSpec.describe Events::EventsController, type: :controller do
       request.headers.merge!(auth_headers)
       get :index, format: :json
       expect(response.code).to eq "200"
-
       publishedEvents = json["data"].select {|v| v["published"] == true }
       notPublishedEvents = json["data"].select {|v| v["published"] == false }
-
-      puts json["data"]
-
       expect(publishedEvents.length).to eq 4
       expect(notPublishedEvents.length).to eq 1
       expect(json["data"].length).to eq (publishedEvents.length + notPublishedEvents.length)

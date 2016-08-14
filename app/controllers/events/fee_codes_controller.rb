@@ -88,6 +88,23 @@ class Events::FeeCodesController < ApplicationController
 
   def create
     validate_authorization
+    event_id = create_feecode_params[:event_id]
+    unless event_id
+      raise BadRequest, errors: ['event_id is required']
+    end
+    @event = Events::Event.find_by_id(event_id)
+    unless @event
+      raise NotFound, record: @event
+    end
+    if @event.without_application_payment?
+      raise BadRequest, errors: ['event type does not use codes']
+    end
+
+    @fee = Events::Fee.find_by_id(create_feecode_params[:fee_id])
+    if @fee and event_id != @fee.event_id
+      raise BadRequest, errors: ['id of event of fee does not match event_id']
+    end
+
     @feeCode = Events::FeeCode.new(create_feecode_params)
     if @feeCode.save
       success_response( @feeCode)
@@ -146,7 +163,7 @@ class Events::FeeCodesController < ApplicationController
     end
 
     def create_feecode_params
-        params.require(:fee_code).permit(:user_id, :fee_id)
+        params.require(:fee_code).permit(:user_id, :fee_id, :event_id)
     end
 
     # def update_feecode_params
