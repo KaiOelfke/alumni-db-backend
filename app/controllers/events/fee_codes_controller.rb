@@ -36,30 +36,29 @@ class Events::FeeCodesController < ApplicationController
 
   #Validates code
   def validate_code
-    
+    unless params[:event_id]
+      raise BadRequest, errors: ['event_id is missing']
+    end
+    unless params[:code]
+      raise BadRequest, errors: ['code is missing']
+    end
     @event = Events::Event.find_by_id(params[:event_id])
     unless @event
       raise NotFound, record: @event
     end
-
     if @event.without_application_payment?
        raise BadRequest, errors: ['event type does not support codes']
     end
-
     @code = Events::FeeCode.where( code: params[:code]).take
-    
     unless @code
       raise NotFound, record: @code
     end
-
     if @code.used_flag
       raise NotFound, errors: ["code is already used"]
     end
-
     if @event.with_application
       success_response({ valid: true })
     end
-
     if @code.fee
       success_response ({valid: true,
                         fee: @fee})

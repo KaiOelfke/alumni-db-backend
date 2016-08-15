@@ -32,10 +32,65 @@ RSpec.describe Events::FeeCodesController, type: :controller do
       get :index, format: :json
       expect(response.code).to eq "200"
     end
-
-
   end
 
+  # describe 'GET /events/:event_id/validate_code' do
+  #   it 'should succeed with just boolean, if event is with_application' do
+      
+  #   end
+
+  #   it 'should succeed with boolean and fee, if event is with_payment' do
+      
+  #   end
+
+  #   it 'should return 404 with correct error message, if code is used' do
+      
+  #   end
+
+  #   it 'should return 404 with event, if event not found' do
+  #     auth_headers = @completed_profile_user.create_new_auth_token
+  #     request.headers.merge!(auth_headers)
+  #     get :validate_code, event_id: 1337, code: , format: :json
+  #     expect(response.code).to eq "404"
+  #     puts json['data']
+  #   end
+
+  #   it 'should return 404 with code, if code not found' do
+  #     auth_headers = @completed_profile_user.create_new_auth_token
+  #     request.headers.merge!(auth_headers)
+  #     get :all_codes_for_event, event_id: @fee_with_fee_codes.event.id, format: :json
+  #     expect(response.code).to eq "403"
+  #   end
+
+  #   it 'should return 400, if event is without application payment' do
+  #     auth_headers = @completed_profile_user.create_new_auth_token
+  #     request.headers.merge!(auth_headers)
+  #     get :all_codes_for_event, event_id: @fee_with_fee_codes.event.id, format: :json
+  #     expect(response.code).to eq "403"
+  #   end
+
+  #   it 'should return 400, if code param is missing' do
+  #     auth_headers = @completed_profile_user.create_new_auth_token
+  #     request.headers.merge!(auth_headers)
+  #     get :all_codes_for_event, event_id: @fee_with_fee_codes.event.id, format: :json
+  #     expect(response.code).to eq "403"
+  #   end
+
+  #   it 'should return 400, if event_id param is missing' do
+  #     auth_headers = @completed_profile_user.create_new_auth_token
+  #     request.headers.merge!(auth_headers)
+  #     get :all_codes_for_event, event_id: @fee_with_fee_codes.event.id, format: :json
+  #     expect(response.code).to eq "403"
+  #   end
+
+  #   it 'should return 500, if special fee is missing for event with payment' do
+  #     auth_headers = @completed_profile_user.create_new_auth_token
+  #     request.headers.merge!(auth_headers)
+  #     get :all_codes_for_event, event_id: @fee_with_fee_codes.event.id, format: :json
+  #     expect(response.code).to eq "403"
+  #   end
+
+  # end
 
   describe 'GET /events/:event_id/fee_codes' do
 

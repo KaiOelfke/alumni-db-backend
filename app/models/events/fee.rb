@@ -10,6 +10,12 @@ class Events::Fee < ActiveRecord::Base
 	validates :delete_flag, :public_fee, inclusion: { in: [true, false] }
   validates :price, numericality: true
   validate :check_deadline
+  validate :check_event
+
+  private
+  def check_event
+    event.with_payment? or event.with_payment_application?
+  end
 
   def check_deadline
     if (!deadline.is_a? Date)

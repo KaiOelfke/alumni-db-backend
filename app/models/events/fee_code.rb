@@ -9,9 +9,40 @@ class Events::FeeCode < ActiveRecord::Base
 	validates :code, :event, presence: true
   validates :used_flag, :delete_flag, inclusion: { in: [true, false] }
   validates_uniqueness_of :code
-
+  validate :valid_fee_and_event
+  validate :valid_user
 
   private
+
+  #Depending on the event type, there has to be a fee, no fee, or a fee is optional.
+  #If there is a fee it needs to have certain attributes.
+  def valid_fee_and_event
+    if self.event.without_application_payment?
+      return false
+    elsif self.event.with_payment?
+      return (fee? and valid_fee)
+    elsif self.event.with_payment_application?
+      return (!fee? or valid_fee)
+    elsif self.event.with_application?
+      return !fee?
+    end
+  end
+
+  #TODO: Why does self.fee? not work here
+  def fee?
+    !!self.fee
+  end
+
+  def valid_fee
+    !self.fee.public_fee and self.fee.event.id.to_s == self.event.id.to_s
+  end
+
+  #A validated code should always reference the user that used this code
+  def valid_user
+    if self.used_flag
+      self.user?
+    end
+  end
 
   def generate_token
   	
