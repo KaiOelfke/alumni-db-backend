@@ -6,11 +6,12 @@ FactoryGirl.define do
     public_fee true
     delete_flag false
     association :event, factory: :event, strategy: :build 
+    
     trait :fee_codes do
-    	fee_codes {[FactoryGirl.create(:fee_code),
-    							FactoryGirl.create(:fee_code),
-    							FactoryGirl.create(:fee_code)]}
-   	end
+      after(:create) do |fee, evaluator|
+        create_list(:fee_code, 3, fee: fee, event: fee.event)
+      end      
+    end
 
     trait :not_public do
       public_fee false

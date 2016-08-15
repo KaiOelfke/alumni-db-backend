@@ -155,6 +155,7 @@ CREATE TABLE fee_codes (
     code character varying NOT NULL,
     user_id integer,
     fee_id integer,
+    event_id integer,
     delete_flag boolean DEFAULT false,
     used_flag boolean DEFAULT false,
     created_at timestamp without time zone NOT NULL,
@@ -580,6 +581,13 @@ CREATE UNIQUE INDEX index_fee_codes_on_code ON fee_codes USING btree (code);
 
 
 --
+-- Name: index_fee_codes_on_event_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_fee_codes_on_event_id ON fee_codes USING btree (event_id);
+
+
+--
 -- Name: index_fee_codes_on_fee_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -746,6 +754,14 @@ ALTER TABLE ONLY users
 
 ALTER TABLE ONLY participations
     ADD CONSTRAINT fk_rails_bae88c7ffa FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE;
+
+
+--
+-- Name: fk_rails_c7b6d58135; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY fee_codes
+    ADD CONSTRAINT fk_rails_c7b6d58135 FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE;
 
 
 --

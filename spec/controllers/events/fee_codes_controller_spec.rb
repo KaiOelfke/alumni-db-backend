@@ -6,7 +6,7 @@ RSpec.describe Events::FeeCodesController, type: :controller do
 
     @completed_profile_user = FactoryGirl.create(:user, :registered, :completed_profile, :confirmed_email, :personal_programm_data)
     @super_user = FactoryGirl.create(:user, :registered, :confirmed_email, :personal_programm_data, :super)
-    @event_with_fees = FactoryGirl.create(:event, :with_fees)
+    @event_with_fees = FactoryGirl.create(:event, :with_payment)
     @fee_with_fee_codes = FactoryGirl.create(:fee, :fee_codes)
     @fee_code = FactoryGirl.create(:fee_code)
 
@@ -142,7 +142,7 @@ RSpec.describe Events::FeeCodesController, type: :controller do
       newFeeCode = Hash.new
       newFeeCode[:fee_code] = attrs
       post :create, newFeeCode, format: :json
-      expect(response.code).to eq "500"
+      expect(response.code).to eq "400"
     end
 
 
@@ -150,8 +150,9 @@ RSpec.describe Events::FeeCodesController, type: :controller do
     	auth_headers = @super_user.create_new_auth_token
       request.headers.merge!(auth_headers)
       attrs = FactoryGirl.attributes_for(:fee_code)
-      attrs[:user_id] = @completed_profile_user.id
-      attrs[:fee_id] = @event_with_fees.fees.take.id
+      # attrs[:user_id] = @completed_profile_user.id
+      # attrs[:fee_id] = @event_with_fees.fees.take.id
+      attrs[:event_id] = @event_with_fees.id
       newFeeCode = Hash.new
       newFeeCode[:fee_code] = attrs
       post :create, newFeeCode, format: :json
