@@ -24,12 +24,14 @@ class Events::FeeCodesController < ApplicationController
   def all_codes_for_event
     validate_authorization
     @event = Events::Event.find_by_id(params[:event_id])
-    if @event
-      @feeCodes = Events::FeeCode.joins(:fee).where(:fees => {:event_id => @event.id})
-      success_response( @feeCodes)
-    else
+    unless @event
       raise NotFound, record: @event
     end
+    if @event.without_application_payment?
+      raise BadRequest, errors: ['event type does not use codes']
+    end
+    @feeCodes = Events::FeeCode.joins(:fee).where(:fees => {:event_id => @event.id})
+    success_response( @feeCodes)
   end
 
   #Validates code
@@ -101,7 +103,9 @@ class Events::FeeCodesController < ApplicationController
     end
 
     @fee = Events::Fee.find_by_id(create_feecode_params[:fee_id])
-    if @fee and event_id != @fee.event_id
+    #We cast both ID's to string, because tests failed when the type
+    #was fixnum and string, eg 285 != 285 evaluted to true, because of classes
+    if @fee and event_id.to_s != @fee.event_id.to_s
       raise BadRequest, errors: ['id of event of fee does not match event_id']
     end
 

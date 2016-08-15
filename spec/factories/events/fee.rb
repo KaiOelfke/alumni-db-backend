@@ -5,7 +5,7 @@ FactoryGirl.define do
     deadline Date.current + 1.month
     public_fee true
     delete_flag false
-    association :event, factory: :event, strategy: :build 
+    association :event, :factory => [:event, :with_payment], strategy: :build
     
     trait :fee_codes do
       after(:create) do |fee, evaluator|
