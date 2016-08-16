@@ -69,6 +69,9 @@ class Events::FeeCodesController < ApplicationController
     if @code.event.id != @event.id
       raise BadRequest, errors: ['code not for this event']
     end
+    if @code.user and @code.user.id != current_user.id
+      raise NotFound, errors: ['code is not valid']
+    end
     if @code.used_flag
       raise NotFound, errors: ["code is already used"]
     end

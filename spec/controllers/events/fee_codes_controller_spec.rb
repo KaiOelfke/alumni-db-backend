@@ -11,9 +11,10 @@ RSpec.describe Events::FeeCodesController, type: :controller do
     @fee_code = FactoryGirl.create(:fee_code)
     @event_without_application_payment = FactoryGirl.create(:event)
     @buggy_fee_code = FactoryGirl.create(:fee_code, :with_payment_and_no_fee)
-    @used_code = FactoryGirl.create(:fee_code, :used)
+    @used_code = FactoryGirl.create(:fee_code, :used, user: @completed_profile_user)
     @fee_code_event_payment = FactoryGirl.create(:fee_code, :with_payment)
     @public_fee = FactoryGirl.create(:fee)
+    @code_with_user = FactoryGirl.create(:fee_code, user: @super_user)
   end
 
 
@@ -62,6 +63,14 @@ RSpec.describe Events::FeeCodesController, type: :controller do
       get :validate_code, event_id: @used_code.event.id, code: @used_code.code, format: :json
       expect(response.code).to eq "404"
       expect(json["errors"][0]).to eq "code is already used"
+    end
+
+    it 'should return 404 with correct error message, if code is for different user' do
+      auth_headers = @completed_profile_user.create_new_auth_token
+      request.headers.merge!(auth_headers)
+      get :validate_code, event_id: @code_with_user.event.id, code: @code_with_user.code, format: :json
+      expect(response.code).to eq "404"
+      expect(json["errors"][0]).to eq "code is not valid"
     end
 
     it 'should return 404 with event, if event not found' do
