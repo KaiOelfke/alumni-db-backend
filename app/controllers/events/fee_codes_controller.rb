@@ -2,9 +2,22 @@ class Events::FeeCodesController < ApplicationController
 
   before_action :authenticate_user!
 
+  # def index
+  #   validate_authorization
+  #   success_response(Events::FeeCode.all)
+  # end
+
   def index
     validate_authorization
-    success_response(Events::FeeCode.all)
+    @event = Events::Event.find_by_id(params[:event_id])
+    unless @event
+      raise NotFound, errors: ['event not found']
+    end
+    if @event.without_application_payment?
+      raise BadRequest, errors: ['event type does not use codes']
+    end
+    @feeCodes = Events::FeeCode.where(event_id: @event.id)
+    success_response( @feeCodes)
   end
 
 
@@ -21,18 +34,18 @@ class Events::FeeCodesController < ApplicationController
   # end
 
   #More like all codes for event
-  def all_codes_for_event
-    validate_authorization
-    @event = Events::Event.find_by_id(params[:event_id])
-    unless @event
-      raise NotFound, errors: ['event not found']
-    end
-    if @event.without_application_payment?
-      raise BadRequest, errors: ['event type does not use codes']
-    end
-    @feeCodes = Events::FeeCode.where(event_id: @event.id)
-    success_response( @feeCodes)
-  end
+  # def all_codes_for_event
+  #   validate_authorization
+  #   @event = Events::Event.find_by_id(params[:event_id])
+  #   unless @event
+  #     raise NotFound, errors: ['event not found']
+  #   end
+  #   if @event.without_application_payment?
+  #     raise BadRequest, errors: ['event type does not use codes']
+  #   end
+  #   @feeCodes = Events::FeeCode.where(event_id: @event.id)
+  #   success_response( @feeCodes)
+  # end
 
   #Validates code
   def validate_code

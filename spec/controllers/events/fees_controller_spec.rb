@@ -15,14 +15,14 @@ RSpec.describe Events::FeesController, type: :controller do
 
 
 
-  describe 'GET /events/fees' do
+  describe 'GET /events/event_id/fees' do
 
-    it "should return 403 if event_id isn't specified" do
-    	auth_headers = @completed_profile_user.create_new_auth_token
-      request.headers.merge!(auth_headers)
-      get :index, format: :json
-      expect(response.code).to eq "403"
-    end
+    # it "should return 403 if event_id isn't specified" do
+    # 	auth_headers = @completed_profile_user.create_new_auth_token
+    #   request.headers.merge!(auth_headers)
+    #   get :index, event_id: format: :json
+    #   expect(response.code).to eq "403"
+    # end
 
     it "should return 403 if user without super_user grants want to access all fees" do
       auth_headers = @completed_profile_user.create_new_auth_token
@@ -59,7 +59,7 @@ RSpec.describe Events::FeesController, type: :controller do
   end
 
 
-  describe 'POST /events/fees' do
+  describe 'POST /events/event_id/fees' do
 
     it "should return 403 if user without super user permissions want to create a fee" do
     	auth_headers = @completed_profile_user.create_new_auth_token
@@ -68,6 +68,7 @@ RSpec.describe Events::FeesController, type: :controller do
       attrs[:event_id] = @event_with_fees.id
       newFee = Hash.new
       newFee[:fee] = attrs
+      newFee[:event_id] = @event_with_fees.id
       post :create, newFee, format: :json
       expect(response.code).to eq "403"
     end
@@ -78,6 +79,7 @@ RSpec.describe Events::FeesController, type: :controller do
       attrs = FactoryGirl.attributes_for(:fee)
       newFee = Hash.new
       newFee[:fee] = attrs
+      newFee[:event_id] = @event_with_fees.id
       post :create, newFee, format: :json
       expect(response.code).to eq "400"
     end
@@ -89,6 +91,7 @@ RSpec.describe Events::FeesController, type: :controller do
       attrs[:event_id] = @event_with_fees.id
       newFee = Hash.new
       newFee[:fee] = attrs
+      newFee[:event_id] = @event_with_fees.id
       post :create, newFee, format: :json
       expect(response.code).to eq "200"
       expect(json["data"]["name"]).to eq attrs[:name]
@@ -103,31 +106,32 @@ RSpec.describe Events::FeesController, type: :controller do
       attrs[:event_id] = @event_without_payment.id
       newFee = Hash.new
       newFee[:fee] = attrs
+      newFee[:event_id] = @event_without_payment.id
       post :create, newFee, format: :json
       expect(response.code).to eq "400"
     end
   end
 
-  describe 'GET /events/fees/:id' do
+  describe 'GET /events/event_id/fees/:id' do
 
     it "should return 403 if user without super user permissions want to access a fee" do
     	auth_headers = @completed_profile_user.create_new_auth_token
       request.headers.merge!(auth_headers)
-      get :show, id: @fee.id, format: :json
+      get :show, event_id: @fee.event.id, id: @fee.id, format: :json
       expect(response.code).to eq "403"
     end
 
     it "should return 404 if super user want to access a nonexistent fee" do
     	auth_headers = @super_user.create_new_auth_token
       request.headers.merge!(auth_headers)
-      get :show, id: 555, format: :json
+      get :show, event_id: @fee.event.id, id: 555, format: :json
       expect(response.code).to eq "404"
     end
 
     it "should return 200 with fee data if super user want to access a fee" do
     	auth_headers = @super_user.create_new_auth_token
       request.headers.merge!(auth_headers)
-      get :show, id: @fee.id, format: :json
+      get :show, event_id: @fee.event.id, id: @fee.id, format: :json
       expect(response.code).to eq "200"
       expect(json["data"]["id"]).to eq @fee.id      
       expect(json["data"]["name"]).to eq @fee.name
@@ -137,7 +141,7 @@ RSpec.describe Events::FeesController, type: :controller do
   end
 
 
-  describe 'PUT /events/fees/:id' do
+  describe 'PUT /events/event_id/fees/:id' do
     let(:changedAttrCorrect) do
       { :price => 5}
     end
@@ -149,28 +153,28 @@ RSpec.describe Events::FeesController, type: :controller do
     it "should return 403 if user without super user permissions want to update a fee" do
     	auth_headers = @completed_profile_user.create_new_auth_token
       request.headers.merge!(auth_headers)
-      put :update, id: @fee.id, :fee => changedAttrCorrect, format: :json
+      put :update, event_id: @fee.event.id, id: @fee.id, :fee => changedAttrCorrect, format: :json
       expect(response.code).to eq "403"
     end
 
     it "should return 404 if super user want to update a nonexistent fee" do
     	auth_headers = @super_user.create_new_auth_token
       request.headers.merge!(auth_headers)
-      put :update, id: 99999, :fee => changedAttrCorrect, format: :json
+      put :update, event_id: @fee.event.id, id: 99999, :fee => changedAttrCorrect, format: :json
       expect(response.code).to eq "404"
     end
 
     it "should return 500 if super user want to update a fee with bad params" do
     	auth_headers = @super_user.create_new_auth_token
       request.headers.merge!(auth_headers)
-      put :update, id: @fee.id, :fee => changedAttrBad, format: :json
+      put :update, event_id: @fee.event.id, id: @fee.id, :fee => changedAttrBad, format: :json
       expect(response.code).to eq "500"
     end
 
     it "should return 200 with fee data if super user want to update a fee" do
     	auth_headers = @super_user.create_new_auth_token
       request.headers.merge!(auth_headers)
-      put :update, id: @fee.id, :fee => changedAttrCorrect, format: :json
+      put :update, event_id: @fee.event.id, id: @fee.id, :fee => changedAttrCorrect, format: :json
       expect(response.code).to eq "200"
       expect(json["data"]["id"]).to eq @fee.id      
       expect(json["data"]["name"]).to eq @fee.name
@@ -184,21 +188,21 @@ RSpec.describe Events::FeesController, type: :controller do
     it "should return 403 if user without super user permissions want to delete a fee" do
     	auth_headers = @completed_profile_user.create_new_auth_token
       request.headers.merge!(auth_headers)
-      delete :destroy, id: @fee.id, format: :json
+      delete :destroy, event_id: @fee.event.id, id: @fee.id, format: :json
       expect(response.code).to eq "403"    	
     end
 
     it "should return 404 if super user want to delete a nonexistent fee" do
     	auth_headers = @super_user.create_new_auth_token
       request.headers.merge!(auth_headers)
-      delete :destroy, id: 555555, format: :json
+      delete :destroy, event_id: @fee.event.id, id: 555555, format: :json
       expect(response.code).to eq "404"
     end
 
     it "should return 200 with fee data if super user want to delete a fee" do
     	auth_headers = @super_user.create_new_auth_token
       request.headers.merge!(auth_headers)
-      delete :destroy, id: @fee.id, format: :json
+      delete :destroy, event_id: @fee.event.id, id: @fee.id, format: :json
       expect(response.code).to eq "200"
       expect(json["data"]["id"]).to eq @fee.id      
       expect(json["data"]["name"]).to eq @fee.name
