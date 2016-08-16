@@ -3,7 +3,7 @@
 #Not to confuse with the generic ApplicationController in a sense of 
 #apps or program or application.
 
-class Events::ApplicationController < ApplicationController
+class Events::ApplicationsController < ApplicationController
 
   before_action :authenticate_user!
 
@@ -14,29 +14,27 @@ class Events::ApplicationController < ApplicationController
     unless @current_user.is_super_user
       raise Forbidden
     end
-
-    applications = Events:Application.where(:event_id => @event.id)
+    applications = Events::Application.where(event_id: @event.id)
     success_response(applications)
   end
 
   #User applies for an event with this
   def create
-
     validate_request
     @current_user = current_user
-    @application = Events::Application.where(:event_id => @event.id, :user_id => @current_user.id)
-
-    if @application
+    applications = Events::Application.where(event_id: @event.id, user_id: @current_user.id)
+    if applications.length > 0
       raise BadRequest, errors: ['user already applied']
     end
-
-    @application = Events::Application.new(application_params)
+    newApplication = application_params
+    newApplication['event_id'] = @event.id
+    newApplication['user_id'] = @current_user.id    
+    @application = Events::Application.new(newApplication)
     if @application.save
       success_response(@application)
     else
       raise InternalServerError, record: @application
     end
-
   end
 
   private
@@ -45,20 +43,20 @@ class Events::ApplicationController < ApplicationController
       unless params[:event_id]
         raise BadRequest, errors: ['event_id is required']
       end
-
       @event = Events::Event.find_by_id( params[:event_id])
-
       unless @event
         raise NotFound, errors: ['event not found']
       end
-
-      unless @event.with_application? or @event.with_payment_application
+      unless @event.with_application? or @event.with_payment_application?
         raise BadRequest, errors: ['event type is without application']
+      end
+      unless @event.published?
+        raise BadRequest, errors: ['event is not published']
       end
     end
 
     def application_params
-    params.require(:participation).permit(:user_id, :fee_id, :motivation, :cv_file)
+    params.require(:application).permit(:motivation, :cv_file)
   end
 
 end
