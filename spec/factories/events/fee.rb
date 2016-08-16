@@ -8,6 +8,7 @@ FactoryGirl.define do
     association :event, :factory => [:event, :with_payment], strategy: :build
     
     trait :fee_codes do
+      not_public
       after(:create) do |fee, evaluator|
         create_list(:fee_code, 3, fee: fee, event: fee.event)
       end      

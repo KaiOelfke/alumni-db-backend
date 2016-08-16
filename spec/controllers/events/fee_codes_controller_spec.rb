@@ -10,6 +10,10 @@ RSpec.describe Events::FeeCodesController, type: :controller do
     @fee_with_fee_codes = FactoryGirl.create(:fee, :fee_codes)
     @fee_code = FactoryGirl.create(:fee_code)
     @event_without_application_payment = FactoryGirl.create(:event)
+    @buggy_fee_code = FactoryGirl.create(:fee_code, :with_payment_and_no_fee)
+    @used_code = FactoryGirl.create(:fee_code, :used)
+    @fee_code_event_payment = FactoryGirl.create(:fee_code, :with_payment)
+    @public_fee = FactoryGirl.create(:fee)
   end
 
 
@@ -25,7 +29,6 @@ RSpec.describe Events::FeeCodesController, type: :controller do
       expect(response.code).to eq "403"
     end
 
-
     it "should return 200 with all fees if super user want to access all fee_codes" do
       auth_headers = @super_user.create_new_auth_token
       request.headers.merge!(auth_headers)
@@ -34,63 +37,86 @@ RSpec.describe Events::FeeCodesController, type: :controller do
     end
   end
 
-  # describe 'GET /events/:event_id/validate_code' do
-  #   it 'should succeed with just boolean, if event is with_application' do
-      
-  #   end
+  describe 'GET /events/:event_id/validate_code' do
+    it 'should succeed with just boolean, if event is with_application' do
+      auth_headers = @completed_profile_user.create_new_auth_token
+      request.headers.merge!(auth_headers)
+      get :validate_code, event_id: @fee_code.event.id, code: @fee_code.code, format: :json
+      expect(response.code).to eq "200"
+      expect(json["data"]["valid"]).to be_truthy
+    end
 
-  #   it 'should succeed with boolean and fee, if event is with_payment' do
-      
-  #   end
+    it 'should succeed with boolean and fee, if event is with_payment' do
+      auth_headers = @completed_profile_user.create_new_auth_token
+      request.headers.merge!(auth_headers)
+      get :validate_code, event_id: @fee_code_event_payment.event.id, code: @fee_code_event_payment.code, format: :json
+      expect(response.code).to eq "200"
+      expect(json["data"]["valid"]).to be_truthy
+      expect(json["data"]["fee"]["id"]).to eq @fee_code_event_payment.fee.id
+      expect(json["data"]["fee"]["public_fee"]).to be false
+    end
 
-  #   it 'should return 404 with correct error message, if code is used' do
-      
-  #   end
+    it 'should return 404 with correct error message, if code is used' do
+      auth_headers = @completed_profile_user.create_new_auth_token
+      request.headers.merge!(auth_headers)
+      get :validate_code, event_id: @used_code.event.id, code: @used_code.code, format: :json
+      expect(response.code).to eq "404"
+      expect(json["errors"][0]).to eq "code is already used"
+    end
 
-  #   it 'should return 404 with event, if event not found' do
-  #     auth_headers = @completed_profile_user.create_new_auth_token
-  #     request.headers.merge!(auth_headers)
-  #     get :validate_code, event_id: 1337, code: , format: :json
-  #     expect(response.code).to eq "404"
-  #     puts json['data']
-  #   end
+    it 'should return 404 with event, if event not found' do
+      auth_headers = @completed_profile_user.create_new_auth_token
+      request.headers.merge!(auth_headers)
+      get :validate_code, event_id: 1337, code: @fee_code.code, format: :json
+      expect(response.code).to eq "404"
+      expect(json["errors"][0]).to eq "event not found"
+    end
 
-  #   it 'should return 404 with code, if code not found' do
-  #     auth_headers = @completed_profile_user.create_new_auth_token
-  #     request.headers.merge!(auth_headers)
-  #     get :all_codes_for_event, event_id: @fee_with_fee_codes.event.id, format: :json
-  #     expect(response.code).to eq "403"
-  #   end
+    it 'should return 404 with code, if code not found' do
+      auth_headers = @completed_profile_user.create_new_auth_token
+      request.headers.merge!(auth_headers)
+      get :validate_code, event_id: @event_with_fees.id, code: 'abcd13371337', format: :json
+      expect(response.code).to eq "404"
+      expect(json["errors"][0]).to eq "code not found"
+    end
 
-  #   it 'should return 400, if event is without application payment' do
-  #     auth_headers = @completed_profile_user.create_new_auth_token
-  #     request.headers.merge!(auth_headers)
-  #     get :all_codes_for_event, event_id: @fee_with_fee_codes.event.id, format: :json
-  #     expect(response.code).to eq "403"
-  #   end
+    it 'should return 400, if event is without application payment' do
+      auth_headers = @completed_profile_user.create_new_auth_token
+      request.headers.merge!(auth_headers)
+      get :validate_code, event_id: @event_without_application_payment.id, code: @fee_code.code, format: :json
+      expect(response.code).to eq "400"
+    end
 
-  #   it 'should return 400, if code param is missing' do
-  #     auth_headers = @completed_profile_user.create_new_auth_token
-  #     request.headers.merge!(auth_headers)
-  #     get :all_codes_for_event, event_id: @fee_with_fee_codes.event.id, format: :json
-  #     expect(response.code).to eq "403"
-  #   end
+    it 'should return 400, if code param is missing' do
+      auth_headers = @completed_profile_user.create_new_auth_token
+      request.headers.merge!(auth_headers)
+      get :validate_code, event_id: @event_with_fees.id, format: :json
+      expect(response.code).to eq "400"
+    end
 
-  #   it 'should return 400, if event_id param is missing' do
-  #     auth_headers = @completed_profile_user.create_new_auth_token
-  #     request.headers.merge!(auth_headers)
-  #     get :all_codes_for_event, event_id: @fee_with_fee_codes.event.id, format: :json
-  #     expect(response.code).to eq "403"
-  #   end
+    # not working, because url generation fails
+    # it 'should return 400, if event_id param is missing' do
+    #   auth_headers = @completed_profile_user.create_new_auth_token
+    #   request.headers.merge!(auth_headers)
+    #   get :validate_code, event_id: nil, code: @fee_code.code, format: :json
+    #   expect(response.code).to eq "400"
+    # end
 
-  #   it 'should return 500, if special fee is missing for event with payment' do
-  #     auth_headers = @completed_profile_user.create_new_auth_token
-  #     request.headers.merge!(auth_headers)
-  #     get :all_codes_for_event, event_id: @fee_with_fee_codes.event.id, format: :json
-  #     expect(response.code).to eq "403"
-  #   end
+    it 'should return 400, if event of code and event id is not matching' do
+      auth_headers = @completed_profile_user.create_new_auth_token
+      request.headers.merge!(auth_headers)
+      get :validate_code, event_id: @event_with_fees.id, code: @fee_code.code, format: :json
+      expect(response.code).to eq "400"
+    end
 
-  # end
+    it 'should return 500, if special fee is missing for event with payment' do
+      auth_headers = @completed_profile_user.create_new_auth_token
+      request.headers.merge!(auth_headers)
+      get :validate_code, event_id: @buggy_fee_code.event.id, code: @buggy_fee_code.code, format: :json
+      expect(response.code).to eq "500"
+    end
+
+  end
 
   describe 'GET /events/:event_id/fee_codes' do
 
@@ -119,7 +145,7 @@ RSpec.describe Events::FeeCodesController, type: :controller do
       auth_headers = @super_user.create_new_auth_token
       request.headers.merge!(auth_headers)
       get :all_codes_for_event, event_id: @fee_with_fee_codes.event.id ,format: :json
-      feeCodes = Events::FeeCode.joins(:fee).where(:fees => {:event_id => @fee_with_fee_codes.event.id})
+      feeCodes = Events::FeeCode.where(event_id: @fee_with_fee_codes.event.id)
       #puts json['data']
       expect(response.code).to eq "200"
       expect(json['data'].length).to eq(3)
@@ -183,7 +209,7 @@ RSpec.describe Events::FeeCodesController, type: :controller do
       expect(response.code).to eq "403"
     end
 
-    it "should return 400 if super user want to a create a fee with wrong params" do
+    it "should return 400 if super user want to a create a code with wrong params" do
     	auth_headers = @super_user.create_new_auth_token
       request.headers.merge!(auth_headers)
       attrs = FactoryGirl.attributes_for(:fee_code)
@@ -195,14 +221,38 @@ RSpec.describe Events::FeeCodesController, type: :controller do
       expect(response.code).to eq "400"
     end
 
+    it "should return 400 if super user wants to create a code with for event with payment without fee" do
+      auth_headers = @super_user.create_new_auth_token
+      request.headers.merge!(auth_headers)
+      attrs = FactoryGirl.attributes_for(:fee_code)
+      attrs[:user_id] = @completed_profile_user.id
+      attrs[:event_id] = @event_with_fees.id
+      newFeeCode = Hash.new
+      newFeeCode[:fee_code] = attrs
+      post :create, newFeeCode, format: :json
+      expect(response.code).to eq "400"
+    end
+
+    it "should return 400, if super user wants to create a code with a public fee" do
+      auth_headers = @super_user.create_new_auth_token
+      request.headers.merge!(auth_headers)
+      attrs = FactoryGirl.attributes_for(:fee_code)
+      attrs[:user_id] = @completed_profile_user.id
+      attrs[:event_id] = @event_with_fees.id
+      attrs[:fee_id] = @public_fee.id
+      newFeeCode = Hash.new
+      newFeeCode[:fee_code] = attrs
+      post :create, newFeeCode, format: :json
+      expect(response.code).to eq "400"
+    end
 
     it "should return 200 with fee_code data if super user want to create a fee code" do
     	auth_headers = @super_user.create_new_auth_token
       request.headers.merge!(auth_headers)
       attrs = FactoryGirl.attributes_for(:fee_code)
       attrs[:user_id] = @completed_profile_user.id
-      attrs[:fee_id] = @event_with_fees.fees.take.id
-      attrs[:event_id] = @event_with_fees.id
+      attrs[:fee_id] = @fee_code_event_payment.fee.id
+      attrs[:event_id] = @fee_code_event_payment.event.id
       newFeeCode = Hash.new
       newFeeCode[:fee_code] = attrs
       post :create, newFeeCode, format: :json

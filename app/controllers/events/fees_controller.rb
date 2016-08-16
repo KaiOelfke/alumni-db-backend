@@ -18,7 +18,7 @@ class Events::FeesController < ApplicationController
     if @fee
       success_response (@fee)
     else
-      raise NotFound, record: @fee       
+      raise NotFound, errors: ['fee not found']       
     end
   end
 
@@ -32,7 +32,7 @@ class Events::FeesController < ApplicationController
         raise InternalServerError, errors: @fee.errors
       end
     else
-      raise NotFound, record: @fee
+      raise NotFound, errors: ['fee not found']
     end
   end
 
@@ -65,7 +65,7 @@ class Events::FeesController < ApplicationController
           raise InternalServerError, errors: @fee.errors
         end
     else
-      raise NotFound, record: @fee
+      raise NotFound, errors: ['fee not found']
     end
   end
 
@@ -79,7 +79,7 @@ class Events::FeesController < ApplicationController
 
     def validate_event
       unless @event
-        raise NotFound, record: @event
+        raise NotFound, errors: ['event not found']
       end
       if @event.without_application_payment? or @event.with_application?
         raise BadRequest, errors: ['event is without payment']

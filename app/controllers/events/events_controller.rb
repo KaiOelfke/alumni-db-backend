@@ -33,7 +33,7 @@ class Events::EventsController < ApplicationController
         raise Forbidden
       end
     else
-      raise NotFound, record: @event
+      raise NotFound, errors: ['event not found']
     end
   end
 

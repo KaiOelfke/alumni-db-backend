@@ -49,7 +49,7 @@ class Events::ApplicationController < ApplicationController
       @event = Events::Event.find_by_id( params[:event_id])
 
       unless @event
-        raise NotFound, record: @event
+        raise NotFound, errors: ['event not found']
       end
 
       unless @event.with_application? or @event.with_payment_application

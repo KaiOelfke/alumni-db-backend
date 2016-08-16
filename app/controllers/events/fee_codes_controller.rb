@@ -25,12 +25,12 @@ class Events::FeeCodesController < ApplicationController
     validate_authorization
     @event = Events::Event.find_by_id(params[:event_id])
     unless @event
-      raise NotFound, record: @event
+      raise NotFound, errors: ['event not found']
     end
     if @event.without_application_payment?
       raise BadRequest, errors: ['event type does not use codes']
     end
-    @feeCodes = Events::FeeCode.joins(:fee).where(:fees => {:event_id => @event.id})
+    @feeCodes = Events::FeeCode.where(event_id: @event.id)
     success_response( @feeCodes)
   end
 
@@ -44,29 +44,32 @@ class Events::FeeCodesController < ApplicationController
     end
     @event = Events::Event.find_by_id(params[:event_id])
     unless @event
-      raise NotFound, record: @event
+      raise NotFound, errors: ['event not found']
     end
     if @event.without_application_payment?
        raise BadRequest, errors: ['event type does not support codes']
     end
     @code = Events::FeeCode.where( code: params[:code]).take
     unless @code
-      raise NotFound, record: @code
+      raise NotFound, errors: ['code not found']
+    end
+    if @code.event.id != @event.id
+      raise BadRequest, errors: ['code not for this event']
     end
     if @code.used_flag
       raise NotFound, errors: ["code is already used"]
     end
-    if @event.with_application
+    if @event.with_application?
       success_response({ valid: true })
     end
     if @code.fee
       success_response ({valid: true,
-                        fee: @fee})
+                        fee: @code.fee})
     else
-      if @event.with_payment
+      if @event.with_payment?
         raise InternalServerError, errors: ['special fee is missing']
       end
-      if @event.with_payment_application
+      if @event.with_payment_application?
         success_response ({valid: true})
       end
     end
@@ -95,7 +98,7 @@ class Events::FeeCodesController < ApplicationController
     end
     @event = Events::Event.find_by_id(event_id)
     unless @event
-      raise NotFound, record: @event
+      raise NotFound, errors: ['event not found']
     end
     if @event.without_application_payment?
       raise BadRequest, errors: ['event type does not use codes']
@@ -107,7 +110,12 @@ class Events::FeeCodesController < ApplicationController
     if @fee and event_id.to_s != @fee.event_id.to_s
       raise BadRequest, errors: ['id of event of fee does not match event_id']
     end
-
+    if @fee and @fee.public_fee
+      raise BadRequest, errors: ['fee is a public fee, but should be a special fee']
+    end
+    if !@fee and @event.with_payment?
+      raise BadRequest, errors: ['event with payment requires fee']
+    end
     @feeCode = Events::FeeCode.new(create_feecode_params)
     if @feeCode.save
       success_response( @feeCode)

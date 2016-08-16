@@ -3,6 +3,7 @@ class Events::Application < ActiveRecord::Base
   belongs_to :user
   
   validate :check_event
+  validates_uniqueness_of :user, :scope => [:event]
 
   private
 

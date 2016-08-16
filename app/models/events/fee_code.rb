@@ -40,7 +40,7 @@ class Events::FeeCode < ActiveRecord::Base
   #A validated code should always reference the user that used this code
   def valid_user
     if self.used_flag
-      self.user?
+      !!self.user
     end
   end
 
