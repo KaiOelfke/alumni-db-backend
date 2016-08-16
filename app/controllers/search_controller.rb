@@ -17,15 +17,13 @@ class SearchController < ApplicationController
 
     if params[:text]
       @users = User.search(params[:text]).paginate(:page => params[:page])
+      @count = @users.total_entries
       @resp = @users.map { |user| 
           user.as_json(:except => [:subscription_id, :created_at, :updated_at,
           :customer_id, :tsv])
       }
-
-      render :json =>{
-        status: 'success',
-        data: @resp
-      }, status: 200
+      success_response({total_count: @count,
+                        users: @resp})
       
     else
       render json: {
