@@ -14,7 +14,7 @@ class Events::Fee < ActiveRecord::Base
 
   private
   def check_event
-    event.with_payment? or event.with_payment_application?
+    errors.add(:event, 'event type does not require fee') unless event.with_payment? or event.with_payment_application?
   end
 
   def check_deadline

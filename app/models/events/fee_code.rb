@@ -17,14 +17,13 @@ class Events::FeeCode < ActiveRecord::Base
   #Depending on the event type, there has to be a fee, no fee, or a fee is optional.
   #If there is a fee it needs to have certain attributes.
   def valid_fee_and_event
-    if self.event.without_application_payment?
-      return false
-    elsif self.event.with_payment?
-      return (fee? and valid_fee)
-    elsif self.event.with_payment_application?
-      return (!fee? or valid_fee)
-    elsif self.event.with_application?
-      return !fee?
+    errors.add(:event, 'event type does not require code') if self.event.without_application_payment?
+    errors.add(:fee, 'fee not required for event with application') if self.event.with_application? and fee?
+    if self.event.with_payment?
+      errors.add(:fee, 'valid fee required for event with payment') unless fee? and valid_fee
+    end
+    if self.event.with_payment_application?
+      errors.add(:fee, 'fee is not valid') if fee? and not valid_fee
     end
   end
 
@@ -39,9 +38,7 @@ class Events::FeeCode < ActiveRecord::Base
 
   #A validated code should always reference the user that used this code
   def valid_user
-    if self.used_flag
-      !!self.user
-    end
+    errors.add(:used_flag, 'user must be set, when code is used') if self.used_flag and !self.user
   end
 
   def generate_token

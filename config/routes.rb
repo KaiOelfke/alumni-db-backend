@@ -40,7 +40,7 @@ Rails.application.routes.draw do
   scope module: 'events' do
 
     resources :events, only: [:index, :show, :update, :create, :destroy]  do
-      resources :participations, only: [:index, :show, :update, :create, :destroy]
+      resources :participations, only: [:index, :show, :create]
       resources :applications, only: [:index, :create]
       resources :fees, only: [:index, :show, :update, :create, :destroy]
       resources :fee_codes, only: [:index, :show, :create, :destroy]

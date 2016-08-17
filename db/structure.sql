@@ -227,19 +227,17 @@ CREATE TABLE participations (
     fee_id integer,
     user_id integer,
     event_id integer,
+    fee_code_id integer,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     braintree_transaction_id character varying,
-    status integer DEFAULT 0,
     delete_flag boolean DEFAULT false,
-    arrival timestamp without time zone,
-    departure timestamp without time zone,
+    arrival text,
+    departure text,
     diet integer,
     allergies text,
     extra_nights text,
-    other text,
-    motivation text,
-    cv_file character varying
+    other text
 );
 
 
@@ -616,6 +614,13 @@ CREATE INDEX index_participations_on_event_id ON participations USING btree (eve
 
 
 --
+-- Name: index_participations_on_fee_code_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_participations_on_fee_code_id ON participations USING btree (fee_code_id);
+
+
+--
 -- Name: index_participations_on_fee_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -757,6 +762,14 @@ ALTER TABLE ONLY participations
 
 
 --
+-- Name: fk_rails_bfc1bcb62a; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY participations
+    ADD CONSTRAINT fk_rails_bfc1bcb62a FOREIGN KEY (fee_code_id) REFERENCES fee_codes(id) ON DELETE CASCADE;
+
+
+--
 -- Name: fk_rails_c7b6d58135; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -816,9 +829,9 @@ INSERT INTO schema_migrations (version) VALUES ('20160321141649');
 
 INSERT INTO schema_migrations (version) VALUES ('20160321143809');
 
-INSERT INTO schema_migrations (version) VALUES ('20160327174220');
-
 INSERT INTO schema_migrations (version) VALUES ('20160508031133');
 
 INSERT INTO schema_migrations (version) VALUES ('20160813133731');
+
+INSERT INTO schema_migrations (version) VALUES ('20160817114031');
 

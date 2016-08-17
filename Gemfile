@@ -45,3 +45,7 @@ group :test, :development do
   gem 'factory_girl_rails', '~> 4.5'
   gem "accept_values_for"
 end
+
+group :test do
+  gem 'simplecov', :require => false
+end

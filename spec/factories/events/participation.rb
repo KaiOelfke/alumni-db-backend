@@ -1,54 +1,61 @@
 FactoryGirl.define do
   factory :participation, :class => Events::Participation do
-
-    #:new, :in_review, :approved, :paid
-
-
+    association :user, factory: :user, strategy: :build
     trait :form do
-      arrival Date.today + 1.month
-      departure Date.today + 2.month
+      arrival "TXL 10.10.10"
+      departure "TXL 20.10.10"
       allergies "no allergies"
       extra_nights "no extra nights"    
       other "nothing else to say"
       diet "no diet"
     end
-
-    trait :appliaction do
-      motivation "yee iam motivated"
-      cv_file { Rack::Test::UploadedFile.new(File.join(Rails.root,'/spec','/support','/participations','/cv.pdf')) }
-    end
-
-    trait :submitted do 
-      status "submitted"
-    end
-
-    trait :in_review do 
-      status "in_review"
-    end
-
-    trait :approved do
-      status "approved"
-    end
-
+    
     trait :paid do
-      status "paid"
       braintree_transaction_id 123
     end
+    
+    trait :without_application_payment do
+      association :event, factory: :event, strategy: :build
+    end
 
+    trait :with_payment do
+      association :event, :factory => [:event, :with_payment], strategy: :build
+      after(:build) do |participation|
+        participation.fee = create(:fee, event: participation.event)
+        participation.save
+      end
+      paid
+    end
 
     trait :with_application do
-      association :event, factory: [:event, :with_application], strategy: :build
-
+      association :event, :factory => [:event, :with_application], strategy: :build
+      after(:build) do |participation|
+        participation.fee_code = create(:fee_code, event: participation.event)
+        participation.save
+      end
     end
 
-    trait :without_application do 
-
-      association :event, factory: [:event, :without_application], strategy: :build
-
+    trait :with_payment_application do
+      association :fee, factory: :fee, strategy: :build
+      association :event, :factory => [:event, :with_payment_application], strategy: :build
+      after(:build) do |participation|
+        fee = participation.fee
+        fee.event_id = participation.event
+        fee.public_fee = false
+        fee.save
+        participation.fee_code = create(:fee_code, event: participation.event, fee: fee)
+        participation.save
+      end
+      paid
     end
 
-    association :fee, factory: :fee, strategy: :build
-    association :user, factory: :user, strategy: :build
+    # trait :with_special_fee do
+    #   association :fee, factory: [:fee, :fee_codes], strategy: :build
+    #   association :event, :factory => [:event, :with_payment], strategy: :build
+    #   after(:create) do |participation, evaluator|
+    #     create_list(:fee_code, 3, fee: fee, event: fee.event)
+    #   end
+    # end
 
   end
 end

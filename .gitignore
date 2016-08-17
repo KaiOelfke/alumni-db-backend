@@ -38,3 +38,5 @@ bower.json
 
 .env
 public/*/*
+
+coverage
