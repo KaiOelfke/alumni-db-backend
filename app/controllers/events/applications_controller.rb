@@ -7,6 +7,18 @@ class Events::ApplicationsController < ApplicationController
 
   before_action :authenticate_user!
 
+  def get_user_application
+    validate_request
+    @current_user = current_user
+    application = Events::Application
+                      .where(user_id: @current_user.id, event_id: @event.id).take
+    if application
+      success_response(application)
+    else 
+      raise NotFound, errors: ['application not found']
+    end
+  end
+
   #For super user / event admins
   def index
     validate_request
@@ -16,6 +28,21 @@ class Events::ApplicationsController < ApplicationController
     end
     applications = Events::Application.where(event_id: @event.id)
     success_response(applications)
+  end
+
+  def show
+    @current_user = current_user
+    unless @current_user.is_super_user
+      raise Forbidden
+    end
+    unless params[:id]
+      raise BadRequest, errors: ['id is required']
+    end
+    unless params[:event_id]
+      raise BadRequest, errors: ['event_id is required']
+    end 
+    application = Events::Application.find_by_id( params[:id])
+    success_response(application)
   end
 
   #User applies for an event with this

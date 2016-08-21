@@ -1,6 +1,27 @@
 class Events::ParticipationsController < ApplicationController
   before_action :authenticate_user!
 
+  # to know if the user participated or not
+  # params: event_id, user_id
+  def get_user_participation
+    @current_user = current_user
+    unless params[:event_id]
+      raise BadRequest, errors: ['event_id is required']
+    end
+    unless params[:user_id]
+      raise BadRequest, errors: ['user_id is required']
+    end    
+
+    @participation = Events::Participation.where(  
+                          event_id: params[:event_id],
+                          user_id: params[:user_id]).take
+    if @participation
+      success_response( @participation)
+    else
+      raise NotFound
+    end
+  end
+
   # TODO implement paging
   def index
     @current_user = current_user
@@ -69,10 +90,22 @@ class Events::ParticipationsController < ApplicationController
     unless params[:participation]
       raise BadRequest, errors: ['participation is required']
     end
+    if not @current_user.is_super_user and params[:participation][:user_id] and @current_user.id != params[:participation][:user_id] 
+      raise Forbidden, errors: ['not allowed']
+    end
+    currentParticipation = Events::Participation.where(  
+                          event_id: params[:event_id],
+                          user_id: params[:participation][:user_id]).take
+    unless params[:participation][:user_id]
+      raise BadRequest, errors: ['user_id is required'] 
+    end
+    if currentParticipation
+      raise BadRequest, errors: ['user have already participated']
+    end
 
     if @event.without_application_payment? 
       newParticipation = create_participation_params
-      newParticipation[:user_id] = newParticipation[:user_id] || @current_user.id
+      newParticipation[:user_id] = newParticipation[:user_id]
       @participation = @event.participations.new(create_participation_params)
       if @participation.save
         success_response(@participation)
@@ -87,7 +120,7 @@ class Events::ParticipationsController < ApplicationController
       validate_code
       newParticipation = create_participation_params
       newParticipation["fee_code_id"] = @code.id
-      newParticipation[:user_id] = newParticipation[:user_id] || @current_user.id
+      newParticipation[:user_id] = newParticipation[:user_id]
       @participation = @event.participations.new(create_participation_params)
       if @participation.save
         success_response(@participation)
@@ -292,7 +325,7 @@ class Events::ParticipationsController < ApplicationController
     end
     # Validate model before payment
     testParams = create_participation_params
-    testParams[:user_id] = testParams[:user_id] || @current_user.id
+    testParams[:user_id] = testParams[:user_id]
     testParams[:event_id] = testParams[:event_id] || @event.id
     testParams[:fee_id] = testParams[:fee_id] || @fee.id
     testParams[:fee_code_id] = testParams[:fee_code_id] || @code.id unless @fee.public_fee
@@ -304,7 +337,7 @@ class Events::ParticipationsController < ApplicationController
     create_customer
     @participationsParams = create_participation_params
     @participationsParams[:braintree_transaction_id] = pay_fees
-    @participationsParams[:user_id] = @participationsParams[:user_id] || @current_user.id
+    @participationsParams[:user_id] = @participationsParams[:user_id]
     @participationsParams[:event_id] = @participationsParams[:event_id] || @event.id
     @participationsParams[:fee_id] = @participationsParams[:fee_id] || @fee.id
     @participationsParams[:fee_code_id] = @participationsParams[:fee_code_id] || @code.id unless @fee.public_fee

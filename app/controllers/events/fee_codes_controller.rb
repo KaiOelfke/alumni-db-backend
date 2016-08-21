@@ -76,17 +76,18 @@ class Events::FeeCodesController < ApplicationController
       raise NotFound, errors: ["code is already used"]
     end
     if @event.with_application?
-      success_response({ valid: true })
+      success_response({ id: @code.id, valid: true })
     end
     if @code.fee
-      success_response ({valid: true,
-                        fee: @code.fee})
+      success_response ({ id: @code.id,
+                        valid: true,
+                        fee: @code.fee })
     else
       if @event.with_payment?
         raise InternalServerError, errors: ['special fee is missing']
       end
       if @event.with_payment_application?
-        success_response ({valid: true})
+        success_response ({ id: @code.id, valid: true })
       end
     end
   end
