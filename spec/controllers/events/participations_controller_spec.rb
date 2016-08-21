@@ -163,6 +163,7 @@ RSpec.describe Events::ParticipationsController, type: :controller do
       attrs = FactoryGirl.attributes_for(:participation, :form)
 
       attrs[:event_id] = @event_with_fees.id
+      attrs[:user_id] = @completed_profile_user.id      
       attrs[:payment_method_nonce] = Braintree::Test::Nonce::Transactable
 
       newParticipation = Hash.new
@@ -178,6 +179,7 @@ RSpec.describe Events::ParticipationsController, type: :controller do
       request.headers.merge!(auth_headers)
       attrs = FactoryGirl.attributes_for(:participation, :form)
       attrs[:event_id] = @event_with_fees.id
+      attrs[:user_id] = @completed_profile_user.id
       attrs[:fee_id] = @event_with_fees.fees.where(:public_fee => false).take.id
       attrs[:payment_method_nonce] = Braintree::Test::Nonce::Transactable
       newParticipation = Hash.new
@@ -194,6 +196,7 @@ RSpec.describe Events::ParticipationsController, type: :controller do
       attrs = FactoryGirl.attributes_for(:participation, :form)
 
       attrs[:event_id] = @event_with_application.id
+      attrs[:user_id] = @completed_profile_user.id      
       attrs[:payment_method_nonce] = Braintree::Test::Nonce::Transactable
       newParticipation = Hash.new
       newParticipation[:participation] = attrs
@@ -208,6 +211,7 @@ RSpec.describe Events::ParticipationsController, type: :controller do
       request.headers.merge!(auth_headers)
       attrs = FactoryGirl.attributes_for(:participation, :form)
       attrs[:event_id] = @event_with_fees.id
+      attrs[:user_id] = @completed_profile_user.id      
       attrs[:fee_id] = @event_with_fees.fees.where(:public_fee => true).take.id
       attrs[:payment_method_nonce] = Braintree::Test::Nonce::ProcessorDeclinedMasterCard
       newParticipation = Hash.new
@@ -225,6 +229,7 @@ RSpec.describe Events::ParticipationsController, type: :controller do
       request.headers.merge!(auth_headers)
       attrs = FactoryGirl.attributes_for(:participation, :form)
       attrs[:event_id] = @event_with_fees.id
+      attrs[:user_id] = @completed_profile_user.id      
       attrs[:fee_id] =  @event_with_fees.fees.where(:public_fee => true).take.id
       attrs[:payment_method_nonce] = Braintree::Test::Nonce::ProcessorFailureJCB
       newParticipation = Hash.new
@@ -243,6 +248,7 @@ RSpec.describe Events::ParticipationsController, type: :controller do
       attrs = FactoryGirl.attributes_for(:participation, :form)
 
       attrs[:event_id] = @event_with_fees.id
+      attrs[:user_id] = @completed_profile_user.id      
       attrs[:fee_id] = @event_with_fees.fees.where(:public_fee => true).take.id
       attrs[:payment_method_nonce] = Braintree::Test::Nonce::Transactable
 

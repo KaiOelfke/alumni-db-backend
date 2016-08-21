@@ -90,7 +90,8 @@ class Events::ParticipationsController < ApplicationController
     unless params[:participation]
       raise BadRequest, errors: ['participation is required']
     end
-    if not @current_user.is_super_user and params[:participation][:user_id] and @current_user.id != params[:participation][:user_id] 
+    if (not @current_user.is_super_user) and params[:participation][:user_id] and
+    @current_user.id.to_s != params[:participation][:user_id] 
       raise Forbidden, errors: ['not allowed']
     end
     currentParticipation = Events::Participation.where(  
